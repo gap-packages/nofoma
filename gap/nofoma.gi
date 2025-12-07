@@ -1000,7 +1000,8 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
                 od; 
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(f),v);
                 p := p * gs[i]^pot;
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2]; #TODO: weiß ich noch nicht wie weit ich spinnen werde? (DOCH ICH KENNE GENAU DAS MINIMALPOLYNOM)
+                #minimal polynomial of w has degree smaller than or equal to n - degree(f)
+                wspan := nfmSpinUntil(w,A,n-Degree(f));
                 toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
                 if not IsMatrix(toAdd) then 
                     toAdd := [toAdd];  # Convert vector to 1-row matrix
@@ -1051,13 +1052,12 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
     v := nfmGenerateRandomVector(F,n);
-    gens := []; #Li_s as in Steel paper will go in here (but i will not use separate U)
+    gens := []; #Li_s as in Steel paper will go in here (but without separate U)
     gs := []; #distinct factors of minimal polynomial 
     dims := [];
     minpolFacs := [];
     minpolMult := [];
     while not rank = n do 
-        #m := UnivariatePolynomial(F, nfmRelMinPols)
         m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
         p := One(PolynomialRing(F));
         for i in [1..Size(gens)] do 
@@ -1075,7 +1075,8 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
                 od; 
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(f),v);
                 p := p * gs[i]^pot;
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2]; #TODO: SPINUNTIL, MINPOL ist bekannt 
+                #minimal polynomial of w has degree smaller than or equal to minpol/f
+                wspan := nfmSpinUntil(w,A,Degree(minpol)-Degree(f));
                 toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
                 if not IsMatrix(toAdd) then 
                     toAdd := [toAdd];  # Convert vector to 1-row matrix
@@ -1209,7 +1210,7 @@ InstallGlobalFunction(FindLinearDependenceNC, function(vecs, A, d) #vecs, A, deg
     rel := rel[1];
     #turn into usable polynomial coeffs
     qis := [];
-    currdim := 1; #ja das muss so #aber kann man auch einfach arithmetisch machen
+    currdim := 1; #kann man auch arithmetisch machen
     for i in [1..Length(vecs)] do 
         Add(qis, ExtractSubVector(rel, [currdim..currdim+d-1]));
         currdim := currdim + d;
@@ -1240,7 +1241,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
         wspun := nfmSpinUntil(w,A,n);
         Append(allspun, wspun);
         Add(ws, w);
-        allspun := EcheloniseMat(allspun); #DOING THIS SHOULD
+        allspun := EcheloniseMat(allspun); 
     od;
     minpolpowers := ZeroVector(F,NrRows(ws));
     for i in [1..NrRows(ws)] do 
@@ -1306,7 +1307,7 @@ InstallGlobalFunction(JordanBlock, function(A, p, m) #For JordanNormalform
         #b := spun[r];
         for i in [1..m-1] do 
             b := nfmPolyEvalFromSpan(ExtractSubMatrix(spun,[r..n],[1..n]),p^i);
-            basis[d*i+r]:=b; #Das steht falschrum im skript aber kann ich sicherlich eleganter lösen
+            basis[d*i+r]:=b; #Solve more elegantly
         od;
     od;
     return basis;
@@ -1368,7 +1369,7 @@ InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jord
         pol := facOcc[i][1]; 
         d := Degree(pol); #d as in...
         subA := ExtractSubMatrix(A,[crhr..crhr+hauptraumdims[i]-1],[crhr..crhr+hauptraumdims[i]-1]);
-        cy := CyclicDecompositionOfPrimarySubspace(subA, facOcc[i][1], facOcc[i][2]); #zerlege haupträume in zyklische unterräume
+        cy := CyclicDecompositionOfPrimarySubspace(subA, facOcc[i][1], facOcc[i][2]); #decompose primary spaces into cyclic ones
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled 
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
