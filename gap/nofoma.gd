@@ -74,8 +74,7 @@
 #! @Section The main functions
 
 DeclareInfoClass("Infonofoma"); 
-##  Since 'Info' does unwanted formatting, we use (from EDIM package):
-DeclareGlobalFunction("IInofoma");
+
 DeclareGlobalFunction("nfmCoeffsPol"); 
 DeclareGlobalFunction("nfmPolCoeffs");
 DeclareGlobalFunction("nfmGcd");
@@ -428,11 +427,85 @@ DeclareGlobalFunction("CheckJordanChev");
 
 DeclareGlobalFunction("nfmmat1");
 
+DeclareGlobalFunction("nfmConvertVecToRowMat");
+DeclareGlobalFunction("nfmGenerateRandomVector");
+DeclareGlobalFunction("nfmSpinUntil");
+DeclareGlobalFunction("nfmFindVectorNotInSubspaceNC");
+DeclareGlobalFunction("nfmFindCyclicVectorNC");
+DeclareGlobalFunction("nfmRemoveZeroRows");
+DeclareGlobalFunction("nfmPolyEvalFromSpan");
+
+#! @Arguments A
+#! @Description
+#!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
+#!  primary form of <A>A</A>.
+#!  This function uses a modified version of Steel's algorithm.
+#! 
+#! @BeginExampleSession
+#! gap> A := [ [ Z(5)^2, Z(5)^2, Z(5)^2, Z(5)^3, Z(5)^0, Z(5)^2 ], 
+#! [ Z(5)^0, Z(5)^2, Z(5), Z(5)^0, Z(5)^0, Z(5) ], 
+#!  [ Z(5)^2, Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^0 ], 
+#!  [ Z(5), Z(5)^0, 0*Z(5), 0*Z(5), 0*Z(5), Z(5) ], 
+#!  [ Z(5)^3, 0*Z(5), Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^0 ], 
+#!  [ 0*Z(5), Z(5)^2, Z(5), Z(5), Z(5)^2, Z(5)^0 ] ]
+#! gap> B := PrimaryDecomp(A);;
+#! gap> Display(A^Inverse(B));
+#!  . 1 . . . .
+#!  . . 1 . . .
+#!  3 . 4 . . .
+#!  . . . . 1 .
+#!  . . . . . 1
+#!  . . . 3 3 3
+#! @EndExampleSessiongap> B := PrimaryDecomp(A);;
+#!gap> Display(A^Inverse(B));
+#! . 1 . . . .
+#! . . 1 . . .
+#! 3 . 4 . . .
+#! . . . . 1 .
+#! . . . . . 1
+#! . . . 3 3 3
+DeclareGlobalFunction("PrimaryDecomp");
+
+DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
+DeclareGlobalFunction("nfmPrimaryDecompositionforJNFCyclic");
+DeclareGlobalFunction("GetMinPolPowerWithVec");
+DeclareGlobalFunction("FindLinearDependenceNC");
+DeclareGlobalFunction("CyclicDecompositionOfPrimarySubspace");
+DeclareGlobalFunction("JordanBlock");
+DeclareGlobalFunction("JordanNormalformIrred");
+
+#! @Arguments A
+#! @Description
+#!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
+#!  normal form of <A>A</A>. The algorithm first computes a primary decomposition
+#!  of <A>A</A> following a modified version of Steel's algorithm and then 
+#!  computes a cyclic decomposition of the primary components. Finally it computes 
+#!  Jordan block form for each of the cyclic components. It works for matrices 
+#!  over finite fields. 
+#! 
+#! @BeginExampleSession
+#! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
+#! [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
+#! [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
+#! [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
+#! [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
+#! [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
+#! gap> B := JordanNormalform(A);
+#! < mutable compressed matrix 6x6 over GF(5) >
+#! gap> Display(A^Inverse(B));
+#! 3 . . . . .
+#! . 1 . . . .
+#! . . . 1 . .
+#! . . 2 . . .
+#! . . . . . 1
+#! . . . . 3 4
+#! @EndExampleSession
+DeclareGlobalFunction("JordanNormalform");
+
 #! @Section Further documentation
 #! The above functions, as well as a number of further auxiliary functions, 
 #! are all contained and defined in the file 'pgk/nofoma-1.0/gap/nofoma.gi'; 
 #! in that file, you can also find further inline documentation for the 
 #! auxiliary functions.
-
 
 

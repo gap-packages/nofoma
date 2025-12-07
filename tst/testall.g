@@ -1,6 +1,6 @@
 LoadPackage("nofoma");
 
 TestDirectory(DirectoriesPackageLibrary("nofoma","tst"),
-              rec(exitGAP     := true,
+              rec(exitGAP     := false,
                   testOptions := rec(compareFunction := "uptowhitespace",
                                      transformFunction := "removenl") ) );
