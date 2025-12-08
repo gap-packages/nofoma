@@ -1042,12 +1042,12 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
 end);
 
 #Primary Decomposition using a modified version of Allan Steel's algorithm for use in the Jordan normal form function
-#Takes matrix along with its minimal polynomial as input
+#Takes matrix along with its minimal polynomial and its factorised version as input
 #Returns matrix B such that B*A*B^-1 is in primary decomp. form, dimensions of primary subspaces
 #and factors of minimal polynomial in correct order
 #TODO: STOP COLLECTING MULTIPLICITIES
 InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
-    local r, merge, split1, split2, facOccCorrect, rank, F, n, m, f, w, p, j,i, wspan, gens, facs, L_i, qi, k, U_j, v, COB, pot, gs, f2, toAdd, dims, minpolCollected, pos, minpolFacs, minpolMult;
+    local r, rank, F, n, m, f, w, p, j,i, wspan, gens, facs, L_i, qi, k, U_j, v, COB, pot, gs, f2, toAdd, dims;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -1055,8 +1055,6 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
     gens := []; #Li_s as in Steel paper will go in here (but without separate U)
     gs := []; #distinct factors of minimal polynomial 
     dims := [];
-    minpolFacs := [];
-    minpolMult := [];
     while not rank = n do 
         m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
         p := One(PolynomialRing(F));
@@ -1091,13 +1089,6 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
             facs := Factors(m);
             facs := Collected(facs);
             for i in [1..Size(facs)] do 
-                pos := Position(minpolFacs, facs[i][1]);
-                if pos = fail then #TODO: einmal mit index abspeichern
-                    Add(minpolFacs, facs[i][1]);
-                    Add(minpolMult, facs[i][2]);
-                else
-                    minpolMult[pos] := minpolMult[pos] + facs[i][2];
-                fi;
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
                 wspan := SpinMatVector1(A,w,[],[],[],[])[2];
@@ -1124,24 +1115,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
     for i in [1..Size(gens)] do
         Add(dims, Size(gens[i]));
     od;
-    #nicht gut
-    facOccCorrect := Collected(Factors(minpol));
-    split1 := [];
-    split2 := [];
-    minpolMult := [];
-    for j in [1..Size(facOccCorrect)] do 
-        Add(split1, facOccCorrect[j][1]);
-        Add(split2, facOccCorrect[j][2]);
-    od;
-    for i in [1..Size(minpolFacs)] do 
-        pos := Position(split1, minpolFacs[i]);
-        Add(minpolMult, split2[pos]);
-    od;
-    merge := [];
-    for i in [1..Size(minpolFacs)] do 
-        Add(merge, [minpolFacs[i],minpolMult[i]]);
-    od;
-    return [COB, dims, merge];
+    return [COB, dims];
 end);
 
 #Primary Decomposition for cyclic matrices 
@@ -1338,7 +1312,7 @@ end);
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
 InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jordanblocks
-    local n, F, d, pol, minpol, collected, sortedfacs, split1, pos, split2, facOccCorrect, facs, hauptraum, hauptraumdims, crhr, cyclicdims, subsubCOB, COB, subA, cy, i, j, facOcc, subCOB, crcy, subsubA, prepreCOB, preCOB;
+    local n, F, d, pol, minpol, minpolfacs, collected, sortedfacs, split1, pos, split2, facOccCorrect, facs, hauptraum, hauptraumdims, crhr, cyclicdims, subsubCOB, COB, subA, cy, i, j, facOcc, subCOB, crcy, subsubA, prepreCOB, preCOB;
     F := DefaultFieldOfMatrix(A);
     A := Matrix(F,A);
     n := NrRows(A);
@@ -1346,7 +1320,8 @@ InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jord
       return IdentityMat(n,F);
     fi;
     minpol := MinimalPolynomial(F,A);
-    if IsIrreducible(minpol) then 
+    minpolfacs := Factors(minpol);
+    if Size(minpolfacs) = 1 then 
         return JordanNormalformIrred(A);
     fi;
     if Degree(minpol) = n then 
@@ -1355,7 +1330,7 @@ InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jord
         hauptraum := nfmPrimaryDecompositionforJNF(A, minpol);
     fi;
     hauptraumdims := hauptraum[2]; #dimensions of generalized eigenspaces
-    facOcc := hauptraum[3]; #factors of minimalpolynomial and their multiplicity
+    facOcc := Collected(minpolfacs); #factors of minimalpolynomial and their multiplicity
     COB := hauptraum[1]; #Change of basis matrix, this will be the final COB from A to JNF
     A := COB*A*Inverse(COB); #A in hauptraumform
     crhr := 1; #current row (hauptraum)
