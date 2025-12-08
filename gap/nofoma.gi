@@ -980,7 +980,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
     if IsZero(A) then 
       return IdentityMat(n,F);
     fi;
-    gens := []; #Li_s as in Steel paper will go in here (but i will not use separate U)
+    gens := []; #Li_s as in Steel paper will go in here 
     gs := []; #distinct factors of minimal polynomial 
     while not rank = n do 
         m := UnivariatePolynomial(F,SpinMatVector1(A,v)[3][1]);
@@ -990,7 +990,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
             if not IsOne(Gcd(m,gs[i])) then
                 f := m;
                 pot := 0; 
-                for j in [1..n] do #n mal ist overkill, ich glaube das ganze geht bestimmt eleganter
+                for j in [1..n] do 
                     f2 := Quotient(f,gs[i]);
                     if f2 = fail then 
                         break;
@@ -1120,7 +1120,7 @@ end);
 
 #Primary Decomposition for cyclic matrices 
 #Jordan normal form will call this function if a cyclic matrix is detected
-InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol)
+InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol, minpolfacs)
     local r, vspan,rank, F, n, m, f, w, j,i, wspan, gens, facs, L_i, qi, k, v, COB, dims;
     rank := 0;
     n := NrRows(A);
@@ -1130,8 +1130,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol)
     v := vspan[1];
     dims := [];
     m := minpol;
-    facs := Factors(m);
-    facs := Collected(facs);
+    facs := Collected(minpolfacs);
     COB := ZeroMatrix(F,n,n);
     k := 0;
     for i in [1..Size(facs)] do 
@@ -1325,7 +1324,7 @@ InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jord
         return JordanNormalformIrred(A);
     fi;
     if Degree(minpol) = n then 
-        hauptraum := nfmPrimaryDecompositionforJNFCyclic(A, minpol); 
+        hauptraum := nfmPrimaryDecompositionforJNFCyclic(A, minpol, minpolfacs); 
     else
         hauptraum := nfmPrimaryDecompositionforJNF(A, minpol);
     fi;
