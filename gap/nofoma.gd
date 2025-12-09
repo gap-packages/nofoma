@@ -457,14 +457,7 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #!  . . . . 1 .
 #!  . . . . . 1
 #!  . . . 3 3 3
-#! @EndExampleSessiongap> B := PrimaryDecomp(A);;
-#!gap> Display(A^Inverse(B));
-#! . 1 . . . .
-#! . . 1 . . .
-#! 3 . 4 . . .
-#! . . . . 1 .
-#! . . . . . 1
-#! . . . 3 3 3
+#! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
 DeclareGlobalFunction("factoriseByKnownFactors");
