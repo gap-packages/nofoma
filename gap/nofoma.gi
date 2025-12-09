@@ -895,7 +895,7 @@ InstallGlobalFunction(nfmGenerateNonCyclicMatrix, function(F,n) #Field F, dimens
         #A{[dim+1..dim+num]}{[dim+1..dim+num]} := subA;
         dim := dim + num;
     od;
-    scr := PseudoRandom(GL(n,F)); #scramble matrix
+    scr := PseudoRandom(GL(n,F)); #Conjugate matrix
     return A^scr;
 end);
 
@@ -1195,7 +1195,7 @@ end);
 
 #Input: matrix A with minimal polynomial p^m, vector v and p(A)
 #Returns: v, length r of v, vp^(r-1)(A)
-InstallGlobalFunction(GetMinPolPowerWithVec, function(A,p,m,v,Ainp) 
+InstallGlobalFunction(GetMinPolPowerWithVec, function(m,v,Ainp) 
     #this doesnt even need A and p
     local j, veccopy, lastcopy;
     if IsZero(v) then
@@ -1267,7 +1267,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
     od;
     minpolpowers := ZeroVector(F,NrRows(ws));
     for i in [1..NrRows(ws)] do 
-        minpolpowers[i] := GetMinPolPowerWithVec(A,p,m,ws[i],Ainp);#for all ws: v, r such that p^r(A)(v)=0 and p^(r-1)(A)(v)
+        minpolpowers[i] := GetMinPolPowerWithVec(m,ws[i],Ainp);#for all ws: v, r such that p^r(A)(v)=0 and p^(r-1)(A)(v)
     od;
     dims := []; #dimensions of my cyclic subspaces
     sumdim := 0; #dimension of my direct sum
@@ -1301,7 +1301,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
         if IsZero(wstrich) then 
             Remove(minpolpowers,j); #if its zero vec we get no more information from it
         else 
-            minpolpowers[j] := GetMinPolPowerWithVec(A,p,m,wstrich,Ainp);
+            minpolpowers[j] := GetMinPolPowerWithVec(m,wstrich,Ainp);
         fi;
     od;
     currdim := 1;
@@ -1385,7 +1385,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
     for i in [1..Size(hauptraumdims)] do 
         if hauptraumdims[i] = 1 then 
-            preCOB[crhr,crhr] := One(F); #avoid by directly initializing identity mat
+            preCOB[crhr,crhr] := One(F); #TODO: avoid by directly initializing identity mat
             crhr := crhr + 1;
             continue;
         fi;
