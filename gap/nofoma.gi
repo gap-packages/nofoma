@@ -1025,7 +1025,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
                 toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
                 if not IsMatrix(toAdd) then 
                     toAdd := [toAdd];  # Convert vector to 1-row matrix
-                    #toAdd := Matrix(toAdd);
+                    toAdd := Matrix(toAdd);
                 fi;
                 gens[i] := toAdd;
             fi;
@@ -1120,7 +1120,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
                 toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
                 if not IsMatrix(toAdd) then 
                     toAdd := [toAdd];  # Convert vector to 1-row matrix
-                    #toAdd := Matrix(toAdd);
+                    toAdd := Matrix(toAdd);
                 fi;
                 gens[i] := toAdd;
             fi;
@@ -1175,7 +1175,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol, m
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
-    #A := Matrix(F,A);
+    A := Matrix(F,A);
     vspan := nfmFindCyclicVectorNC(A);
     v := vspan[1];
     dims := [];
