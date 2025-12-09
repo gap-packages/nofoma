@@ -990,7 +990,8 @@ end);
 #Primary Decomposition using a modified version of Allan Steel's algorithm 
 #Standalone version 
 #Returns matrix B such that B*A*B^-1 is in primary decomposition form 
-InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A * mat^-1 is primary decomp form 
+#returns mat such that mat * A * mat^-1 is primary decomp form 
+InstallGlobalFunction(PrimaryDecomp, function(A) 
     local r, rank, F, n, m, f, w, p, j,i, wspan, gens, facs, L_i, qi, k, U_j, v, COB, pot, gs, f2, toAdd;
     rank := 0;
     n := NrRows(A);
@@ -1002,7 +1003,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
     gens := []; #Li_s as in Steel paper will go in here 
     gs := []; #distinct factors of minimal polynomial 
     while not rank = n do 
-        m := UnivariatePolynomial(F,SpinMatVector1(A,v)[3][1]);
+        m := UnivariatePolynomial(F,SpinMatVector1(A,v,[],[],[],[])[3][1]);
         p := One(PolynomialRing(F));
         for i in [1..Size(gens)] do 
             L_i := gens[i];
@@ -1024,7 +1025,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
                 toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
                 if not IsMatrix(toAdd) then 
                     toAdd := [toAdd];  # Convert vector to 1-row matrix
-                    toAdd := Matrix(toAdd);
+                    #toAdd := Matrix(toAdd);
                 fi;
                 gens[i] := toAdd;
             fi;
@@ -1060,10 +1061,10 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
     return COB;
 end);
 
+#TODO: fix this 
 InstallGlobalFunction(factoriseByKnownFactors, function(kFacs,pol)
   local fac, factup, i, resfacs, count, newpol, oldpol; 
   resfacs := [];
-  #newpol := pol;
   oldpol := pol;
   for factup in kFacs do 
     fac := factup[1]; 
@@ -1119,7 +1120,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
                 toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
                 if not IsMatrix(toAdd) then 
                     toAdd := [toAdd];  # Convert vector to 1-row matrix
-                    toAdd := Matrix(toAdd);
+                    #toAdd := Matrix(toAdd);
                 fi;
                 gens[i] := toAdd;
             fi;
@@ -1162,7 +1163,6 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
       dim := NrRows(L_i); #?
       Add(dims, dim);
       CopySubMatrix(L_i, finalCOB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
-      #CopySubMatrix(COB, finalCOB, [dimpos[pos]..dimpos[pos]+dim-1],[k+1..k+dim],[1..n], [1..n]);
       k := k + dim;
     od;
     return [finalCOB, dims];
@@ -1175,7 +1175,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol, m
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
-    A := Matrix(F,A);
+    #A := Matrix(F,A);
     vspan := nfmFindCyclicVectorNC(A);
     v := vspan[1];
     dims := [];
@@ -1362,7 +1362,7 @@ end);
 InstallGlobalFunction(JordanNormalform, function(A)
     local n, F, d, pol, minpol, minpolfacs, collected, sortedfacs, split1, pos, split2, facOccCorrect, facs, hauptraum, hauptraumdims, crhr, cyclicdims, subsubCOB, COB, subA, cy, i, j, facOcc, subCOB, crcy, subsubA, prepreCOB, preCOB;
     F := DefaultFieldOfMatrix(A);
-    A := Matrix(F,A);
+    #A := Matrix(F,A);
     n := NrRows(A);
     if IsZero(A) then 
       return IdentityMat(n,F);
@@ -1381,7 +1381,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     hauptraumdims := hauptraum[2]; #dimensions of generalized eigenspaces
     COB := hauptraum[1]; #Change of basis matrix, this will be the final COB from A to JNF
     A := COB*A*Inverse(COB); #A in hauptraumform
-    crhr := 1; #current row (hauptraum)
+    crhr := 1; #current row (primary subspace)
     preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
     for i in [1..Size(hauptraumdims)] do 
         if hauptraumdims[i] = 1 then 
@@ -1396,7 +1396,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled 
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
-        crcy := 1; #current row (cyclic)
+        crcy := 1; #current row (cyclic subspace)
         prepreCOB := ZeroMatrix(F,hauptraumdims[i], hauptraumdims[i]);
         for j in [1..Size(cyclicdims)] do 
             if cyclicdims[j] = 1 then
