@@ -987,12 +987,14 @@ InstallGlobalFunction(nfmPolyEvalFromSpan, function(span,pol)
     return resu;
 end);
 
+#TODO: recognise cyclic matrices 
+#TODO: sort the subspaces as in jnf version
 #Primary Decomposition using a modified version of Allan Steel's algorithm 
 #Standalone version 
 #Returns matrix B such that B*A*B^-1 is in primary decomposition form 
-#returns mat such that mat * A * mat^-1 is primary decomp form 
+#along with dimensions of primary subspaces 
 InstallGlobalFunction(PrimaryDecomp, function(A) 
-    local r, rank, F, n, m, f, w, p, j,i, wspan, gens, facs, L_i, qi, k, U_j, v, COB, pot, gs, f2, toAdd;
+    local r,rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,U_j,v,COB,pot,gs,f2,dims,toAdd;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -1003,7 +1005,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     gens := []; #Li_s as in Steel paper will go in here 
     gs := []; #distinct factors of minimal polynomial 
     while not rank = n do 
-        m := UnivariatePolynomial(F,SpinMatVector1(A,v,[],[],[],[])[3][1]);
+        m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
         p := One(PolynomialRing(F));
         for i in [1..Size(gens)] do 
             L_i := gens[i];
@@ -1058,7 +1060,30 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
             v := nfmFindVectorNotInSubspaceNC(COB);
         fi;
     od;
-    return COB;
+    dims := [];
+    for i in [1..Size(gens)] do 
+      Add(dims, NrRows(gens[i]));
+    od;
+    return [COB, dims];
+end);
+
+#check primary decomp function with field F and dimension n 
+#checks if the submatrices have the correct minimal polynomials
+InstallGlobalFunction(nfmCheckPrimaryDecomp, function(F, n)
+  local A,Prim,B,dim,k,minpolfacs,sub; 
+  A := RandomInvertibleMat(n,F);
+  Prim := PrimaryDecomp(A);
+  B := A^Inverse(Prim[1]);
+  minpolfacs := Factors(MinimalPolynomial(A));
+  k := 1;
+  for dim in Prim[2] do 
+    sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
+    k := k+dim;
+    if not Factors(MinimalPolynomial(sub))[1] in minpolfacs then 
+      return false;
+    fi;
+  od;
+  return true;
 end);
 
 #TODO: fix this 

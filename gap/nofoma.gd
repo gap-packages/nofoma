@@ -460,6 +460,8 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
+DeclareGlobalFunction("nfmCheckPrimaryDecomp");
+
 DeclareGlobalFunction("factoriseByKnownFactors");
 
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
