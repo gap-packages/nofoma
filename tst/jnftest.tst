@@ -206,7 +206,7 @@ gap> Aconj := A^RandomInvertibleMat(150,GF(7));;
 gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
 true
 
-##A few randomised tests
+##A few randomised tests 
 gap> A := RandomInvertibleMat(50,GF(5));;
 gap> Aconj := A^RandomInvertibleMat(50,GF(5));;
 gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
@@ -219,6 +219,15 @@ gap> A := RandomInvertibleMat(150,GF(7));;
 gap> Aconj := A^RandomInvertibleMat(150,GF(7));;
 gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
 true
+
+##Test Primary decomposition
+gap> nfmCheckPrimaryDecomp(GF(5),50);
+true
+gap> nfmCheckPrimaryDecomp(GF(25),25);
+true
+gap> nfmCheckPrimaryDecomp(GF(7),150);
+true
+
 
 ## Stop test
 gap> STOP_TEST("JordanNormalform");
