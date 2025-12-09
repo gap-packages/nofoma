@@ -1219,7 +1219,7 @@ InstallGlobalFunction(FindLinearDependenceNC, function(vecs, A, d) #vecs, A, deg
     local n, F, i, rel, tosolve, currdim, qis;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
-    tosolve := MutableCopyMatrix(ZeroMatrix(F,Length(vecs)*d,n));
+    tosolve := MutableCopyMat(ZeroMatrix(F,Length(vecs)*d,n));
     currdim := 1; 
     for i in [1..Length(vecs)] do
         CopySubMatrix(nfmSpinUntil(vecs[i], A, d), tosolve, [1..d], [currdim..currdim +  d-1], [1..n], [1..n]);
@@ -1362,7 +1362,7 @@ end);
 InstallGlobalFunction(JordanNormalform, function(A)
     local n, F, d, pol, minpol, minpolfacs, collected, sortedfacs, split1, pos, split2, facOccCorrect, facs, hauptraum, hauptraumdims, crhr, cyclicdims, subsubCOB, COB, subA, cy, i, j, facOcc, subCOB, crcy, subsubA, prepreCOB, preCOB;
     F := DefaultFieldOfMatrix(A);
-    #A := Matrix(F,A);
+    A := Matrix(F,A);
     n := NrRows(A);
     if IsZero(A) then 
       return IdentityMat(n,F);
