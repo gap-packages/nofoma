@@ -879,6 +879,26 @@ InstallGlobalFunction(nfmGenerateRandomVector, function(F, d) #Field d, length d
     return vec;
 end);
 
+InstallGlobalFunction(nfmGenerateNonCyclicMatrix, function(F,n) #Field F, dimension n
+    local dim, A, num, subA, scr;
+    A := ZeroMatrix(F,n,n);
+    num := PseudoRandom([1..n-1]); #dont go until n because we dont want cyclic matrix
+    subA := RandomInvertibleMat(num,F);
+    ConvertToMatrixRep(subA, F);
+    CopySubMatrix(subA, A, [1..num], [1..num], [1..num], [1..num]);
+    dim := num;
+    while not dim = n do
+        num := PseudoRandom([1..n-dim]); 
+        subA := RandomInvertibleMat(num,F);
+        ConvertToMatrixRep(subA, F);
+        CopySubMatrix(subA, A, [1..num], [dim+1..dim+num], [1..num], [dim+1..dim+num]);
+        #A{[dim+1..dim+num]}{[dim+1..dim+num]} := subA;
+        dim := dim + num;
+    od;
+    scr := PseudoRandom(GL(n,F)); #scramble matrix
+    return A^scr;
+end);
+
 #Spinning algorithm
 #Returns (vec, vec*A, ..., vec*A^(goal-1))
 InstallGlobalFunction(nfmSpinUntil, function(vec, A, goal)
@@ -921,7 +941,6 @@ InstallGlobalFunction(nfmFindVectorNotInSubspaceNC, function(gen) #assumes gen i
     return fail;
 end);
 
-#TODO: Construct cyclic vector 
 #Finds a cyclic vector for A
 #Doesn't check if $A$ is cyclic
 InstallGlobalFunction(nfmFindCyclicVectorNC, function(A) #Field F, Matrix A, n upper bound of loops;
@@ -941,7 +960,7 @@ InstallGlobalFunction(nfmFindCyclicVectorNC, function(A) #Field F, Matrix A, n u
         fi;
         vec := nfmGenerateRandomVector(F,n);
     od;
-    Print("Failed to find cyclic vector!");
+    Info(Infonofoma,4,"Failed to find a cyclic vector!\n");
     return fail;
 end);
 
@@ -1041,13 +1060,35 @@ InstallGlobalFunction(PrimaryDecomp, function(A) #returns mat such that mat * A 
     return COB;
 end);
 
+InstallGlobalFunction(factoriseByKnownFactors, function(kFacs,pol)
+  local fac, factup, i, resfacs, count, newpol, oldpol; 
+  resfacs := [];
+  #newpol := pol;
+  oldpol := pol;
+  for factup in kFacs do 
+    fac := factup[1]; 
+    count := 0;
+    for i in [1..factup[2]] do 
+      newpol := Quotient(oldpol, fac);
+      if newpol = fail then
+        break;
+      fi;
+      count := count + 1;
+      oldpol := newpol;
+    od;
+    if not count = 0 then
+      Add(resfacs, [fac, count]);
+    fi;
+  od;
+  return resfacs;
+end);
+
 #Primary Decomposition using a modified version of Allan Steel's algorithm for use in the Jordan normal form function
 #Takes matrix along with its minimal polynomial and its factorised version as input
 #Returns matrix B such that B*A*B^-1 is in primary decomp. form, dimensions of primary subspaces
 #and factors of minimal polynomial in correct order
-#TODO: STOP COLLECTING MULTIPLICITIES
-InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
-    local r, rank, F, n, m, f, w, p, j,i, wspan, gens, facs, L_i, qi, k, U_j, v, COB, pot, gs, f2, toAdd, dims;
+InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolfacs)
+    local r, rank, F, n, m, f, w, p, j,i, wspan, gens, facs, L_i, qi, k, U_j, v, COB, pot,gs,f2,toAdd,pos,dims,dim,finalCOB;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -1086,8 +1127,9 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
         v :=PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(p),v);
         m := Quotient(m,p);
         if not IsOne(m) then 
-            facs := Factors(m);
-            facs := Collected(facs);
+            #TODO: make this work
+            #facs := factoriseByKnownFactors(minpolfacs,m);
+            facs := Collected(Factors(m));
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
@@ -1111,11 +1153,19 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol)
             v := nfmFindVectorNotInSubspaceNC(COB);
         fi;
     od;
-    #collect dimensions
-    for i in [1..Size(gens)] do
-        Add(dims, Size(gens[i]));
+    finalCOB := ZeroMatrix(F,n,n);
+    #sort primary subspaces back into order and collect dims
+    k := 0;
+    for i in [1..Size(gens)] do 
+      pos := Position(gs, minpolfacs[i][1]);
+      L_i := gens[pos];
+      dim := NrRows(L_i); #?
+      Add(dims, dim);
+      CopySubMatrix(L_i, finalCOB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
+      #CopySubMatrix(COB, finalCOB, [dimpos[pos]..dimpos[pos]+dim-1],[k+1..k+dim],[1..n], [1..n]);
+      k := k + dim;
     od;
-    return [COB, dims];
+    return [finalCOB, dims];
 end);
 
 #Primary Decomposition for cyclic matrices 
@@ -1130,18 +1180,17 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol, m
     v := vspan[1];
     dims := [];
     m := minpol;
-    facs := Collected(minpolfacs);
     COB := ZeroMatrix(F,n,n);
     k := 0;
-    for i in [1..Size(facs)] do 
-        qi := (facs[i][1])^(facs[i][2]);
+    for i in [1..Size(minpolfacs)] do 
+        qi := (minpolfacs[i][1])^(minpolfacs[i][2]);
         w := nfmPolyEvalFromSpan(vspan,Quotient(m,qi));
-        wspan := nfmSpinUntil(w,A,Degree(facs[i][1])*facs[i][2]);
+        wspan := nfmSpinUntil(w,A,Degree(minpolfacs[i][1])*minpolfacs[i][2]);
         CopySubMatrix(wspan, COB, [1..NrRows(wspan)], [k+1..k+NrRows(wspan)], [1..n], [1..n]);
         Add(dims, NrRows(wspan));
         k := k + NrRows(wspan);
     od;
-    return [COB, dims, facs];
+    return [COB, dims];
 end);
 
 #Input: matrix A with minimal polynomial p^m, vector v and p(A)
@@ -1157,11 +1206,11 @@ InstallGlobalFunction(GetMinPolPowerWithVec, function(A,p,m,v,Ainp)
     for j in [1..m] do 
         veccopy := veccopy * Ainp; 
         if IsZero(veccopy) then #check if vector got nulled
-            return [v, j, lastcopy]; #why not just return v? 
+            return [v, j, lastcopy]; 
         fi;
         lastcopy := veccopy;
     od;
-    Print("Failed to find minimal polynomial of ", v);
+    Info(Infonofoma,2,"Failed to find minimal polynomial of vector");
     return fail; #shouldn't happen
 end);
 
@@ -1224,7 +1273,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
     sumdim := 0; #dimension of my direct sum
     conj := ZeroMatrix(F,n,n);
     while not Sum(minpolpowers, function(v) return v[2]*d; end) = n do #generally bigger than n, working our way down  
-        SortBy(minpolpowers, function(v) return v[2]; end); #Sort my ws by power of their minimal polynomial (ascending)
+        SortBy(minpolpowers, function(v) return v[2]; end); #Sort ws by their A-length (ascending)
         vecs := ZeroVector(F,Length(minpolpowers));
         for i in [1..Length(minpolpowers)] do
             vecs[i] := minpolpowers[i][3]; #p(A)^(r-1)(w)
@@ -1256,7 +1305,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
         fi;
     od;
     currdim := 1;
-    SortBy(minpolpowers, function(v) return v[2]; end); #sort by length
+    SortBy(minpolpowers, function(v) return v[2]; end); #sort by A-length
     for i in [1..Length(minpolpowers)] do
         wtrip := minpolpowers[i];
         conj{[currdim..currdim+(wtrip[2]*d)-1]}{[1..n]} := nfmSpinUntil(wtrip[1],A,wtrip[2]*d);
@@ -1310,7 +1359,7 @@ end);
 #TODO: CHANGE VARIABLE NAMES
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
-InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jordanblocks
+InstallGlobalFunction(JordanNormalform, function(A)
     local n, F, d, pol, minpol, minpolfacs, collected, sortedfacs, split1, pos, split2, facOccCorrect, facs, hauptraum, hauptraumdims, crhr, cyclicdims, subsubCOB, COB, subA, cy, i, j, facOcc, subCOB, crcy, subsubA, prepreCOB, preCOB;
     F := DefaultFieldOfMatrix(A);
     A := Matrix(F,A);
@@ -1320,23 +1369,23 @@ InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jord
     fi;
     minpol := MinimalPolynomial(F,A);
     minpolfacs := Factors(minpol);
+    facOcc := Collected(minpolfacs); #factors of minimalpolynomial and their multiplicity
     if Size(minpolfacs) = 1 then 
         return JordanNormalformIrred(A);
     fi;
     if Degree(minpol) = n then 
-        hauptraum := nfmPrimaryDecompositionforJNFCyclic(A, minpol, minpolfacs); 
+        hauptraum := nfmPrimaryDecompositionforJNFCyclic(A, minpol, facOcc); 
     else
-        hauptraum := nfmPrimaryDecompositionforJNF(A, minpol);
+        hauptraum := nfmPrimaryDecompositionforJNF(A, minpol, facOcc);
     fi;
     hauptraumdims := hauptraum[2]; #dimensions of generalized eigenspaces
-    facOcc := Collected(minpolfacs); #factors of minimalpolynomial and their multiplicity
     COB := hauptraum[1]; #Change of basis matrix, this will be the final COB from A to JNF
     A := COB*A*Inverse(COB); #A in hauptraumform
     crhr := 1; #current row (hauptraum)
-    preCOB := ZeroMatrix(F,n,n); #COB matrix from A in hauptraumform to haupträume in cyclic form
+    preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
     for i in [1..Size(hauptraumdims)] do 
         if hauptraumdims[i] = 1 then 
-            preCOB[crhr,crhr] := One(F); #could be avoided by directly intializing identity matrix, but i guess it doesnt matter
+            preCOB[crhr,crhr] := One(F); #avoid by directly initializing identity mat
             crhr := crhr + 1;
             continue;
         fi;
@@ -1366,6 +1415,7 @@ InstallGlobalFunction(JordanNormalform, function(A) # JordanNormalform with Jord
     od;
     return preCOB*COB;
 end);
+
 
 
 

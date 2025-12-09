@@ -429,6 +429,7 @@ DeclareGlobalFunction("nfmmat1");
 
 DeclareGlobalFunction("nfmConvertVecToRowMat");
 DeclareGlobalFunction("nfmGenerateRandomVector");
+DeclareGlobalFunction("nfmGenerateNonCyclicMatrix");
 DeclareGlobalFunction("nfmSpinUntil");
 DeclareGlobalFunction("nfmFindVectorNotInSubspaceNC");
 DeclareGlobalFunction("nfmFindCyclicVectorNC");
@@ -465,6 +466,8 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #! . . . . . 1
 #! . . . 3 3 3
 DeclareGlobalFunction("PrimaryDecomp");
+
+DeclareGlobalFunction("factoriseByKnownFactors");
 
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNFCyclic");
