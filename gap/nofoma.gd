@@ -426,20 +426,21 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #!  This function uses a modified version of Steel's algorithm.
 #! 
 #! @BeginExampleSession
-#! gap> A := [ [ Z(5)^2, Z(5)^2, Z(5)^2, Z(5)^3, Z(5)^0, Z(5)^2 ], 
-#! [ Z(5)^0, Z(5)^2, Z(5), Z(5)^0, Z(5)^0, Z(5) ], 
-#!  [ Z(5)^2, Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^0 ], 
-#!  [ Z(5), Z(5)^0, 0*Z(5), 0*Z(5), 0*Z(5), Z(5) ], 
-#!  [ Z(5)^3, 0*Z(5), Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^0 ], 
-#!  [ 0*Z(5), Z(5)^2, Z(5), Z(5), Z(5)^2, Z(5)^0 ] ]
+#! gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
+#! >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],  
+#! >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
+#! >    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
+#! >    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
 #! gap> B := PrimaryDecomp(A);;
-#! gap> Display(A^Inverse(B));
-#!  . 1 . . . .
-#!  . . 1 . . .
-#!  3 . 4 . . .
-#!  . . . . 1 .
-#!  . . . . . 1
-#!  . . . 3 3 3
+#! gap> Display(B[2]);
+#! [ 1, 4 ]
+#! gap> Factors(MinimalPolynomial(A));
+#! [ x_1-Z(5)^0, x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3 ]
+#! gap> PrimA := A^Inverse(B[1]);;
+#! gap> MinimalPolynomial(PrimA{[1..1]}{[1..1]});
+#! x_1-Z(5)^0
+#! gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
+#! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
@@ -466,13 +467,12 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! 
 #! @BeginExampleSession
 #! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
-#! [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
-#! [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
-#! [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
-#! [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
-#! [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
-#! gap> B := JordanNormalform(A);
-#! < mutable compressed matrix 6x6 over GF(5) >
+#! >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
+#! >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
+#! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
+#! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
+#! >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
+#! gap> B := JordanNormalform(A);;
 #! gap> Display(A^Inverse(B));
 #! 3 . . . . .
 #! . 1 . . . .
