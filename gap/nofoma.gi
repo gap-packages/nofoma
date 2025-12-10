@@ -204,6 +204,9 @@ end);
 
 InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
   local d,one,zero,i,j,v1,nv,nv1,koeff,weiter;
+  A := List(A, List);
+  v := List(v);
+  #A := ImmutableMatrix(DefaultFieldOfMatrix(A),A);
   one:=v[1]^0;
   zero:=0*v[1];
   i:=PositionNonZero(v);
@@ -999,6 +1002,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
     v := nfmGenerateRandomVector(F,n);
+    A := Matrix(F,A);
     if IsZero(A) then 
       return IdentityMat(n,F);
     fi;
@@ -1337,6 +1341,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
         Add(dims, wtrip[2]*d);
         currdim := currdim + wtrip[2]*d;
     od;
+    conj := Matrix(F,conj);
     return [conj,dims];
 end);
 
@@ -1381,6 +1386,7 @@ InstallGlobalFunction(JordanNormalformIrred, function(A)
     return COB;
 end);
 
+#TODO: RETURN ELEMENTARY DIVISORS
 #TODO: CHANGE VARIABLE NAMES
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
@@ -1420,6 +1426,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
         cy := CyclicDecompositionOfPrimarySubspace(subA, facOcc[i][1], facOcc[i][2]); #decompose primary spaces into cyclic ones
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled 
+        subCOB := Matrix(F,subCOB); #Why doesn't this work in the cyclic decomp function?
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
         crcy := 1; #current row (cyclic subspace)
         prepreCOB := ZeroMatrix(F,hauptraumdims[i], hauptraumdims[i]);
