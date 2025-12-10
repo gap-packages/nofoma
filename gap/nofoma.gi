@@ -972,7 +972,7 @@ end);
 #Returns matrix B such that B*A*B^-1 is in primary decomposition form 
 #along with dimensions of primary subspaces 
 InstallGlobalFunction(PrimaryDecomp, function(A) 
-    local r,rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,U_j,v,COB,pot,gs,f2,dims,toAdd;
+    local r,rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,U_j,v,COB,pot,gs,f2,dims,toAdd,combined,combinedNew,dim;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -1039,13 +1039,26 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
             v := nfmFindVectorNotInSubspaceNC(COB);
         fi;
     od;
+    #sorted blocks and count dims
+    COB := ZeroMatrix(F,n,n);
+    combined := [];
+    for i in [1..Size(gs)] do 
+      Add(combined, [gens[i],gs[i]]); 
+    od;
+    Sort(combined, function(v,w) return v[2] < w[2]; end);
+    k := 0;
     dims := [];
-    for i in [1..Size(gens)] do 
-      Add(dims, NrRows(gens[i]));
+    for i in [1..Size(gs)] do 
+      L_i := combined[i][1];
+      dim := NrRows(L_i); 
+      Add(dims, dim);
+      CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
+      k := k + dim;
     od;
     return [COB, dims];
 end);
 
+#TODO: now that primdecomp has sorted blocks this can be tested more efficiently
 #check primary decomp function with field F and dimension n 
 #checks if the submatrices have the correct minimal polynomials
 InstallGlobalFunction(nfmCheckPrimaryDecomp, function(F, n)
@@ -1158,6 +1171,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
             v := nfmFindVectorNotInSubspaceNC(COB);
         fi;
     od;
+    #TODO: write everything into COB, no need for a new matrix
     finalCOB := ZeroMatrix(F,n,n);
     #sort primary subspaces back into order and collect dims
     k := 0;
