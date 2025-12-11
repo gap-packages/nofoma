@@ -861,19 +861,17 @@ InstallGlobalFunction(nfmGenerateNonCyclicMatrix, function(F,n) #Field F, dimens
     local dim, A, num, subA, scr;
     A := ZeroMatrix(F,n,n);
     num := PseudoRandom([1..n-1]); #dont go until n because we dont want cyclic matrix
-    subA := RandomInvertibleMat(num,F);
-    ConvertToMatrixRep(subA, F);
+    subA := Matrix(F,RandomInvertibleMat(num,F));
     CopySubMatrix(subA, A, [1..num], [1..num], [1..num], [1..num]);
     dim := num;
     while not dim = n do
         num := PseudoRandom([1..n-dim]); 
-        subA := RandomInvertibleMat(num,F);
-        ConvertToMatrixRep(subA, F);
+        subA := Matrix(F,RandomInvertibleMat(num,F));
         CopySubMatrix(subA, A, [1..num], [dim+1..dim+num], [1..num], [dim+1..dim+num]);
         #A{[dim+1..dim+num]}{[dim+1..dim+num]} := subA;
         dim := dim + num;
     od;
-    scr := PseudoRandom(GL(n,F)); #Conjugate matrix
+    scr := Matrix(F,RandomInvertibleMat(n,F)); #Conjugate matrix
     return A^scr;
 end);
 
@@ -966,7 +964,6 @@ InstallGlobalFunction(nfmPolyEvalFromSpan, function(span,pol)
 end);
 
 #TODO: recognise cyclic matrices 
-#TODO: sort the subspaces as in jnf version
 #Primary Decomposition using a modified version of Allan Steel's algorithm 
 #Standalone version 
 #Returns matrix B such that B*A*B^-1 is in primary decomposition form 
@@ -1063,15 +1060,15 @@ end);
 #checks if the submatrices have the correct minimal polynomials
 InstallGlobalFunction(nfmCheckPrimaryDecomp, function(F, n)
   local A,Prim,B,dim,k,minpolfacs,sub; 
-  A := RandomInvertibleMat(n,F);
+  A := Matrix(F,RandomInvertibleMat(n,F));
   Prim := PrimaryDecomp(A);
   B := A^Inverse(Prim[1]);
-  minpolfacs := Factors(MinimalPolynomial(A));
+  minpolfacs := Factors(MinimalPolynomial(F,A));
   k := 1;
   for dim in Prim[2] do 
     sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
     k := k+dim;
-    if not Factors(MinimalPolynomial(sub))[1] in minpolfacs then 
+    if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then 
       return false;
     fi;
   od;

@@ -205,6 +205,14 @@ gap> A := nfmGenerateNonCyclicMatrix(GF(7),150);;
 gap> Aconj := A^RandomInvertibleMat(150,GF(7));;
 gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
 true
+gap> A := nfmGenerateNonCyclicMatrix(GF(5^5),20);;
+gap> Aconj := A^Matrix(GF(5^5),RandomInvertibleMat(20,GF(5^5)));;
+gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
+true
+gap> A := nfmGenerateNonCyclicMatrix(GF(11^5),20);;
+gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
+gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
+true
 
 ##A few randomised tests 
 gap> A := RandomInvertibleMat(50,GF(5));;
@@ -219,6 +227,16 @@ gap> A := RandomInvertibleMat(150,GF(7));;
 gap> Aconj := A^RandomInvertibleMat(150,GF(7));;
 gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
 true
+gap> A := RandomInvertibleMat(20,GF(5^5));;
+gap> A := Matrix(GF(5^5),A);;
+gap> Aconj := A^Matrix(GF(5^5),RandomInvertibleMat(20,GF(5^5)));;
+gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
+true
+gap> A := RandomInvertibleMat(20,GF(11^5));;
+gap> A := Matrix(GF(11^5),A);;
+gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
+gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
+true
 
 ##Test Primary decomposition
 gap> nfmCheckPrimaryDecomp(GF(5),50);
@@ -227,7 +245,10 @@ gap> nfmCheckPrimaryDecomp(GF(25),25);
 true
 gap> nfmCheckPrimaryDecomp(GF(7),150);
 true
-
+gap> nfmCheckPrimaryDecomp(GF(5^5),20);
+true
+gap> nfmCheckPrimaryDecomp(GF(11^5),20);
+true
 
 ## Stop test
 gap> STOP_TEST("JordanNormalform");
