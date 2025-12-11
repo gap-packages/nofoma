@@ -157,5 +157,38 @@ gap> Factors(last);
 gap> MinimalPolynomial(jc[2]);
 x_1^2                     
 
+# doc/_Chapter_The_nofoma_package.xml:474-490
+gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
+>    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],  
+>    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
+>    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
+>    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
+gap> B := PrimaryDecomp(A);;
+gap> Display(B[2]);
+[ 1, 4 ]
+gap> Factors(MinimalPolynomial(A));
+[ x_1-Z(5)^0, x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3 ]
+gap> PrimA := A^Inverse(B[1]);;
+gap> MinimalPolynomial(PrimA{[1..1]}{[1..1]});
+x_1-Z(5)^0
+gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
+x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
+
+# doc/_Chapter_The_nofoma_package.xml:507-522
+gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
+>    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
+>    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
+>    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
+>    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
+>    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
+gap> B := JordanNormalform(A);;
+gap> Display(A^Inverse(B));
+3 . . . . .
+. 1 . . . .
+. . . 1 . .
+. . 2 . . .
+. . . . . 1
+. . . . 3 4
+
 #
 gap> STOP_TEST("nofoma01.tst", 1);
