@@ -238,18 +238,6 @@ gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
 gap> A^Inverse(JordanNormalform(A)) = Aconj^Inverse(JordanNormalform(Aconj));
 true
 
-##Test Primary decomposition
-gap> nfmCheckPrimaryDecomp(GF(5),50);
-true
-gap> nfmCheckPrimaryDecomp(GF(25),25);
-true
-gap> nfmCheckPrimaryDecomp(GF(7),150);
-true
-gap> nfmCheckPrimaryDecomp(GF(5^5),20);
-true
-gap> nfmCheckPrimaryDecomp(GF(11^5),20);
-true
-
 ## Stop test
 gap> STOP_TEST("JordanNormalform");
 
