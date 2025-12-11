@@ -182,7 +182,7 @@ gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ],
 >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
 >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
 gap> B := JordanNormalform(A);;
-gap> Display(A^Inverse(B));
+gap> Display(A^Inverse(B[1]));
 3 . . . . .
 . 1 . . . .
 . . . 1 . .
