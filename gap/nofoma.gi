@@ -1346,15 +1346,17 @@ InstallGlobalFunction(JordanBlock, function(A, p, m) #For JordanNormalform
     return basis;
 end);
 
-#TODO: remove computing Rank
 #Input: Matrix A with irreducible Minimal polynomial
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form
 InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     local F,n,cobrank,COB,blockdim,spun,v,w,elDivs;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A); # get underlying field
-    v := ZeroVector(F,n);
     blockdim := Degree(minpol);
+    if blockdim = n then 
+      return[nfmFindCyclicVectorNC(A), [minpol]];
+    fi;
+    v := ZeroVector(F,n);
     while IsZero(v) do 
       v := nfmGenerateRandomVector(F,n); #ensure that v isnt zero vec 
     od;
@@ -1373,7 +1375,6 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     return [COB,elDivs];
 end);
 
-#TODO: USE JNF IRRED ON PRIMARY SPACES WITH POWER 1
 #TODO: CHANGE VARIABLE NAMES
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
