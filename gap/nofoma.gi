@@ -1375,6 +1375,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     F := DefaultFieldOfMatrix(A);
     A := Matrix(F,A);
     n := NrRows(A);
+    elDivs := [];
     if IsZero(A) then 
       return IdentityMat(n,F);
     fi;
@@ -1395,7 +1396,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
     for i in [1..Size(hauptraumdims)] do 
         if hauptraumdims[i] = 1 then 
-            preCOB[crhr,crhr] := One(F); #TODO: avoid by directly initializing identity mat
+            preCOB[crhr,crhr] := One(F);
             crhr := crhr + 1;
             continue;
         fi;
@@ -1412,18 +1413,20 @@ InstallGlobalFunction(JordanNormalform, function(A)
             if cyclicdims[j] = 1 then
                 prepreCOB[crcy,crcy] := One(F);
                 crcy := crcy + 1;
+                Add(elDivs,pol);
                 continue;
             fi;
             subsubA := ExtractSubMatrix(subA, [crcy..crcy+cyclicdims[j]-1], [crcy..crcy+cyclicdims[j]-1]);
             subsubCOB := JordanBlock(subsubA,pol,cyclicdims[j]/Degree(pol));
             CopySubMatrix(subsubCOB, prepreCOB, [1..cyclicdims[j]], [crcy..crcy+cyclicdims[j]-1], [1..cyclicdims[j]], [crcy..crcy+cyclicdims[j]-1]);
             crcy := crcy + cyclicdims[j];
+            Add(elDivs,pol^(cyclicdims[j]/d));
         od;
         subCOB := prepreCOB * subCOB;
         CopySubMatrix(subCOB, preCOB, [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1], [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1]);
         crhr := crhr + hauptraumdims[i];
     od;
-    return preCOB*COB;
+    return [preCOB*COB, elDivs];
 end);
 
 
