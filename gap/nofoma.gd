@@ -446,7 +446,7 @@ DeclareGlobalFunction("PrimaryDecomp");
 
 DeclareGlobalFunction("nfmCheckPrimaryDecomp");
 
-DeclareGlobalFunction("factoriseByKnownFactors");
+DeclareGlobalFunction("nfmFactoriseByKnownFactors");
 
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNFCyclic");
