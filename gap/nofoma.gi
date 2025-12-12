@@ -1098,6 +1098,7 @@ InstallGlobalFunction(factoriseByKnownFactors, function(kFacs,pol)
   return resfacs;
 end);
 
+#TODO: if size of minpolfacs is one we can return identity 
 #Primary Decomposition using a modified version of Allan Steel's algorithm for use in the Jordan normal form function
 #Takes matrix along with its minimal polynomial and its factorised version as input
 #Returns matrix B such that B*A*B^-1 is in primary decomp. form, dimensions of primary subspaces
@@ -1244,6 +1245,7 @@ InstallGlobalFunction(FindLinearDependenceNC, function(vecs, A, d) #vecs, A, deg
     rel := rel[1];
     #turn into usable polynomial coeffs
     qis := [];
+    currdim := 1;
     for i in [1..Length(vecs)] do 
         Add(qis, ExtractSubVector(rel, [currdim..currdim+d-1]));
         currdim := currdim + d;
@@ -1262,7 +1264,7 @@ InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m)
     if m * d = n then #return if it's already cyclic
         return [One(GL(n,F)), [n]]; 
     fi;
-    Ainp := p(A);
+    Ainp := p(A); #TODO: evaluate this using frobform? or maybe polyevalfromspan 
     ws := [];
     w := ZeroVector(F,n);
     while IsZero(w) do #make sure we aren't spinning zero vector
@@ -1346,8 +1348,8 @@ end);
 
 #Input: Matrix A with irreducible Minimal polynomial
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form
-InstallGlobalFunction(JordanNormalformIrred, function(A)
-    local F,n,cobrank,COB,blockdim,spun,v,w;
+InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
+    local F,n,cobrank,COB,blockdim,spun,v,w,elDivs;
     n := Size(A);
     F := DefaultFieldOfMatrix(A); # get underlying field
     v := nfmGenerateRandomVector(F,n);
@@ -1356,16 +1358,18 @@ InstallGlobalFunction(JordanNormalformIrred, function(A)
     COB := ZeroMatrix(F,n,n);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
     cobrank := blockdim;
+    elDivs := [minpol];  
     while not cobrank = n do 
         w := nfmFindVectorNotInSubspaceNC(COB{[1..cobrank]}{[1..n]});
         spun := nfmSpinUntil(w,A,blockdim);
         CopySubMatrix(spun, COB, [1..blockdim],[cobrank+1..cobrank+blockdim],[1..n],[1..n]);
         cobrank := cobrank + blockdim;
+        Add(elDivs, minpol);
     od;
-    return COB;
+    return [COB,elDivs];
 end);
 
-#TODO: RETURN ELEMENTARY DIVISORS
+#TODO: USE JNF IRRED ON PRIMARY SPACES WITH POWER 1
 #TODO: CHANGE VARIABLE NAMES
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
@@ -1377,12 +1381,14 @@ InstallGlobalFunction(JordanNormalform, function(A)
     n := NrRows(A);
     elDivs := [];
     if IsZero(A) then 
-      return IdentityMat(n,F);
+      return [IdentityMat(n,F), UnivariatePolynomial(F,One(F))];
     fi;
     minpol := MinimalPolynomial(F,A);
     facOcc := Collected(Factors(minpol));  #factors of minimalpolynomial and their multiplicity
-    if Size(facOcc) = 1 then 
-        return JordanNormalformIrred(A);
+    if Size(facOcc) = 1 then
+      if facOcc[1][2] = 1 then 
+        return JordanNormalformIrred(A,minpol);
+      fi;
     fi;
     if Degree(minpol) = n then 
         hauptraum := nfmPrimaryDecompositionforJNFCyclic(A, minpol, facOcc); 
