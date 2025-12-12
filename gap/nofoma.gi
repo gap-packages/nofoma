@@ -1370,7 +1370,7 @@ end);
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
 InstallGlobalFunction(JordanNormalform, function(A)
-    local n,F,pol,minpol,hauptraum,hauptraumdims,crhr,cyclicdims, 
+    local n,F,pol,minpol,hauptraum,hauptraumdims,crhr,cyclicdims,elDivs, 
     subsubCOB,COB,subA,cy,i,j,facOcc,subCOB,crcy,subsubA,prepreCOB,preCOB;
     F := DefaultFieldOfMatrix(A);
     A := Matrix(F,A);
@@ -1420,7 +1420,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
             subsubCOB := JordanBlock(subsubA,pol,cyclicdims[j]/Degree(pol));
             CopySubMatrix(subsubCOB, prepreCOB, [1..cyclicdims[j]], [crcy..crcy+cyclicdims[j]-1], [1..cyclicdims[j]], [crcy..crcy+cyclicdims[j]-1]);
             crcy := crcy + cyclicdims[j];
-            Add(elDivs,pol^(cyclicdims[j]/d));
+            Add(elDivs,pol^(cyclicdims[j]/Degree(pol)));
         od;
         subCOB := prepreCOB * subCOB;
         CopySubMatrix(subCOB, preCOB, [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1], [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1]);
