@@ -1075,8 +1075,9 @@ InstallGlobalFunction(nfmCheckPrimaryDecomp, function(F, n)
   return true;
 end);
 
-#TODO: fix this 
-InstallGlobalFunction(factoriseByKnownFactors, function(kFacs,pol)
+#input: collected factors, polynomial
+#factorisation of pol when we already know all of the possible factors 
+InstallGlobalFunction(nfmFactoriseByKnownFactors, function(kFacs,pol)
   local fac,factup,i,resfacs,count,newpol,oldpol; 
   resfacs := [];
   oldpol := pol;
@@ -1145,8 +1146,7 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
         m := Quotient(m,p);
         if not IsOne(m) then 
             #TODO: make this work
-            #facs := factoriseByKnownFactors(minpolfacs,m);
-            facs := Collected(Factors(m));
+            facs := nfmFactoriseByKnownFactors(minpolfacs,m);
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
