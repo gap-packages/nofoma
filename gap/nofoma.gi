@@ -639,24 +639,6 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   fi;
 end);
 
-InstallGlobalFunction(FrobeniusNormalForm1,function(mat)
-  local A,A1,A2,P,i,k,step1,rest,d,piv;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
-  if IsZero(A) then
-    #Print("#I Zero matrix\n");
-    return [A,A^0,List([1..Length(A)],i->i)];
-  fi;
-  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i][i]=A[1][1]) then
-    #Print("#I Scalar matrix \n");
-    return [A,A^0,List([1..Length(A)],i->i)];
-  fi;
-  step1:=RatFormStep1J(A,MaximalVectorMat(A)[1]);
-  A1:=step1[1];
-  d:=Length(step1[3])-1;
-  return ImmutableMatrix(k,A1);
-end);
-
 ##########################################################################
 ##
 #F  InvariantFactorsMat( <A> ) . . . . . . . compute the invariant factors 

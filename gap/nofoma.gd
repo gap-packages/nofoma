@@ -309,7 +309,6 @@ DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("FrobeniusNormalForm");
 
 DeclareGlobalFunction("CreateNormalForm");
-DeclareGlobalFunction("FrobeniusNormalForm1");
 
 #! @Arguments A
 #! @Description
