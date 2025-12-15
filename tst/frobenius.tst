@@ -1,4 +1,6 @@
 gap> START_TEST("nofoma");
+gap> ReadPackage("nofoma", "tst/utils.g");
+true
 
 ## Some test matrices; see also
 ##  A. Steel,  A new algorithm for the computation of  canonical forms of
