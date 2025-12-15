@@ -47,15 +47,7 @@
 #! and it does not require the knowledge of the eigenvalues of <M>A</M>. This
 #! is implemented in the function <Ref Func="JordanChevalleyDecMat"/>.
 #! 
-#! Further references are provided within the help menu of each function.
-#! 
-#! Any comments welcome!                            Meinolf Geck, June 2022
-#! 
-#! @Section Copyright and installation of the &nofoma; package
-#! The &nofoma; package is free software; you can redistribute it and/or
-#! modify it under the terms of the GNU General Public License as published 
-#! by the Free Software Foundation; either version 2 of the License, or (at 
-#! your option) any later version.
+#! @Section Installation of the &nofoma; package
 #!
 #! To install this package first unpack it inside some &GAP; root directory
 #! in the subdirectory `pkg` (see the section 'Installing a &GAP; Package' of
