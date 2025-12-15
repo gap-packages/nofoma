@@ -410,15 +410,6 @@ DeclareGlobalFunction("CheckJordanChev");
 
 DeclareGlobalFunction("nfmmat1");
 
-DeclareGlobalFunction("nfmConvertVecToRowMat");
-DeclareGlobalFunction("nfmGenerateRandomVector");
-DeclareGlobalFunction("nfmGenerateNonCyclicMatrix");
-DeclareGlobalFunction("nfmSpinUntil");
-DeclareGlobalFunction("nfmFindVectorNotInSubspaceNC");
-DeclareGlobalFunction("nfmFindCyclicVectorNC");
-DeclareGlobalFunction("nfmRemoveZeroRows");
-DeclareGlobalFunction("nfmPolyEvalFromSpan");
-
 #! @Arguments A
 #! @Description
 #!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a

@@ -837,7 +837,7 @@ end);
 
 ##Jordan Normal form code from here
 
-InstallGlobalFunction(nfmConvertVecToRowMat, function(vec)
+BindGlobal("nfmConvertVecToRowMat", function(vec)
     local mat, n, i;
     n := Length(vec);
     mat := ZeroMatrix(BaseDomain(vec), 1, n);
@@ -848,7 +848,7 @@ InstallGlobalFunction(nfmConvertVecToRowMat, function(vec)
 end);
 
 #Avoids creating the vector space
-InstallGlobalFunction(nfmGenerateRandomVector, function(F, d) #Field d, length d
+BindGlobal("nfmGenerateRandomVector", function(F, d) #Field d, length d
     local vec, i;
     vec := ZeroVector(F,d);
     for i in [1..d] do
@@ -857,7 +857,7 @@ InstallGlobalFunction(nfmGenerateRandomVector, function(F, d) #Field d, length d
     return vec;
 end);
 
-InstallGlobalFunction(nfmGenerateNonCyclicMatrix, function(F,n) #Field F, dimension n
+BindGlobal("nfmGenerateNonCyclicMatrix", function(F,n) #Field F, dimension n
     local dim, A, num, subA, scr;
     A := ZeroMatrix(F,n,n);
     num := PseudoRandom([1..n-1]); #dont go until n because we dont want cyclic matrix
@@ -876,7 +876,7 @@ end);
 
 #Spinning algorithm
 #Returns (vec, vec*A, ..., vec*A^(goal-1))
-InstallGlobalFunction(nfmSpinUntil, function(vec, A, goal)
+BindGlobal("nfmSpinUntil", function(vec, A, goal)
     local n, i, res, F;
     F := BaseDomain(A);
     if goal = 0 then 
@@ -894,7 +894,7 @@ end);
 
 #Returns a vector v such that v is not in subspace spanned by gen
 #Assumes that gen is already echelonised 
-InstallGlobalFunction(nfmFindVectorNotInSubspaceNC, function(gen) #assumes gen is already echelonised
+BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already echelonised
     local w, i, n, F, r, zsf;
     r := NrRows(gen); #dimension of subspace
     F := BaseDomain(gen);
@@ -918,7 +918,7 @@ end);
 
 #Finds a cyclic vector for A
 #Doesn't check if $A$ is cyclic
-InstallGlobalFunction(nfmFindCyclicVectorNC, function(A) #Field F, Matrix A, n upper bound of loops;
+BindGlobal("nfmFindCyclicVectorNC", function(A) #Field F, Matrix A, n upper bound of loops;
     local checked,vec,gens,n,i,F;
     n := NrRows(A);
     F := BaseDomain(A);
@@ -939,7 +939,7 @@ InstallGlobalFunction(nfmFindCyclicVectorNC, function(A) #Field F, Matrix A, n u
     return fail;
 end);
 
-InstallGlobalFunction(nfmRemoveZeroRows, function(mat)
+BindGlobal("nfmRemoveZeroRows", function(mat)
     local i,matcopy;
     matcopy := MutableCopyMat(mat);
     for i in Reversed([1..NrRows(matcopy)]) do 
@@ -952,7 +952,7 @@ end);
 
 #Evaluates v*p(A) VERY efficiently
 #Takes (v,vA,...v^n-1A) and polynomial as input
-InstallGlobalFunction(nfmPolyEvalFromSpan, function(span,pol)
+BindGlobal("nfmPolyEvalFromSpan", function(span,pol)
     local coeffs, i, resu;
     resu := ZeroVector(BaseDomain(span),NrCols(span));
     coeffs := CoefficientsOfUnivariatePolynomial(pol);
