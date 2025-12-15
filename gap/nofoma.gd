@@ -279,9 +279,6 @@ DeclareGlobalFunction("BuildBlockDiagonalMat1");
 DeclareGlobalFunction("RatFormStep1");
 DeclareGlobalFunction("RatFormStep1J");
 
-DeclareGlobalFunction("nfmCompanionMat");
-DeclareGlobalFunction("nfmCompanionMat1");
-
 #! @Arguments A
 #! @Description
 #!  Returns the invariant factors of a matrix <A>A</A>

@@ -559,19 +559,7 @@ InstallGlobalFunction(RatFormStep1J,function(A,v)
   return [A1{[d+1..Length(A1)]}{[d+1..Length(A1)]},j*t,minp];
 end);
 
-InstallGlobalFunction(nfmCompanionMat,function(f)
-  local n,i,mat;
-  n:=Length(f)-1;
-  mat:=(0*f[1])*IdentityMat(n);
-  for i in [1..n-1] do 
-    mat[i+1][i]:=f[1]^0;
-    mat[i][n]:=-f[i];
-  od;
-  mat[n][n]:=-f[n];
-  return mat;
-end);
-
-InstallGlobalFunction(nfmCompanionMat1,function(f)
+BindGlobal("nfmCompanionMat1", function(f)
   local n,i,mat;
   n:=Length(f)-1;
   mat:=(0*f[1])*IdentityMat(n);
@@ -593,7 +581,7 @@ InstallGlobalFunction(CreateNormalForm,function(plist)
   A:=NullMat(l[r+1]-1,l[r+1]-1,nfmCoeffsPol(plist[1])[1]);
   for i in [1..r] do
     A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
-              TransposedMat(nfmCompanionMat(nfmCoeffsPol(plist[i])));
+              nfmCompanionMat1(nfmCoeffsPol(plist[i]));
   od;
   return A;
 end);
