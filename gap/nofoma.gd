@@ -405,11 +405,6 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #!  then applies 'JordanChevalleyDecMat' to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
-DeclareGlobalFunction("CheckFrobForm");
-DeclareGlobalFunction("CheckJordanChev");
-
-DeclareGlobalFunction("nfmmat1");
-
 DeclareGlobalFunction("nfmConvertVecToRowMat");
 DeclareGlobalFunction("nfmGenerateRandomVector");
 DeclareGlobalFunction("nfmGenerateNonCyclicMatrix");
@@ -443,8 +438,6 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
-
-DeclareGlobalFunction("nfmCheckPrimaryDecomp");
 
 DeclareGlobalFunction("nfmFactoriseByKnownFactors");
 
