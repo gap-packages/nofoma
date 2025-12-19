@@ -495,24 +495,6 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   return base;
 end);
 
-BindGlobal("BuildBlockDiagonalMat",function(A,B)
-  local d,neu,i,n,k,zero,row;
-  k:=DefaultFieldOfMatrix(B);
-  d:=Length(A);
-  n:=d+Length(B);
-  zero:=Zero(k);
-  row:=ListWithIdenticalEntries(n,zero);
-  ConvertToVectorRepNC(row,k);
-  neu:=[];
-  for i in [1..n] do 
-    neu[i]:=ShallowCopy(row);
-  od;
-  neu{[1..d]}{[1..d]}:=A;
-  neu{[d+1..n]}{[d+1..n]}:=B;
-  ConvertToMatrixRepNC(neu);
-  return neu;
-end);
-
 BindGlobal("BuildBlockDiagonalMat1",function(d,B)
   local neu,n,k;
   k:=DefaultFieldOfMatrix(B);
