@@ -701,23 +701,6 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
   fi;
 end);
 
-# F=output of FrobeniusNormalForm
-InstallGlobalFunction(CheckFrobForm,function(A,F)
-  local P,k,i,nf;
-  nf:=CreateNormalForm(F[1]);
-  k:=DefaultFieldOfMatrix(A);
-  P:=F[2];
-  if P*A*P^(-1)<>nf then 
-    Error("base change not ok!");
-  fi;
-  for i in [1..Length(F[1])-1] do 
-    if QuotientRemainder(F[1][i],F[1][i+1])[2]<>0*F[1][i] then 
-      Error("divisibility not ok!");
-    fi;
-  od;
-  return true;
-end);
-  
 ## Now Jordan-Chevalley decomposition
 
 InstallGlobalFunction(nfmFrobInv,function(K1,p,x)
@@ -817,24 +800,6 @@ InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
   return [f[2]^-1*D*f[2],f[2]^-1*N*f[2]];
 end);
   
-InstallGlobalFunction(CheckJordanChev,function(mat,jc)
-  local m;
-  m:=MinPolyMat(jc[1]);
-  return [nfmGcd(m,Derivative(m)),MinPolyMat(jc[2])];
-end);
-
-InstallGlobalFunction(nfmmat1,function(mat)
-  local a,a1,b,i;
-  a1:=TransposedMat(Concatenation(mat,mat));
-  a:=[];
-  for i in [1..Length(a1)-1] do
-    Add(a,a1[i]);
-  od;
-  Add(a,0*a1[1]);
-  b:=TransposedMat(Concatenation(TransposedMat(mat),TransposedMat(mat)));
-  return Concatenation(a,b);
-end);
-
 ##Jordan Normal form code from here
 
 BindGlobal("nfmConvertVecToRowMat", function(vec)
@@ -1053,26 +1018,6 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
       k := k + dim;
     od;
     return [COB, dims];
-end);
-
-#TODO: now that primdecomp has sorted blocks this can be tested more efficiently
-#check primary decomp function with field F and dimension n 
-#checks if the submatrices have the correct minimal polynomials
-InstallGlobalFunction(nfmCheckPrimaryDecomp, function(F, n)
-  local A,Prim,B,dim,k,minpolfacs,sub; 
-  A := Matrix(F,RandomInvertibleMat(n,F));
-  Prim := PrimaryDecomp(A);
-  B := A^Inverse(Prim[1]);
-  minpolfacs := Factors(MinimalPolynomial(F,A));
-  k := 1;
-  for dim in Prim[2] do 
-    sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
-    k := k+dim;
-    if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then 
-      return false;
-    fi;
-  od;
-  return true;
 end);
 
 #input: collected factors, polynomial

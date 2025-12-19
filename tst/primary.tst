@@ -1,4 +1,6 @@
 gap> START_TEST("PrimaryDecomposition");
+gap> ReadPackage("nofoma", "tst/utils.g");
+true
 
 ##Test Primary decomposition
 gap> nfmCheckPrimaryDecomp(GF(5),50);

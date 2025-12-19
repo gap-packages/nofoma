@@ -435,8 +435,6 @@ DeclareGlobalFunction("nfmmat1");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
-DeclareGlobalFunction("nfmCheckPrimaryDecomp");
-
 DeclareGlobalFunction("nfmFactoriseByKnownFactors");
 
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
