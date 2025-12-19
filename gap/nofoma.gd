@@ -66,11 +66,6 @@
 
 DeclareInfoClass("Infonofoma"); 
 
-DeclareGlobalFunction("nfmCoeffsPol"); 
-DeclareGlobalFunction("nfmPolCoeffs");
-DeclareGlobalFunction("nfmGcd");
-DeclareGlobalFunction("nfmLcm");
-
 #! @Arguments a,b
 #! @Description 
 #! Computes a divisor <M>a_1</M> of the polynomial <A>a</A> and a
@@ -190,8 +185,6 @@ DeclareGlobalFunction("SpinMatVector");
 #! @EndExampleSession
 DeclareGlobalFunction("CyclicChainMat");
 
-DeclareGlobalFunction("nfmRelMinPols");
-DeclareGlobalFunction("nfmOrderPolM");
 DeclareGlobalFunction("MinPolyMat");
 
 #! @Arguments A
@@ -251,9 +244,6 @@ DeclareGlobalFunction("MaximalVectorMat");
 #! also  <A>T</A>-invariant;  but even if not,  it appears  to be  very useful 
 #! because it produces many zeroes.)
 DeclareGlobalFunction("JacobMatComplement");
-
-DeclareGlobalFunction("BuildBlockDiagonalMat");
-DeclareGlobalFunction("BuildBlockDiagonalMat1");
 
 #! @Arguments A,v
 #! @Description
@@ -349,7 +339,6 @@ DeclareGlobalFunction("FrobeniusNormalForm1");
 #! @EndExampleSession
 DeclareGlobalFunction("InvariantFactorsMat");
 
-DeclareGlobalFunction("nfmFrobInv");
 DeclareGlobalFunction("SquareFreePol");
 
 #! @Arguments A,f
@@ -402,20 +391,6 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #!  then applies 'JordanChevalleyDecMat' to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
-DeclareGlobalFunction("CheckFrobForm");
-DeclareGlobalFunction("CheckJordanChev");
-
-DeclareGlobalFunction("nfmmat1");
-
-DeclareGlobalFunction("nfmConvertVecToRowMat");
-DeclareGlobalFunction("nfmGenerateRandomVector");
-DeclareGlobalFunction("nfmGenerateNonCyclicMatrix");
-DeclareGlobalFunction("nfmSpinUntil");
-DeclareGlobalFunction("nfmFindVectorNotInSubspaceNC");
-DeclareGlobalFunction("nfmFindCyclicVectorNC");
-DeclareGlobalFunction("nfmRemoveZeroRows");
-DeclareGlobalFunction("nfmPolyEvalFromSpan");
-
 #! @Arguments A
 #! @Description
 #!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
@@ -441,16 +416,6 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
-DeclareGlobalFunction("nfmCheckPrimaryDecomp");
-
-DeclareGlobalFunction("nfmFactoriseByKnownFactors");
-
-DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
-DeclareGlobalFunction("nfmPrimaryDecompositionforJNFCyclic");
-DeclareGlobalFunction("GetMinPolPowerWithVec");
-DeclareGlobalFunction("FindLinearDependenceNC");
-DeclareGlobalFunction("CyclicDecompositionOfPrimarySubspace");
-DeclareGlobalFunction("JordanBlock");
 DeclareGlobalFunction("JordanNormalformIrred");
 
 #! @Arguments A
