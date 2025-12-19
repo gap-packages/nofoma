@@ -28,8 +28,8 @@ BindGlobal("nfmGcd", function(f,g)
   local d,c;
   d:=Gcd(f,g);
   c:=nfmCoeffsPol(d);
-  if c[Length(c)]<>c[1]^0 then
-    return c[Length(c)]^(-1)*d;
+  if not IsOne(Last(c)) then
+    return d / Last(c);
   else
     return d;
   fi;
@@ -39,8 +39,8 @@ BindGlobal("nfmLcm", function(f,g)
   local d,c;
   d:=Lcm(f,g);
   c:=nfmCoeffsPol(d);
-  if c[Length(c)]<>c[1]^0 then
-    return c[Length(c)]^(-1)*d;
+  if not IsOne(Last(c)) then
+    return d / Last(c);
   else
     return d;
   fi;
@@ -73,7 +73,7 @@ end);
 InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   local d,tb,bb;
   d:=nfmGcd(a,b);
-  if Degree(d)=0 then 
+  if IsZero(Degree(d)) then 
     return [d,a,b];
   fi;
   if Degree(b)<=Degree(a) then 
@@ -104,7 +104,7 @@ InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   v1:=ShallowCopy(pol[n]*v);
   for i in Reversed([1..n-1]) do
     v1:=v1*A;
-    if pol[i]<>0*pol[i] then 
+    if not IsZero(pol[i]) then
       AddRowVector(v1,v,pol[i]);
     fi;
   od;
@@ -118,7 +118,7 @@ InstallGlobalFunction(PolynomialToMat,function(A,pol)
   A1:=pol[n]*idm;
   for i in Reversed([1..n-1]) do
     A1:=A1*A;
-    if pol[i]<>0*pol[i] then 
+    if not IsZero(pol[i]) then
       A1:=A1+pol[i]*idm;
     fi;
   od;
@@ -182,12 +182,9 @@ end);
 # here, the last four arguments can be empty lists.
 
 InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
-  local d,one,zero,i,j,v1,nv,nv1,koeff,weiter;
+  local d,i,j,v1,nv,nv1,koeff,weiter;
   A := List(A, List);
   v := List(v);
-  #A := ImmutableMatrix(DefaultFieldOfMatrix(A),A);
-  one:=v[1]^0;
-  zero:=0*v[1];
   i:=PositionNonZero(v);
   if i>Length(v) then
     Error("# zero vector");
@@ -205,7 +202,7 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
     nv:=ShallowCopy(nv1);
     for j in [1..d] do 
       koeff:=-nv[piv[j]];
-      if koeff<>zero then 
+      if not IsZero(koeff) then
         AddRowVector(nv,bahn1[j],koeff);
       fi;
     od;
@@ -215,7 +212,7 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
     else
       Add(piv,i);
       AddSet(spiv,i);
-      if nv[i]=one then 
+      if IsOne(nv[i]) then 
         Add(bahn1,nv);
       else
         MultVector(nv,Inverse(nv[i]));
@@ -322,12 +319,12 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   v1:=ShallowCopy(v);
   for i in Reversed([1..z]) do
     l:=v1{[svec[i]..svec[i+1]-1]};
-    if l<>0*l then 
-      if Degree(rpols[i])=1 then
+    if not IsZero(l) then
+      if IsOne(Degree(rpols[i])) then
         g:=rpols[i];
       else
         h:=nfmPolCoeffs(l);
-        if Degree(h)=0 then 
+        if IsZero(Degree(h)) then 
           g:=rpols[i];
         else
           g:=Quotient(rpols[i],nfmGcd(rpols[i],h));
@@ -377,16 +374,16 @@ InstallGlobalFunction(MinPolyMat,function(mat)
   f:=rpols[1];
   for z in [2..Length(svec)-1] do 
     if Degree(f)^3>Length(svec) or
-         PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])<>0*idm[1] then 
+         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])) then 
       f1:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if QuotientRemainder(f,f1)[2]<>0*f1 then
+      if not IsZero(QuotientRemainder(f,f1)[2]) then
         f:=Lcm(f,f1);
       fi;
     fi;
   od;
   Info(Infonofoma,2,"Degree = ", Degree(f), ".");
   c:=CoefficientsOfUnivariatePolynomial(f);
-  if c[Length(c)]<>c[1]^0 then
+  if not IsOne(c[Length(c)]) then
     return c[Length(c)]^(-1)*f;
   else
     return f;
@@ -439,9 +436,9 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   lm:=[idm[1],rpols[1]];
   for z in [2..Length(svec)-1] do 
     if Degree(lm[2])^3>Length(svec) or
-         PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])<>0*idm[1] then 
+         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])) then 
       f:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if QuotientRemainder(lm[2],f)[2]<>0*f then 
+      if not IsZero(QuotientRemainder(lm[2],f)[2]) then 
         lm:=LcmMaximalVectorMat(M,lm[1],idm[svec[z]],lm[2],f);
       fi;
     fi;
@@ -471,10 +468,9 @@ end);
 ##  because it produces many zeroes.)
 ##
 InstallGlobalFunction(JacobMatComplement,function(T,d)
-  local base,null,i,ii,j,k,F,tT;
+  local base,i,ii,j,k,F,tT;
   k:=DefaultFieldOfMatrix(T);
   base:=IdentityMat(Length(T),k);
-  null:=0*base[1][1];
   tT:=TransposedMat(T); 
   F:=[base[d]];
   for i in [2..d] do 
@@ -485,7 +481,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   for i in [1..d] do 
     ii:=d+1-i;
     for j in [i+1..d] do 
-      if F[j][ii]<>null then
+      if not IsZero(F[j][ii]) then
         AddRowVector(F[j],F[i],-F[j][ii]);
       fi;
     od;
@@ -647,7 +643,7 @@ InstallGlobalFunction(FrobeniusNormalForm1,function(mat)
   local A,A1,A2,P,i,k,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  if A=0*A then 
+  if IsZero(A) then
     #Print("#I Zero matrix\n");
     return [A,A^0,List([1..Length(A)],i->i)];
   fi;
@@ -707,9 +703,9 @@ InstallGlobalFunction(SquareFreePol,function(f)
     return [f,1];
   else
     df:=Derivative(f);
-    if df<>0*df then 
+    if not IsZero(df) then
       f1:=nfmGcd(f,df);
-      if Degree(f1)=0 then
+      if IsZero(Degree(f1)) then
         return [f,1];
       else
         g1:=SquareFreePol(f1);
@@ -860,7 +856,7 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
     CopySubMatrix(gen, zsf, [1..r], [1..r], [1..r], [1..r]);
     w := ZeroVector(F,n);
     for i in [1..n] do 
-        if zsf[i,i] = Zero(F) then
+        if IsZero(zsf[i,i]) then
             w[i] := One(F);
             return w;
         fi;
