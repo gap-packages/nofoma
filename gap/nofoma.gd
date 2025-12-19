@@ -405,11 +405,6 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #!  then applies 'JordanChevalleyDecMat' to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
-DeclareGlobalFunction("CheckFrobForm");
-DeclareGlobalFunction("CheckJordanChev");
-
-DeclareGlobalFunction("nfmmat1");
-
 #! @Arguments A
 #! @Description
 #!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
@@ -434,8 +429,6 @@ DeclareGlobalFunction("nfmmat1");
 #! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
-
-DeclareGlobalFunction("nfmFactoriseByKnownFactors");
 
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
 DeclareGlobalFunction("nfmPrimaryDecompositionforJNFCyclic");

@@ -700,7 +700,7 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
     return f;
   fi;
 end);
-
+  
 ## Now Jordan-Chevalley decomposition
 
 InstallGlobalFunction(nfmFrobInv,function(K1,p,x)
@@ -799,7 +799,7 @@ InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
   od;
   return [f[2]^-1*D*f[2],f[2]^-1*N*f[2]];
 end);
-  
+
 ##Jordan Normal form code from here
 
 BindGlobal("nfmConvertVecToRowMat", function(vec)
@@ -1020,9 +1020,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     return [COB, dims];
 end);
 
-#input: collected factors, polynomial
-#factorisation of pol when we already know all of the possible factors 
-InstallGlobalFunction(nfmFactoriseByKnownFactors, function(kFacs,pol)
+BindGlobal("factoriseByKnownFactors", function(kFacs,pol)
   local fac,factup,i,resfacs,count,newpol,oldpol; 
   resfacs := [];
   oldpol := pol;
@@ -1091,7 +1089,8 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
         m := Quotient(m,p);
         if not IsOne(m) then 
             #TODO: make this work
-            facs := nfmFactoriseByKnownFactors(minpolfacs,m);
+            #facs := factoriseByKnownFactors(minpolfacs,m);
+            facs := Collected(Factors(m));
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
