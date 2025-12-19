@@ -73,7 +73,7 @@ end);
 InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   local d,tb,bb;
   d:=nfmGcd(a,b);
-  if Degree(d)=0 then 
+  if IsZero(Degree(d)) then 
     return [d,a,b];
   fi;
   if Degree(b)<=Degree(a) then 
@@ -182,11 +182,9 @@ end);
 # here, the last four arguments can be empty lists.
 
 InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
-  local d,one,i,j,v1,nv,nv1,koeff,weiter;
+  local d,i,j,v1,nv,nv1,koeff,weiter;
   A := List(A, List);
   v := List(v);
-  #A := ImmutableMatrix(DefaultFieldOfMatrix(A),A);
-  one:=v[1]^0;
   i:=PositionNonZero(v);
   if i>Length(v) then
     Error("# zero vector");
@@ -214,7 +212,7 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
     else
       Add(piv,i);
       AddSet(spiv,i);
-      if nv[i]=one then 
+      if IsOne(nv[i]) then 
         Add(bahn1,nv);
       else
         MultVector(nv,Inverse(nv[i]));
@@ -322,11 +320,11 @@ InstallGlobalFunction(nfmOrderPolM,function(M,svec,rpols,z,v)
   for i in Reversed([1..z]) do
     l:=v1{[svec[i]..svec[i+1]-1]};
     if not IsZero(l) then
-      if Degree(rpols[i])=1 then
+      if IsOne(Degree(rpols[i])) then
         g:=rpols[i];
       else
         h:=nfmPolCoeffs(l);
-        if Degree(h)=0 then 
+        if IsZero(Degree(h)) then 
           g:=rpols[i];
         else
           g:=Quotient(rpols[i],nfmGcd(rpols[i],h));
@@ -376,16 +374,16 @@ InstallGlobalFunction(MinPolyMat,function(mat)
   f:=rpols[1];
   for z in [2..Length(svec)-1] do 
     if Degree(f)^3>Length(svec) or
-         PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])<>0*idm[1] then 
+         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])) then 
       f1:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if QuotientRemainder(f,f1)[2]<>0*f1 then
+      if not IsZero(QuotientRemainder(f,f1)[2]) then
         f:=Lcm(f,f1);
       fi;
     fi;
   od;
   Info(Infonofoma,2,"Degree = ", Degree(f), ".");
   c:=CoefficientsOfUnivariatePolynomial(f);
-  if c[Length(c)]<>c[1]^0 then
+  if not IsOne(c[Length(c)]) then
     return c[Length(c)]^(-1)*f;
   else
     return f;
@@ -438,9 +436,9 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   lm:=[idm[1],rpols[1]];
   for z in [2..Length(svec)-1] do 
     if Degree(lm[2])^3>Length(svec) or
-         PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])<>0*idm[1] then 
+         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])) then 
       f:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if QuotientRemainder(lm[2],f)[2]<>0*f then 
+      if not IsZero(QuotientRemainder(lm[2],f)[2]) then 
         lm:=LcmMaximalVectorMat(M,lm[1],idm[svec[z]],lm[2],f);
       fi;
     fi;
@@ -470,10 +468,9 @@ end);
 ##  because it produces many zeroes.)
 ##
 InstallGlobalFunction(JacobMatComplement,function(T,d)
-  local base,null,i,ii,j,k,F,tT;
+  local base,i,ii,j,k,F,tT;
   k:=DefaultFieldOfMatrix(T);
   base:=IdentityMat(Length(T),k);
-  null:=0*base[1][1];
   tT:=TransposedMat(T); 
   F:=[base[d]];
   for i in [2..d] do 
@@ -484,7 +481,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   for i in [1..d] do 
     ii:=d+1-i;
     for j in [i+1..d] do 
-      if F[j][ii]<>null then
+      if not IsZero(F[j][ii]) then
         AddRowVector(F[j],F[i],-F[j][ii]);
       fi;
     od;
@@ -710,7 +707,7 @@ InstallGlobalFunction(CheckFrobForm,function(A,F)
     Error("base change not ok!");
   fi;
   for i in [1..Length(F[1])-1] do 
-    if QuotientRemainder(F[1][i],F[1][i+1])[2]<>0*F[1][i] then 
+    if not IsZero(QuotientRemainder(F[1][i],F[1][i+1])[2]) then 
       Error("divisibility not ok!");
     fi;
   od;
@@ -737,7 +734,7 @@ InstallGlobalFunction(SquareFreePol,function(f)
     df:=Derivative(f);
     if not IsZero(df) then
       f1:=nfmGcd(f,df);
-      if Degree(f1)=0 then
+      if IsZero(Degree(f1)) then
         return [f,1];
       else
         g1:=SquareFreePol(f1);
@@ -906,7 +903,7 @@ InstallGlobalFunction(nfmFindVectorNotInSubspaceNC, function(gen) #assumes gen i
     CopySubMatrix(gen, zsf, [1..r], [1..r], [1..r], [1..r]);
     w := ZeroVector(F,n);
     for i in [1..n] do 
-        if zsf[i,i] = Zero(F) then
+        if IsZero(zsf[i,i]) then
             w[i] := One(F);
             return w;
         fi;
