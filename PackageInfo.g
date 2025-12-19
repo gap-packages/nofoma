@@ -63,10 +63,7 @@ Status := "dev",
 AbstractHTML   :=  
   "This package computes maximal vectors, the Frobenius normal form and\
   the Jordan-Chevalley decomposition of a (square) matrix over any field\
-  that is available in GAP. In particular, it extends the already\
-  existing GAP function 'MininmalPolynomial' by computing also a vector\
-  whose local minimal polynomial is equal to the minimal polynomial of a\
-  given matrix.",
+  that is available in GAP.",
 
 BannerString := Concatenation(
 "──────────────────────────────────────────────────────────────────────────\n",
@@ -99,7 +96,41 @@ AvailabilityTest := ReturnTrue,
 
 TestFile := "tst/testall.g",
 
-#Keywords := [ "TODO" ],
+Keywords := [
+    "maximal vectors",
+    "Frobenius normal form",
+    "Jordan normal form",
+    "Jordan-Chevalley decomposition",
+],
+
+AutoDoc := rec(
+    TitlePage := rec(
+        # We reuse the AbstractHTML for the GAPDoc title page abstract -- we can
+        # only do that as long as we are careful and keep it to pure ASCII, as any
+        # use of HTML won't work inside of GAPDoc.
+        Abstract := Concatenation(~.AbstractHTML,
+            """
+            <P/>
+            Bug reports, suggestions and comments are, welcome.
+            Please submit them to our issue tracker
+            """,
+            "<URL>", ~.IssueTrackerURL, "</URL>."
+        ),
+
+        Copyright := """
+            &copyright; 2022 by Meinolf Geck.
+            The &nofoma; package is free software; you can redistribute it and/or
+            modify it under the terms of the GNU General Public License as published
+            by the Free Software Foundation; either version 2 of the License, or (at
+            your option) any later version.
+        """,
+        Acknowledgements := """
+            The original code by Meinolf Geck was cleaned up and made ready for inclusion
+            in the &GAP; package distribution Alia Bonnet in 2025, with some assistance
+            by Max Horn.
+        """,
+    ),
+),
 
 ));
 
