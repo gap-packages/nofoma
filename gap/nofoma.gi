@@ -14,33 +14,33 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, see <https://www.gnu.org/licenses/>.
 
-InstallGlobalFunction(nfmCoeffsPol, function(p)
+BindGlobal("nfmCoeffsPol", function(p)
   return CoefficientsOfUnivariatePolynomial(p);
 end);
 
-InstallGlobalFunction(nfmPolCoeffs, function(coeffs)
+BindGlobal("nfmPolCoeffs", function(coeffs)
   return UnivariatePolynomialByCoefficients(FamilyObj(coeffs[1]),coeffs,1);
 end);
 
 # we want that a gcd of polynomials is always monic
 
-InstallGlobalFunction(nfmGcd, function(f,g)
+BindGlobal("nfmGcd", function(f,g)
   local d,c;
   d:=Gcd(f,g);
   c:=nfmCoeffsPol(d);
-  if c[Length(c)]<>c[1]^0 then
-    return c[Length(c)]^(-1)*d;
+  if not IsOne(Last(c)) then
+    return d / Last(c);
   else
     return d;
   fi;
 end);
 
-InstallGlobalFunction(nfmLcm, function(f,g)
+BindGlobal("nfmLcm", function(f,g)
   local d,c;
   d:=Lcm(f,g);
   c:=nfmCoeffsPol(d);
-  if c[Length(c)]<>c[1]^0 then
-    return c[Length(c)]^(-1)*d;
+  if not IsOne(Last(c)) then
+    return d / Last(c);
   else
     return d;
   fi;
@@ -73,7 +73,7 @@ end);
 InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   local d,tb,bb;
   d:=nfmGcd(a,b);
-  if Degree(d)=0 then 
+  if IsZero(Degree(d)) then 
     return [d,a,b];
   fi;
   if Degree(b)<=Degree(a) then 
@@ -104,7 +104,7 @@ InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   v1:=ShallowCopy(pol[n]*v);
   for i in Reversed([1..n-1]) do
     v1:=v1*A;
-    if pol[i]<>0*pol[i] then 
+    if not IsZero(pol[i]) then
       AddRowVector(v1,v,pol[i]);
     fi;
   od;
@@ -118,7 +118,7 @@ InstallGlobalFunction(PolynomialToMat,function(A,pol)
   A1:=pol[n]*idm;
   for i in Reversed([1..n-1]) do
     A1:=A1*A;
-    if pol[i]<>0*pol[i] then 
+    if not IsZero(pol[i]) then
       A1:=A1+pol[i]*idm;
     fi;
   od;
@@ -182,12 +182,9 @@ end);
 # here, the last four arguments can be empty lists.
 
 InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
-  local d,one,zero,i,j,v1,nv,nv1,koeff,weiter;
+  local d,i,j,v1,nv,nv1,koeff,weiter;
   A := List(A, List);
   v := List(v);
-  #A := ImmutableMatrix(DefaultFieldOfMatrix(A),A);
-  one:=v[1]^0;
-  zero:=0*v[1];
   i:=PositionNonZero(v);
   if i>Length(v) then
     Error("# zero vector");
@@ -205,7 +202,7 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
     nv:=ShallowCopy(nv1);
     for j in [1..d] do 
       koeff:=-nv[piv[j]];
-      if koeff<>zero then 
+      if not IsZero(koeff) then
         AddRowVector(nv,bahn1[j],koeff);
       fi;
     od;
@@ -215,7 +212,7 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
     else
       Add(piv,i);
       AddSet(spiv,i);
-      if nv[i]=one then 
+      if IsOne(nv[i]) then 
         Add(bahn1,nv);
       else
         MultVector(nv,Inverse(nv[i]));
@@ -287,7 +284,7 @@ InstallGlobalFunction(CyclicChainMat,function(mat)
 end);
 
 # M=sp[2]*A*sp[2]^-1
-InstallGlobalFunction(nfmRelMinPols,function(M,svec)
+BindGlobal("nfmRelMinPols",function(M,svec)
   local i,l,rpol,one;
   one:=OneOfBaseDomain(M);
   rpol:=[];
@@ -315,18 +312,18 @@ end);
 ##     x_1^3-x_1^2-2*x_1
 ##  
 # This is OrdPoly from Neunhoeffer-Praeger 
-InstallGlobalFunction(nfmOrderPolM,function(M,svec,rpols,z,v)
+BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   local i,f,v1,h,g,l;
   f:=[];
   v1:=ShallowCopy(v);
   for i in Reversed([1..z]) do
     l:=v1{[svec[i]..svec[i+1]-1]};
-    if l<>0*l then 
-      if Degree(rpols[i])=1 then
+    if not IsZero(l) then
+      if IsOne(Degree(rpols[i])) then
         g:=rpols[i];
       else
         h:=nfmPolCoeffs(l);
-        if Degree(h)=0 then 
+        if IsZero(Degree(h)) then 
           g:=rpols[i];
         else
           g:=Quotient(rpols[i],nfmGcd(rpols[i],h));
@@ -376,16 +373,16 @@ InstallGlobalFunction(MinPolyMat,function(mat)
   f:=rpols[1];
   for z in [2..Length(svec)-1] do 
     if Degree(f)^3>Length(svec) or
-         PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])<>0*idm[1] then 
+         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])) then 
       f1:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if QuotientRemainder(f,f1)[2]<>0*f1 then
+      if not IsZero(QuotientRemainder(f,f1)[2]) then
         f:=Lcm(f,f1);
       fi;
     fi;
   od;
   Info(Infonofoma,2,"Degree = ", Degree(f), ".");
   c:=CoefficientsOfUnivariatePolynomial(f);
-  if c[Length(c)]<>c[1]^0 then
+  if not IsOne(c[Length(c)]) then
     return c[Length(c)]^(-1)*f;
   else
     return f;
@@ -438,9 +435,9 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   lm:=[idm[1],rpols[1]];
   for z in [2..Length(svec)-1] do 
     if Degree(lm[2])^3>Length(svec) or
-         PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])<>0*idm[1] then 
+         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])) then 
       f:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if QuotientRemainder(lm[2],f)[2]<>0*f then 
+      if not IsZero(QuotientRemainder(lm[2],f)[2]) then 
         lm:=LcmMaximalVectorMat(M,lm[1],idm[svec[z]],lm[2],f);
       fi;
     fi;
@@ -470,10 +467,9 @@ end);
 ##  because it produces many zeroes.)
 ##
 InstallGlobalFunction(JacobMatComplement,function(T,d)
-  local base,null,i,ii,j,k,F,tT;
+  local base,i,ii,j,k,F,tT;
   k:=DefaultFieldOfMatrix(T);
   base:=IdentityMat(Length(T),k);
-  null:=Zero(k);
   tT:=TransposedMat(T); 
   F:=[base[d]];
   for i in [2..d] do 
@@ -484,7 +480,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   for i in [1..d] do 
     ii:=d+1-i;
     for j in [i+1..d] do 
-      if F[j][ii]<>null then
+      if not IsZero(F[j][ii]) then
         AddRowVector(F[j],F[i],-F[j][ii]);
       fi;
     od;
@@ -498,7 +494,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   return base;
 end);
 
-InstallGlobalFunction(BuildBlockDiagonalMat,function(A,B)
+BindGlobal("BuildBlockDiagonalMat",function(A,B)
   local d,neu,i,n,k,zero,row;
   k:=DefaultFieldOfMatrix(B);
   d:=Length(A);
@@ -516,7 +512,7 @@ InstallGlobalFunction(BuildBlockDiagonalMat,function(A,B)
   return neu;
 end);
 
-InstallGlobalFunction(BuildBlockDiagonalMat1,function(d,B)
+BindGlobal("BuildBlockDiagonalMat1",function(d,B)
   local neu,n,k;
   k:=DefaultFieldOfMatrix(B);
   n:=d+Length(B);
@@ -558,19 +554,7 @@ InstallGlobalFunction(RatFormStep1J,function(A,v)
   return [A1{[d+1..Length(A1)]}{[d+1..Length(A1)]},j*t,minp];
 end);
 
-InstallGlobalFunction(nfmCompanionMat,function(f)
-  local n,i,mat;
-  n:=Length(f)-1;
-  mat:=(0*f[1])*IdentityMat(n);
-  for i in [1..n-1] do 
-    mat[i+1][i]:=f[1]^0;
-    mat[i][n]:=-f[i];
-  od;
-  mat[n][n]:=-f[n];
-  return mat;
-end);
-
-InstallGlobalFunction(nfmCompanionMat1,function(f)
+BindGlobal("nfmCompanionMat1", function(f)
   local n,i,mat;
   n:=Length(f)-1;
   mat:=(0*f[1])*IdentityMat(n);
@@ -592,7 +576,7 @@ InstallGlobalFunction(CreateNormalForm,function(plist)
   A:=NullMat(l[r+1]-1,l[r+1]-1,nfmCoeffsPol(plist[1])[1]);
   for i in [1..r] do
     A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
-              TransposedMat(nfmCompanionMat(nfmCoeffsPol(plist[i])));
+              nfmCompanionMat1(nfmCoeffsPol(plist[i]));
   od;
   return A;
 end);
@@ -658,7 +642,7 @@ InstallGlobalFunction(FrobeniusNormalForm1,function(mat)
   local A,A1,A2,P,i,k,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  if A=0*A then 
+  if IsZero(A) then
     #Print("#I Zero matrix\n");
     return [A,A^0,List([1..Length(A)],i->i)];
   fi;
@@ -699,27 +683,10 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
     return f;
   fi;
 end);
-
-# F=output of FrobeniusNormalForm
-InstallGlobalFunction(CheckFrobForm,function(A,F)
-  local P,k,i,nf;
-  nf:=CreateNormalForm(F[1]);
-  k:=DefaultFieldOfMatrix(A);
-  P:=F[2];
-  if P*A*P^(-1)<>nf then 
-    Error("base change not ok!");
-  fi;
-  for i in [1..Length(F[1])-1] do 
-    if QuotientRemainder(F[1][i],F[1][i+1])[2]<>0*F[1][i] then 
-      Error("divisibility not ok!");
-    fi;
-  od;
-  return true;
-end);
   
 ## Now Jordan-Chevalley decomposition
 
-InstallGlobalFunction(nfmFrobInv,function(K1,p,x)
+BindGlobal("nfmFrobInv",function(K1,p,x)
   local i;
   i:=1;
   while K1[i]^p<>x do
@@ -735,9 +702,9 @@ InstallGlobalFunction(SquareFreePol,function(f)
     return [f,1];
   else
     df:=Derivative(f);
-    if df<>0*df then 
+    if not IsZero(df) then
       f1:=nfmGcd(f,df);
-      if Degree(f1)=0 then
+      if IsZero(Degree(f1)) then
         return [f,1];
       else
         g1:=SquareFreePol(f1);
@@ -815,28 +782,10 @@ InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
   od;
   return [f[2]^-1*D*f[2],f[2]^-1*N*f[2]];
 end);
-  
-InstallGlobalFunction(CheckJordanChev,function(mat,jc)
-  local m;
-  m:=MinPolyMat(jc[1]);
-  return [nfmGcd(m,Derivative(m)),MinPolyMat(jc[2])];
-end);
-
-InstallGlobalFunction(nfmmat1,function(mat)
-  local a,a1,b,i;
-  a1:=TransposedMat(Concatenation(mat,mat));
-  a:=[];
-  for i in [1..Length(a1)-1] do
-    Add(a,a1[i]);
-  od;
-  Add(a,0*a1[1]);
-  b:=TransposedMat(Concatenation(TransposedMat(mat),TransposedMat(mat)));
-  return Concatenation(a,b);
-end);
 
 ##Jordan Normal form code from here
 
-InstallGlobalFunction(nfmConvertVecToRowMat, function(vec)
+BindGlobal("nfmConvertVecToRowMat", function(vec)
     local mat, n, i;
     n := Length(vec);
     mat := ZeroMatrix(BaseDomain(vec), 1, n);
@@ -847,7 +796,7 @@ InstallGlobalFunction(nfmConvertVecToRowMat, function(vec)
 end);
 
 #Avoids creating the vector space
-InstallGlobalFunction(nfmGenerateRandomVector, function(F, d) #Field d, length d
+BindGlobal("nfmGenerateRandomVector", function(F, d) #Field d, length d
     local vec, i;
     vec := ZeroVector(F,d);
     for i in [1..d] do
@@ -856,7 +805,7 @@ InstallGlobalFunction(nfmGenerateRandomVector, function(F, d) #Field d, length d
     return vec;
 end);
 
-InstallGlobalFunction(nfmGenerateNonCyclicMatrix, function(F,n) #Field F, dimension n
+BindGlobal("nfmGenerateNonCyclicMatrix", function(F,n) #Field F, dimension n
     local dim, A, num, subA, scr;
     A := ZeroMatrix(F,n,n);
     num := PseudoRandom([1..n-1]); #dont go until n because we dont want cyclic matrix
@@ -875,7 +824,7 @@ end);
 
 #Spinning algorithm
 #Returns (vec, vec*A, ..., vec*A^(goal-1))
-InstallGlobalFunction(nfmSpinUntil, function(vec, A, goal)
+BindGlobal("nfmSpinUntil", function(vec, A, goal)
     local n, i, res, F;
     F := BaseDomain(A);
     if goal = 0 then 
@@ -893,7 +842,7 @@ end);
 
 #Returns a vector v such that v is not in subspace spanned by gen
 #Assumes that gen is already echelonised 
-InstallGlobalFunction(nfmFindVectorNotInSubspaceNC, function(gen) #assumes gen is already echelonised
+BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already echelonised
     local w, i, n, F, r, zsf;
     r := NrRows(gen); #dimension of subspace
     F := BaseDomain(gen);
@@ -906,7 +855,7 @@ InstallGlobalFunction(nfmFindVectorNotInSubspaceNC, function(gen) #assumes gen i
     CopySubMatrix(gen, zsf, [1..r], [1..r], [1..r], [1..r]);
     w := ZeroVector(F,n);
     for i in [1..n] do 
-        if zsf[i,i] = Zero(F) then
+        if IsZero(zsf[i,i]) then
             w[i] := One(F);
             return w;
         fi;
@@ -917,7 +866,7 @@ end);
 
 #Finds a cyclic vector for A
 #Doesn't check if $A$ is cyclic
-InstallGlobalFunction(nfmFindCyclicVectorNC, function(A) #Field F, Matrix A, n upper bound of loops;
+BindGlobal("nfmFindCyclicVectorNC", function(A) #Field F, Matrix A, n upper bound of loops;
     local checked,vec,gens,n,i,F;
     n := NrRows(A);
     F := BaseDomain(A);
@@ -938,7 +887,7 @@ InstallGlobalFunction(nfmFindCyclicVectorNC, function(A) #Field F, Matrix A, n u
     return fail;
 end);
 
-InstallGlobalFunction(nfmRemoveZeroRows, function(mat)
+BindGlobal("nfmRemoveZeroRows", function(mat)
     local i,matcopy;
     matcopy := MutableCopyMat(mat);
     for i in Reversed([1..NrRows(matcopy)]) do 
@@ -951,7 +900,7 @@ end);
 
 #Evaluates v*p(A) VERY efficiently
 #Takes (v,vA,...v^n-1A) and polynomial as input
-InstallGlobalFunction(nfmPolyEvalFromSpan, function(span,pol)
+BindGlobal("nfmPolyEvalFromSpan", function(span,pol)
     local coeffs, i, resu;
     resu := ZeroVector(BaseDomain(span),NrCols(span));
     coeffs := CoefficientsOfUnivariatePolynomial(pol);
@@ -1054,29 +1003,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     return [COB, dims];
 end);
 
-#TODO: now that primdecomp has sorted blocks this can be tested more efficiently
-#check primary decomp function with field F and dimension n 
-#checks if the submatrices have the correct minimal polynomials
-InstallGlobalFunction(nfmCheckPrimaryDecomp, function(F, n)
-  local A,Prim,B,dim,k,minpolfacs,sub; 
-  A := Matrix(F,RandomInvertibleMat(n,F));
-  Prim := PrimaryDecomp(A);
-  B := A^Inverse(Prim[1]);
-  minpolfacs := Factors(MinimalPolynomial(F,A));
-  k := 1;
-  for dim in Prim[2] do 
-    sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
-    k := k+dim;
-    if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then 
-      return false;
-    fi;
-  od;
-  return true;
-end);
-
-#input: collected factors, polynomial
-#factorisation of pol when we already know all of the possible factors 
-InstallGlobalFunction(nfmFactoriseByKnownFactors, function(kFacs,pol)
+BindGlobal("factoriseByKnownFactors", function(kFacs,pol)
   local fac,factup,i,resfacs,count,newpol,oldpol; 
   resfacs := [];
   oldpol := pol;
@@ -1103,7 +1030,7 @@ end);
 #Takes matrix along with its minimal polynomial and its factorised version as input
 #Returns matrix B such that B*A*B^-1 is in primary decomp. form, dimensions of primary subspaces
 #and factors of minimal polynomial in correct order
-InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolfacs)
+BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
     local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v, 
     COB,pot,gs,f2,toAdd,pos,dims,dim;
     rank := 0;
@@ -1145,7 +1072,8 @@ InstallGlobalFunction(nfmPrimaryDecompositionforJNF, function(A, minpol, minpolf
         m := Quotient(m,p);
         if not IsOne(m) then 
             #TODO: make this work
-            facs := nfmFactoriseByKnownFactors(minpolfacs,m);
+            #facs := factoriseByKnownFactors(minpolfacs,m);
+            facs := Collected(Factors(m));
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
@@ -1185,7 +1113,7 @@ end);
 
 #Primary Decomposition for cyclic matrices 
 #Jordan normal form will call this function if a cyclic matrix is detected
-InstallGlobalFunction(nfmPrimaryDecompositionforJNFCyclic, function(A, minpol, minpolfacs)
+BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs)
     local vspan,F,n,w,i,wspan,qi,k,v,COB,dims;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -1208,7 +1136,7 @@ end);
 
 #Input: For matrix A with minimal polynomial p^m: m, vector v and p(A)
 #Returns: v, length r of v, vp^(r-1)(A)
-InstallGlobalFunction(GetMinPolPowerWithVec, function(m,v,Ainp)
+BindGlobal("GetMinPolPowerWithVec", function(m,v,Ainp)
     local j, veccopy, lastcopy;
     if IsZero(v) then
         return [v,0,v];
@@ -1227,7 +1155,7 @@ InstallGlobalFunction(GetMinPolPowerWithVec, function(m,v,Ainp)
 end);
 
 #Returns linear dependence q_1,...,q_k as described in paper for cyclic decomposition
-InstallGlobalFunction(FindLinearDependenceNC, function(vecs, A, d) #vecs, A, degree of p, returns coeffs of qis (ascending degree) #THIS ONLY WORKS FOR SETTING IN THEOREM 
+BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p, returns coeffs of qis (ascending degree) #THIS ONLY WORKS FOR SETTING IN THEOREM 
     local n,F,i,rel,tosolve,currdim,qis;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
@@ -1254,7 +1182,7 @@ end);
 
 #Input: matrix A with minimalpolynomial p^m
 #Returns matrix B such that A^Inverse(B) is in cyclic decomposition form, dimensions of cyclic subspaces
-InstallGlobalFunction(CyclicDecompositionOfPrimarySubspace, function (A, p, m) 
+BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m) 
     local F,n,d,Ainp,ws,allspun,wspun,tomult,minpolpowers,
     dims,wtrip,i,conj,sumdim,qis,k,j,r,wstrich,currdim,w,vecs;
     F := DefaultFieldOfMatrix(A);
@@ -1330,7 +1258,7 @@ end);
 
 #Input: Cyclic matrix A with minimal polynomial p^m
 #Returns matrix B such that A^Inverse(B) is in Jordan block form
-InstallGlobalFunction(JordanBlock, function(A, p, m) #For JordanNormalform
+BindGlobal("JordanBlock", function(A, p, m) #For JordanNormalform
     local i,spun,n,basis,d,r;
     n := NrRows(A);
     d := Degree(p);

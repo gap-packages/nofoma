@@ -47,15 +47,7 @@
 #! and it does not require the knowledge of the eigenvalues of <M>A</M>. This
 #! is implemented in the function <Ref Func="JordanChevalleyDecMat"/>.
 #! 
-#! Further references are provided within the help menu of each function.
-#! 
-#! Any comments welcome!                            Meinolf Geck, June 2022
-#! 
-#! @Section Copyright and installation of the &nofoma; package
-#! The &nofoma; package is free software; you can redistribute it and/or
-#! modify it under the terms of the GNU General Public License as published 
-#! by the Free Software Foundation; either version 2 of the License, or (at 
-#! your option) any later version.
+#! @Section Installation of the &nofoma; package
 #!
 #! To install this package first unpack it inside some &GAP; root directory
 #! in the subdirectory `pkg` (see the section 'Installing a &GAP; Package' of
@@ -65,11 +57,6 @@
 #! @Section The main functions
 
 DeclareInfoClass("Infonofoma"); 
-
-DeclareGlobalFunction("nfmCoeffsPol"); 
-DeclareGlobalFunction("nfmPolCoeffs");
-DeclareGlobalFunction("nfmGcd");
-DeclareGlobalFunction("nfmLcm");
 
 #! @Arguments a,b
 #! @Description 
@@ -190,8 +177,6 @@ DeclareGlobalFunction("SpinMatVector");
 #! @EndExampleSession
 DeclareGlobalFunction("CyclicChainMat");
 
-DeclareGlobalFunction("nfmRelMinPols");
-DeclareGlobalFunction("nfmOrderPolM");
 DeclareGlobalFunction("MinPolyMat");
 
 #! @Arguments A
@@ -252,9 +237,6 @@ DeclareGlobalFunction("MaximalVectorMat");
 #! because it produces many zeroes.)
 DeclareGlobalFunction("JacobMatComplement");
 
-DeclareGlobalFunction("BuildBlockDiagonalMat");
-DeclareGlobalFunction("BuildBlockDiagonalMat1");
-
 #! @Arguments A,v
 #! @Description
 #! Spins up a vector  <A>v</A> under a  matrix  <A>A</A>,  computes
@@ -278,9 +260,6 @@ DeclareGlobalFunction("BuildBlockDiagonalMat1");
 #! @EndExampleSession
 DeclareGlobalFunction("RatFormStep1");
 DeclareGlobalFunction("RatFormStep1J");
-
-DeclareGlobalFunction("nfmCompanionMat");
-DeclareGlobalFunction("nfmCompanionMat1");
 
 #! @Arguments A
 #! @Description
@@ -352,7 +331,6 @@ DeclareGlobalFunction("FrobeniusNormalForm1");
 #! @EndExampleSession
 DeclareGlobalFunction("InvariantFactorsMat");
 
-DeclareGlobalFunction("nfmFrobInv");
 DeclareGlobalFunction("SquareFreePol");
 
 #! @Arguments A,f
@@ -405,20 +383,6 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #!  then applies 'JordanChevalleyDecMat' to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
-DeclareGlobalFunction("CheckFrobForm");
-DeclareGlobalFunction("CheckJordanChev");
-
-DeclareGlobalFunction("nfmmat1");
-
-DeclareGlobalFunction("nfmConvertVecToRowMat");
-DeclareGlobalFunction("nfmGenerateRandomVector");
-DeclareGlobalFunction("nfmGenerateNonCyclicMatrix");
-DeclareGlobalFunction("nfmSpinUntil");
-DeclareGlobalFunction("nfmFindVectorNotInSubspaceNC");
-DeclareGlobalFunction("nfmFindCyclicVectorNC");
-DeclareGlobalFunction("nfmRemoveZeroRows");
-DeclareGlobalFunction("nfmPolyEvalFromSpan");
-
 #! @Arguments A
 #! @Description
 #!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
@@ -444,16 +408,6 @@ DeclareGlobalFunction("nfmPolyEvalFromSpan");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
-DeclareGlobalFunction("nfmCheckPrimaryDecomp");
-
-DeclareGlobalFunction("nfmFactoriseByKnownFactors");
-
-DeclareGlobalFunction("nfmPrimaryDecompositionforJNF");
-DeclareGlobalFunction("nfmPrimaryDecompositionforJNFCyclic");
-DeclareGlobalFunction("GetMinPolPowerWithVec");
-DeclareGlobalFunction("FindLinearDependenceNC");
-DeclareGlobalFunction("CyclicDecompositionOfPrimarySubspace");
-DeclareGlobalFunction("JordanBlock");
 DeclareGlobalFunction("JordanNormalformIrred");
 
 #! @Arguments A
