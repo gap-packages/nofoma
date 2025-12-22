@@ -299,19 +299,6 @@ end);
   
 # svec = indices where the blocks start.
 
-##########################################################################
-##
-#F  MinPolyMat( <A> )  . . . . . . . . . . computes the minimal polynomial 
-##  
-##  'MinPolyMat' returns the minimal polynomial of the matrix <A>.
-##  
-##  Example:
-##     gap> MinPolyMat([ [ 0, 1, 0, 1 ],
-##     gap>               [ 0, 0, 0, 0 ],
-##     gap>               [ 0, 1, 0, 1 ],
-##     gap>               [ 1, 1, 1, 1 ] ]);
-##     x_1^3-x_1^2-2*x_1
-##  
 # This is OrdPoly from Neunhoeffer-Praeger 
 BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   local i,f,v1,h,g,l;
@@ -338,57 +325,6 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   od;
   return Product(f);
 end);
-
-# my version of the Neunhoeffer-Praeger algorithm
-# if the degree of order poly is small and number of blocks in cyclic 
-# chain is large, then check directly if order poly is already the
-# minimal polynomial
-InstallGlobalFunction(MinPolyMat,function(mat)
-  local A,M,k,idm,sp,z,c,i,l,f,f1,v1,rpols,svec,one;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
-  idm:=IdentityMat(Length(A),k);
-  if IsDiagonalMat(A) then       # first deal with diagonal matrix
-    one:=A[1][1]^0;
-    if ForAll([2..Length(A)],i->A[i][i]=A[1][1]) then
-      f:=nfmPolCoeffs([-A[1][1],one]);
-    else
-      l:=Set(List([1..Length(A)],i->A[i][i]));
-      f:=nfmPolCoeffs([-l[1],one]);
-      for i in [2..Length(l)] do
-        f:=nfmPolCoeffs([-l[i],one])*f;
-      od;
-    fi;
-    Info(Infonofoma,2,"Degree of minimal polynomial is ",Degree(f)," \n");
-    return f;
-  fi;
-  sp:=CyclicChainMat(A);
-  svec:=sp[3];
-  if Length(svec)=2 then 
-    Info(Infonofoma,2,"Chain complete with 1 subspace.");
-  else
-    Info(Infonofoma,2,"Chain complete with ", Length(svec)-1, " subspaces.");
-  fi;
-  M:=sp[2]*A*sp[2]^-1;
-  rpols:=nfmRelMinPols(M,svec);
-  f:=rpols[1];
-  for z in [2..Length(svec)-1] do 
-    if Degree(f)^3>Length(svec) or
-         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])) then 
-      f1:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if not IsZero(QuotientRemainder(f,f1)[2]) then
-        f:=Lcm(f,f1);
-      fi;
-    fi;
-  od;
-  Info(Infonofoma,2,"Degree = ", Degree(f), ".");
-  c:=CoefficientsOfUnivariatePolynomial(f);
-  if not IsOne(c[Length(c)]) then
-    return c[Length(c)]^(-1)*f;
-  else
-    return f;
-  fi;
-end); 
 
 ##########################################################################
 ##

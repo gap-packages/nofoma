@@ -177,8 +177,6 @@ DeclareGlobalFunction("SpinMatVector");
 #! @EndExampleSession
 DeclareGlobalFunction("CyclicChainMat");
 
-DeclareGlobalFunction("MinPolyMat");
-
 #! @Arguments A
 #! @Description
 #!  Returns the minimal polynomial and a maximal vector 
