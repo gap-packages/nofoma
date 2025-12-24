@@ -18,32 +18,10 @@ BindGlobal("nfmPolCoeffs", function(coeffs)
   return UnivariatePolynomialByCoefficients(FamilyObj(coeffs[1]),coeffs,1);
 end);
 
-# we want that a gcd of polynomials is always monic
-
-##########################################################################
-##
-#F  GcdCoprimeSplit( <a>, <b> ) . . . . . . . coprime factorisation of lcm
-##
-##  'GcdCoprimeSplit' computes a divisor <a1> of the polynomial <a>  and a 
-##  divisor <b1> of the polynomial <b> such that <a1> and <b1> are coprime 
-##  and the lcm of <a>, <b> is <a1>*<b1>.  This is based on Lemma 5 in 
-##
-##  K. Bongartz,  A direct approach to the rational normal form,  preprint
-##  available at arXiv:1410.1683.
-## 
-##  (Note that it does not use the prime factorisation of polynomials  but 
-##  only gcd computations.)  
-##  
-##  Example:  
-##    gap> a:=x^2*(x-1)^3*(x-2)*(x-3);
-##    x^7-8*x^6+24*x^5-34*x^4+23*x^3-6*x^2
-##    gap> b:=x^2*(x-1)^2*(x-2)^4*(x-4);
-##    x^9-14*x^8+81*x^7-252*x^6+456*x^5-480*x^4+272*x^3-64*x^2
-##    gap> GcdCoprimeSplit(a,b);
-##    [ x^5-4*x^4+5*x^3-2*x^2,                      # the (monic) gcd
-##      x^4-6*x^3+12*x^2-10*x+3,                    # a1
-##      x^7-12*x^6+56*x^5-128*x^4+144*x^3-64*x^2 ]  # b1
-##  
+# Computes divisor a_1 of the polynomial a and a divisor 
+# b_1 of the polynomial b such that a_1 and b_1 are coprime 
+# and the lcm of a,b is a_1*b_1.
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   local d,tb,bb;
   d:=Gcd(a,b);
@@ -63,15 +41,9 @@ InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   fi;
 end);
 
-##########################################################################
-##
-#F  PolynomialToMatVec( <A>, <pol>, <v> ) . . apply polynomial to a matrix
-##  . . . . . . . . . . . . . . . . . . . . . . . . . and then to a vector
-##
-##  'PolynomialToMatVec' returns  the row vector  obtained  by multiplying 
-##  the row vector <v> with the matrix <pol>(<A>), where <pol> is the list 
-##  of coefficients of a polynomial.
-##
+# TODO : take polynomial as input
+# Applies polynomial pol to A and then to v. 
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   local n,v1,i;
   n:=Length(pol);
@@ -85,6 +57,8 @@ InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   return v1;
 end);
 
+#TODO: take polynomial as input
+# Applies polynomial pol to A. 
 InstallGlobalFunction(PolynomialToMat,function(A,pol)
   local A1,idm,n,i;
   idm:=A^0;
@@ -99,18 +73,10 @@ InstallGlobalFunction(PolynomialToMat,function(A,pol)
   return A1;
 end);
 
-##########################################################################
-##
-#F  LcmMaximalVectorMat( <A>, <v1>, <v2>, <pol1>, <pol2> ) . . compute lcm
-##  . . .  . . . . . . of two minimal polynomials and corresponding vector
-##
-##  'LcmPolynomialToMatVec' returns,  given  a matrix  <A>,  vectors <v1>,
-##  <v2> with minimal polynomials <pol1>, <pol2>,  a new pair [<v>,<pol>],  
-##  where <v> has minimal polynomial <pol>, and <pol> is the least common
-##  multiple of <pol1> and <pol2>.  
-##  This crucially relies on  'GcdCoprimeSplit' to avoid  factorisation of 
-##  polynomials.
-##
+# Takes matrix A, vectors v1,v2 with minimal polynomials pol1,pol2 as inputs
+# Returns [v,pol] such that v has minimal polynomial pol, pol is lcm 
+# of pol1 and pol2. 
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(LcmMaximalVectorMat,function(A,v1,v2,pol1,pol2)
   local d,v;
   if QuotientRemainder(pol1,pol2)=0*pol1 then 
@@ -129,32 +95,15 @@ InstallGlobalFunction(LcmMaximalVectorMat,function(A,v1,v2,pol1,pol2)
   fi;
 end);
 
-##########################################################################
-##
-#F  SpinMatVector( <A>, <v> ) . . . . . .  spin up a vector under a matrix 
-##
-##  'SpinMatVector' computes  the  smallest subspace containing the vector  
-##  <v>  and invariant under the matrix  <A>.  The  output is a quadruple.  
-##  The first component contains a  basis in row echelon form,  the second 
-##  the  matrix  with  rows v, Av, A^2v, ..., A^(d-1)v, the third  one the 
-##  coefficients of the minimal polynomial of <v>  (of degree d),  and the
-##  last one the positions of the pivots of the first component.
-## 
-##  Examples:
-##     gap>  A:=[[2,0,0],[0,-1,0],[0,0,1]];
-##     gap>  v:=[1,1,0];
-##     gap>  SpinMatVector(A,v);
-##     [ [ [ 1, 0, 0 ], [ 0, 1, 0 ] ], 
-##       [ [ 1, 1, 0 ], [ 2, -1, 0 ] ], 
-##       [ -2, -1, 1 ], [ 1, 2 ] ]    So v has minimal polynomial x^2-x-2.
-##     gap>  SpinMatVector(A,[1,1,1]);
-##     [ [ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ], 
-##       [ [ 1, 1, 1 ], [ 2, -1, 1 ], [ 4, 1, 1 ] ], 
-##       [ 2, -1, -2, 1 ], [ 1, 2, 3 ] ]  minimal polynomial x^3-2x^2-x+2.
-##
-# this version does not compute the minimal polynomial, only the subspace;
-# here, the last four arguments can be empty lists.
+# SpinMatVector takes a matrix A and a vector v as input.
+# Returns quadruple where first component contains a basis in row 
+# echelon form, the second the matrix with rows v, Av, A^2v, ..., A^(d-1)v,
+# the third one the coefficients of the minimal polynomial of v (of degree d)
+# and the last one the positions of the pivots of the first component.
+# For details about this function, see nofoma.gd.
 
+# SpinMatVector1 does not compute the minimal polynomial, only the subspace;
+# here, the last four arguments can be empty lists.
 InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
   local d,i,j,v1,nv,nv1,koeff,weiter;
   A := List(A, List);
@@ -209,33 +158,11 @@ InstallGlobalFunction(SpinMatVector,function(mat,vec)
   return [sp[1],sp[2],minpol,sp[4]];
 end);
 
-##########################################################################
-##
-#F  CyclicChainMat( <A> ) . . . . . . . compute complete chain of relative 
-##  . . . . . . . . . . . . cyclic subspaces (with additional information)
-##
-##  'CyclicChainMat' repeatedly applies 'SpinMatVector1' (relative version
-##  of 'SpinMatVector') to compute a chain of cyclic subspaces. The output 
-##  is a triple  [B,C,svec]  where C is such that  C*<A>*C^-1  has a block 
-##  triangular shape with companian matrices along the diagonal), B is the
-##  row echelon form of C and svec is the list of indices where the blocks 
-##  begin.
-##
-##  Example:
-##   gap> A:=[ [ 0, 1, 0, 1 ],
-##   gap>      [ 0, 0, 1, 0 ],
-##   gap>      [ 0, 1, 0, 1 ],
-##   gap>      [ 1, 1, 1, 1 ] ]);;
-##   gap> sp:=CyclicChainMat(A);
-##   [ [ [ 1, 0, 0, 0 ], [ 0, 1, 0, 1 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ], 
-##     [ [ 1, 0, 0, 0 ], [ 0, 1, 0, 1 ], [ 1, 1, 2, 1 ], [ 0, 0, 0, 1 ] ], 
-##     [ 1, 4, 5 ] ]
-##   gap> PrintArray(sp[2]*A*sp[2]^-1);
-##   [ [    0,    1,    0,    0 ],     There are 2 diagonal blocks, 
-##     [    0,    0,    1,    0 ],     one (size 3x3) starting at index 1,
-##     [    0,    3,    1,    0 ],     one (size 1x1) starting at index 4.
-##     [  1/2,  1/2,  1/2,    0 ] ]
-##
+# Returns triple [B,C,svec]  where C is such that  C*<A>*C^-1  has a block 
+# triangular shape with companian matrices along the diagonal), B is the
+# row echelon form of C and svec is the list of indices where the blocks 
+# begin. 
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(CyclicChainMat,function(mat)
   local A,k,v,chain,j,idm,sp,svec,l;
   k:=DefaultFieldOfMatrix(mat);
@@ -300,23 +227,8 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   return Product(f);
 end);
 
-##########################################################################
-##
-#F  MaximalVectorMat( <A> ) . . . . . . . . . . . . compute maximal vector
-##
-##  'MaximalVectorMat'  returns a maximal vector of the matrix  <A>,  that 
-##  is, a vector whose minimal polynomial is that of <A>.  This is done by
-##  repeatedly spinning up vectors until a maximal one is found. 
-##
-##  Example:
-##   gap> A:=[ [ 0, 1, 0, 1 ],
-##   gap>      [ 0, 0, 0, 0 ],
-##   gap>      [ 0, 1, 0, 1 ],
-##   gap>      [ 1, 1, 1, 1 ] ];;
-##   MaximalVectorMat(A);
-##   #I Degree of minimal polynomial is 3 
-##   [ [ 0, 0, 1, 0 ], x_1^3-x_1^2-2*x_1 ]
-##   
+# Returns vector that has the same minimal polynomial as mat. 
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(MaximalVectorMat,function(mat)
   local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm;
   k:=DefaultFieldOfMatrix(mat);
@@ -363,20 +275,9 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   return [lm[1]*sp[2],lm[2]];
 end); 
 
-##########################################################################
-##
-#F  JacobMatComplement( <T>, <d> ) . . . . . .  compute Jacob's complement
-##  . . . . . . . . . . . . . . . . . . . . . . . . . to a cyclic subspace 
-##
-##  'JacobMatComplement' modifies an already given  complementary subspace 
-##  to the  complementary subspace defined by  Jacob;  concretely, this is 
-##  realized by assuming that  <T>  is a matrix in block triangular shape, 
-##  where the upper left diagonal block is a companion matrix (as returned 
-##  by 'RatFormStep1'; the variable <d> gives the size of that block.  
-##  (If <T> gives a  maximal cyclic subspace,  then  Jacob's complement is  
-##  also  <T>-invariant;  but even if not,  it appears  to be  very useful 
-##  because it produces many zeroes.)
-##
+# Modifies an already given complementary subspace to the complementary 
+# subspace defined by Jacob. 
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(JacobMatComplement,function(T,d)
   local base,i,ii,j,k,F,tT;
   k:=DefaultFieldOfMatrix(T);
@@ -447,6 +348,7 @@ InstallGlobalFunction(RatFormStep1J,function(A,v)
   return [A1{[d+1..Length(A1)]}{[d+1..Length(A1)]},j*t,minp];
 end);
 
+#TODO: replace by CompanionMat
 BindGlobal("nfmCompanionMat1", function(f)
   local n,i,mat;
   n:=Length(f)-1;
@@ -474,32 +376,11 @@ InstallGlobalFunction(CreateNormalForm,function(plist)
   return A;
 end);
   
-##########################################################################
-##
-#F  FrobeniusNormalForm( <A> ) . . . . compute the rational canonical form
-##
-##  'FrobeniusNormalForm' returns the rational canonical form  of a matrix 
-##  <A> and an invertible matrix P  performing the base change  (PAP^(-1)=
-##  normal). It is first checked if <A> is zero or a scalar matrix,  where 
-##  the result is obvious.  Then  the function determines a maximal vector
-##  and its minimal polynomial; after that, a recursion is applied. 
-##
-##  Example: 
-##     gap> mat:=[ [ 0, 1, 0, 1 ], 
-##                 [ 0, 0, 0, 0 ],
-##                 [ 0, 1, 0, 1 ], 
-##                 [ 1, 1, 1, 1 ] ]);;
-##     gap> f:=FrobeniusNormalForm(mat);
-##     #I Degree of minimal polynomial is 3 (2,)
-##     [ [ x_1^3-x_1^2-2*x_1, x_1 ], 
-##     [ [ 0, 0, 1, 0 ], [ 0, 1, 0, 1 ], [ 1, 1, 1, 1 ], [ 0, -1, 0, 0 ] ], 
-##     [ 1, 4 ] ]
-##     gap> PrintArray(f[2]*mat*f[2]^-1);
-##     [ [  0,  1,  0,  0 ],        This is the Frobenius normal form;
-##       [  0,  0,  1,  0 ],        there are 2 diagonal blocks, 
-##       [  0,  2,  1,  0 ],        one of size 3 and one of size 1;
-##       [  0,  0,  0,  0 ] ]       f[2]=base change matrix
-##  
+
+# Returns rational canonical form of mat,
+# invertible matrix P such that PAP^(-1) is in rational canonical form,
+# and list of pivot indices. 
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   local A,P,invf,i,k,mv,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
@@ -531,15 +412,9 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   fi;
 end);
 
-##########################################################################
-##
-#F  InvariantFactorsMat( <A> ) . . . . . . . compute the invariant factors 
-##
-##  'InvariantFactorsMat' returns the invariant factors of the matrix <A>,
-##  i.e.,  the minimal polynomials of the  diagonal blocks in the rational 
-##  canonical form  of <A>. Thus, 'InvariantFactorsMat' also specifies the
-##  rational canonical form of <A>, but without computing the base change.
-##
+# Returns the invariant factors of mat (i.e. the minimal polynomials of the
+# diagonal blocks in the rational canonical form of mat).
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(InvariantFactorsMat,function(mat)
   local A,A1,i,d,np,k,f,n,p;
   k:=DefaultFieldOfMatrix(mat);
@@ -595,35 +470,10 @@ InstallGlobalFunction(SquareFreePol,function(K,f)
   return [g[1],p*g[2]];
 end);
 
-##########################################################################
-##
-#F  JordanChevalleyDecMat( <A>, <f> ) . . . . compute the Jordan-Chevalley
-#F  JordanChevalleyDecMatF( <A> ) . . . . . . .  decomposition of a matrix
-##
-##  'JordanChevalleyDecMat'' returns the unique pair of matrices D,N where  
-##  D is diagonalisable over some extension field of the  default field of 
-##  the matrix <A>  and  N is a nilpotent matrix such that  <A>=D + N  and 
-##  DN=ND;  the argument <f> is a polynomial such that  f(A)=0  (e.g., the 
-##  the minimal polynomial of <A>). 
-##
-##  'JordanChevalleyDecMatF'  first computes the Frobenius normal form and
-##  then applies 'JordanChevalleyDecMat' to each diagonal block.
-##
-##  Example:
-##     gap> A:=[ [ 0, 0, 0 ], [ 1, 0, -1 ], [ 0, 1, -2 ] ];
-##     gap> f:=MinimalPolynomials(A);
-##     x_1^3+2*x_1^2+x_1
-##     jc:=JordanChevalleyDecMat(A,f);
-##     [ [ [ 0, 0, 0 ], [ 2, -1, 0 ], [ 1, 0, -1 ] ], 
-##       [ [ 0, 0, 0 ], [ -1, 1, -1 ], [ -1, 1, -1 ] ] ]
-##     gap> MinimalPolynomial(j[1]);
-##     x_1^2+x_1
-##     gap> MinimalPolynomial(j[2]);
-##     x_1^2
-##
-##  '
-##  The algorithm is based on the preprint at arXiv:2205.05432.
-##
+# Takes a matrix mat and a polynomial f such that f(mat) = 0 as input. 
+# Returns [D,N] such that D is diagonalisable over some extension field 
+# and N is a nilpotent matrix such that mat = D + N and DN=ND.
+# For details about this function, see nofoma.gd.
 InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
   local A,Ak,k0,gg,g,tg;
   A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
