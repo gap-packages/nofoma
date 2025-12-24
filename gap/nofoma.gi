@@ -605,41 +605,38 @@ end);
   
 ## Now Jordan-Chevalley decomposition
 
-BindGlobal("nfmFrobInv",function(K1,p,x)
-  local i;
-  i:=1;
-  while K1[i]^p<>x do
-    i:=i+1;
-  od;
-  return K1[i];
-end);
-
-InstallGlobalFunction(SquareFreePol,function(f)
-  local K,K1,d,n,i,p,df,f1,g,g1,g2,cf;
+# compute squarefree part sqf of f, that is: if f = \prod_{i=1}^k f_i^{n_i}
+# where the f_i are pairwise coprime irreducible factor, then sqf is f_1
+# \cdots f_k. Assumes that all coefficients of f are in the field K.
+# Return a list [sqf,n] where n is is an integer such that f divides sqf^n
+InstallGlobalFunction(SquareFreePol,function(K,f)
+  local d,n,i,p,df,f1,g,g1,g2,cf,e;
   n:=Degree(f);
   if n=1 then 
     return [f,1];
-  else
-    df:=Derivative(f);
-    if not IsZero(df) then
-      f1:=nfmGcd(f,df);
-      if IsZero(Degree(f1)) then
-        return [f,1];
-      else
-        g1:=SquareFreePol(f1);
-        g2:=SquareFreePol(Quotient(f,f1));
-        return [nfmLcm(g1[1],g2[1]),g1[2]+g2[2]]; 
-      fi;
-    else
-      cf:=nfmCoeffsPol(f);
-      K:=DefaultField(cf[1]);
-      K1:=Elements(K);
-      p:=Characteristic(K);
-      g:=SquareFreePol(nfmPolCoeffs(List([0..n/p],
-                             i->nfmFrobInv(K1,p,cf[p*i+1]))));
-      return [g[1],p*g[2]];
-    fi;
   fi;
+  df:=Derivative(f);
+  if not IsZero(df) then
+    f1:=nfmGcd(f,df);
+
+    # if f and its derivative are coprime, then f is squarefree
+    if IsZero(Degree(f1)) then
+      return [f,1];
+    fi;
+
+    g1:=SquareFreePol(K,f1);
+    g2:=SquareFreePol(K,Quotient(f,f1));
+    return [nfmLcm(g1[1],g2[1]),g1[2]+g2[2]];
+  fi;
+
+  # the derivative is zero, meaning all non-zero terms of f have an exponent
+  # divisible by p. So compute a p-th root of the polynomial by dividing the
+  # exponents by p, and taking p-th roots of each coefficient.
+  cf:=nfmCoeffsPol(f);
+  p:=Characteristic(K);
+  e:=Size(K)/p;
+  g:=SquareFreePol(K,nfmPolCoeffs(List([0..n/p],i->cf[p*i+1]^e)));
+  return [g[1],p*g[2]];
 end);
 
 ##########################################################################
@@ -674,7 +671,7 @@ end);
 InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
   local A,Ak,k0,gg,g,tg;
   A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
-  gg:=SquareFreePol(f);
+  gg:=SquareFreePol(DefaultField(nfmCoeffsPol(f)),f);
   g:=nfmCoeffsPol(gg[1]);
   tg:=nfmCoeffsPol(GcdRepresentation(Derivative(gg[1]),gg[1])[1]);
   k0:=0;
