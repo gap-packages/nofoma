@@ -17,8 +17,8 @@ end;
 
 CheckJordanChev := function(mat,jc)
   local m;
-  m:=MinPolyMat(jc[1]);
-  return [nfmGcd(m,Derivative(m)),MinPolyMat(jc[2])];
+  m:=MinimalPolynomial(jc[1]);
+  return [nfmGcd(m,Derivative(m)),MinimalPolynomial(jc[2])];
 end;
 
 nfmmat1 := function(mat)

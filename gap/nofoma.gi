@@ -298,19 +298,6 @@ end);
   
 # svec = indices where the blocks start.
 
-##########################################################################
-##
-#F  MinPolyMat( <A> )  . . . . . . . . . . computes the minimal polynomial 
-##  
-##  'MinPolyMat' returns the minimal polynomial of the matrix <A>.
-##  
-##  Example:
-##     gap> MinPolyMat([ [ 0, 1, 0, 1 ],
-##     gap>               [ 0, 0, 0, 0 ],
-##     gap>               [ 0, 1, 0, 1 ],
-##     gap>               [ 1, 1, 1, 1 ] ]);
-##     x_1^3-x_1^2-2*x_1
-##  
 # This is OrdPoly from Neunhoeffer-Praeger 
 BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   local i,f,v1,h,g,l;
@@ -337,57 +324,6 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   od;
   return Product(f);
 end);
-
-# my version of the Neunhoeffer-Praeger algorithm
-# if the degree of order poly is small and number of blocks in cyclic 
-# chain is large, then check directly if order poly is already the
-# minimal polynomial
-InstallGlobalFunction(MinPolyMat,function(mat)
-  local A,M,k,idm,sp,z,c,i,l,f,f1,v1,rpols,svec,one;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
-  idm:=IdentityMat(Length(A),k);
-  if IsDiagonalMat(A) then       # first deal with diagonal matrix
-    one:=One(k);
-    if ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
-      f:=nfmPolCoeffs([-A[1,1],one]);
-    else
-      l:=Set(List([1..Length(A)],i->A[i,i]));
-      f:=nfmPolCoeffs([-l[1],one]);
-      for i in [2..Length(l)] do
-        f:=nfmPolCoeffs([-l[i],one])*f;
-      od;
-    fi;
-    Info(Infonofoma,2,"Degree of minimal polynomial is ",Degree(f)," \n");
-    return f;
-  fi;
-  sp:=CyclicChainMat(A);
-  svec:=sp[3];
-  if Length(svec)=2 then 
-    Info(Infonofoma,2,"Chain complete with 1 subspace.");
-  else
-    Info(Infonofoma,2,"Chain complete with ", Length(svec)-1, " subspaces.");
-  fi;
-  M:=sp[2]*A*sp[2]^-1;
-  rpols:=nfmRelMinPols(M,svec);
-  f:=rpols[1];
-  for z in [2..Length(svec)-1] do 
-    if Degree(f)^3>Length(svec) or
-         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(f),idm[svec[z]])) then 
-      f1:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if not IsZero(QuotientRemainder(f,f1)[2]) then
-        f:=Lcm(f,f1);
-      fi;
-    fi;
-  od;
-  Info(Infonofoma,2,"Degree = ", Degree(f), ".");
-  c:=CoefficientsOfUnivariatePolynomial(f);
-  if not IsOne(c[Length(c)]) then
-    return c[Length(c)]^(-1)*f;
-  else
-    return f;
-  fi;
-end); 
 
 ##########################################################################
 ##
@@ -492,24 +428,6 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   od;
   ConvertToMatrixRepNC(base);
   return base;
-end);
-
-BindGlobal("BuildBlockDiagonalMat",function(A,B)
-  local d,neu,i,n,k,zero,row;
-  k:=DefaultFieldOfMatrix(B);
-  d:=Length(A);
-  n:=d+Length(B);
-  zero:=Zero(k);
-  row:=ListWithIdenticalEntries(n,zero);
-  ConvertToVectorRepNC(row,k);
-  neu:=[];
-  for i in [1..n] do 
-    neu[i]:=ShallowCopy(row);
-  od;
-  neu{[1..d]}{[1..d]}:=A;
-  neu{[d+1..n]}{[d+1..n]}:=B;
-  ConvertToMatrixRepNC(neu);
-  return neu;
 end);
 
 BindGlobal("BuildBlockDiagonalMat1",function(d,B)
@@ -638,24 +556,6 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   fi;
 end);
 
-InstallGlobalFunction(FrobeniusNormalForm1,function(mat)
-  local A,A1,A2,P,i,k,step1,rest,d,piv;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
-  if IsZero(A) then
-    #Print("#I Zero matrix\n");
-    return [A,A^0,List([1..Length(A)],i->i)];
-  fi;
-  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
-    #Print("#I Scalar matrix \n");
-    return [A,A^0,List([1..Length(A)],i->i)];
-  fi;
-  step1:=RatFormStep1J(A,MaximalVectorMat(A)[1]);
-  A1:=step1[1];
-  d:=Length(step1[3])-1;
-  return ImmutableMatrix(k,A1);
-end);
-
 ##########################################################################
 ##
 #F  InvariantFactorsMat( <A> ) . . . . . . . compute the invariant factors 
@@ -686,41 +586,38 @@ end);
   
 ## Now Jordan-Chevalley decomposition
 
-BindGlobal("nfmFrobInv",function(K1,p,x)
-  local i;
-  i:=1;
-  while K1[i]^p<>x do
-    i:=i+1;
-  od;
-  return K1[i];
-end);
-
-InstallGlobalFunction(SquareFreePol,function(f)
-  local K,K1,d,n,i,p,df,f1,g,g1,g2,cf;
+# compute squarefree part sqf of f, that is: if f = \prod_{i=1}^k f_i^{n_i}
+# where the f_i are pairwise coprime irreducible factor, then sqf is f_1
+# \cdots f_k. Assumes that all coefficients of f are in the field K.
+# Return a list [sqf,n] where n is is an integer such that f divides sqf^n
+InstallGlobalFunction(SquareFreePol,function(K,f)
+  local d,n,i,p,df,f1,g,g1,g2,cf,e;
   n:=Degree(f);
   if n=1 then 
     return [f,1];
-  else
-    df:=Derivative(f);
-    if not IsZero(df) then
-      f1:=nfmGcd(f,df);
-      if IsZero(Degree(f1)) then
-        return [f,1];
-      else
-        g1:=SquareFreePol(f1);
-        g2:=SquareFreePol(Quotient(f,f1));
-        return [nfmLcm(g1[1],g2[1]),g1[2]+g2[2]]; 
-      fi;
-    else
-      cf:=nfmCoeffsPol(f);
-      K:=DefaultField(cf[1]);
-      K1:=Elements(K);
-      p:=Characteristic(K);
-      g:=SquareFreePol(nfmPolCoeffs(List([0..n/p],
-                             i->nfmFrobInv(K1,p,cf[p*i+1]))));
-      return [g[1],p*g[2]];
-    fi;
   fi;
+  df:=Derivative(f);
+  if not IsZero(df) then
+    f1:=nfmGcd(f,df);
+
+    # if f and its derivative are coprime, then f is squarefree
+    if IsZero(Degree(f1)) then
+      return [f,1];
+    fi;
+
+    g1:=SquareFreePol(K,f1);
+    g2:=SquareFreePol(K,Quotient(f,f1));
+    return [nfmLcm(g1[1],g2[1]),g1[2]+g2[2]];
+  fi;
+
+  # the derivative is zero, meaning all non-zero terms of f have an exponent
+  # divisible by p. So compute a p-th root of the polynomial by dividing the
+  # exponents by p, and taking p-th roots of each coefficient.
+  cf:=nfmCoeffsPol(f);
+  p:=Characteristic(K);
+  e:=Size(K)/p;
+  g:=SquareFreePol(K,nfmPolCoeffs(List([0..n/p],i->cf[p*i+1]^e)));
+  return [g[1],p*g[2]];
 end);
 
 ##########################################################################
@@ -755,7 +652,7 @@ end);
 InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
   local A,Ak,k0,gg,g,tg;
   A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
-  gg:=SquareFreePol(f);
+  gg:=SquareFreePol(DefaultField(nfmCoeffsPol(f)),f);
   g:=nfmCoeffsPol(gg[1]);
   tg:=nfmCoeffsPol(GcdRepresentation(Derivative(gg[1]),gg[1])[1]);
   k0:=0;

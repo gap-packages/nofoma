@@ -177,8 +177,6 @@ DeclareGlobalFunction("SpinMatVector");
 #! @EndExampleSession
 DeclareGlobalFunction("CyclicChainMat");
 
-DeclareGlobalFunction("MinPolyMat");
-
 #! @Arguments A
 #! @Description
 #!  Returns the minimal polynomial and a maximal vector 
@@ -309,7 +307,6 @@ DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("FrobeniusNormalForm");
 
 DeclareGlobalFunction("CreateNormalForm");
-DeclareGlobalFunction("FrobeniusNormalForm1");
 
 #! @Arguments A
 #! @Description
