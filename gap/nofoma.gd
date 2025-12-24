@@ -436,7 +436,7 @@ DeclareGlobalFunction("JordanNormalform");
 
 #! @Section Further documentation
 #! The above functions, as well as a number of further auxiliary functions, 
-#! are all contained and defined in the file 'pgk/nofoma-1.0/gap/nofoma.gi'; 
+#! are all contained and defined in the file 'gap/nofoma.gi'; 
 #! in that file, you can also find further inline documentation for the 
 #! auxiliary functions.
 
