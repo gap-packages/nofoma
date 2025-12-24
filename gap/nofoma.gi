@@ -24,28 +24,6 @@ end);
 
 # we want that a gcd of polynomials is always monic
 
-BindGlobal("nfmGcd", function(f,g)
-  local d,c;
-  d:=Gcd(f,g);
-  c:=nfmCoeffsPol(d);
-  if not IsOne(Last(c)) then
-    return d / Last(c);
-  else
-    return d;
-  fi;
-end);
-
-BindGlobal("nfmLcm", function(f,g)
-  local d,c;
-  d:=Lcm(f,g);
-  c:=nfmCoeffsPol(d);
-  if not IsOne(Last(c)) then
-    return d / Last(c);
-  else
-    return d;
-  fi;
-end);
-
 ##########################################################################
 ##
 #F  GcdCoprimeSplit( <a>, <b> ) . . . . . . . coprime factorisation of lcm
@@ -72,7 +50,7 @@ end);
 ##  
 InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   local d,tb,bb;
-  d:=nfmGcd(a,b);
+  d:=Gcd(a,b);
   if IsZero(Degree(d)) then 
     return [d,a,b];
   fi;
@@ -81,7 +59,7 @@ InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
       return [b,a,b^0];
     else
       tb:=Quotient(b,d);
-      bb:=nfmGcd(tb^Degree(d),d);
+      bb:=Gcd(tb^Degree(d),d);
       return [d,Quotient(a,bb),tb*bb];
     fi;
   else
@@ -313,7 +291,7 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
         if IsZero(Degree(h)) then 
           g:=rpols[i];
         else
-          g:=Quotient(rpols[i],nfmGcd(rpols[i],h));
+          g:=Quotient(rpols[i],Gcd(rpols[i],h));
         fi;
       fi;
       Add(f,g);
@@ -598,7 +576,7 @@ InstallGlobalFunction(SquareFreePol,function(K,f)
   fi;
   df:=Derivative(f);
   if not IsZero(df) then
-    f1:=nfmGcd(f,df);
+    f1:=Gcd(f,df);
 
     # if f and its derivative are coprime, then f is squarefree
     if IsZero(Degree(f1)) then
@@ -607,7 +585,7 @@ InstallGlobalFunction(SquareFreePol,function(K,f)
 
     g1:=SquareFreePol(K,f1);
     g2:=SquareFreePol(K,Quotient(f,f1));
-    return [nfmLcm(g1[1],g2[1]),g1[2]+g2[2]];
+    return [Lcm(g1[1],g2[1]),g1[2]+g2[2]];
   fi;
 
   # the derivative is zero, meaning all non-zero terms of f have an exponent
