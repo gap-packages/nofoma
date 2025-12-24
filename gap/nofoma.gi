@@ -261,7 +261,10 @@ InstallGlobalFunction(CyclicChainMat,function(mat)
   return [sp[1],sp[2],svec];
 end);
 
-# M=sp[2]*A*sp[2]^-1
+# Input: A block triangular matrix M with companion matrices along the diagonal
+# and a list svec of containing the indices where the blocks begin
+# Returns a list of the relative minimal polynomial of the block matrices on 
+# the diagonal, where each polynomial is given by its coefficients 
 BindGlobal("nfmRelMinPols",function(M,svec)
   local i,l,rpol,one;
   one:=OneOfBaseDomain(M);
@@ -273,8 +276,6 @@ BindGlobal("nfmRelMinPols",function(M,svec)
   od;
   return rpol;
 end);
-  
-# svec = indices where the blocks start.
 
 # This is OrdPoly from Neunhoeffer-Praeger 
 BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
