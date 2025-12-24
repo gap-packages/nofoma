@@ -94,7 +94,7 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 #! gap> x:=X(Rationals);;
 #! gap> f:=x^6-6*x^5+12*x^4-10*x^3+3*x^2;;
 #! gap> v:=[ 1, 1, 1, 1];;
-#! gap> pol:=nfmCoeffsPol(f);
+#! gap> pol:=CoefficientsOfUnivariatePolynomial(f);
 #! [ 0, 0, 3, -10, 12, -6, 1 ]
 #! gap> PolynomialToMatVec(A,pol,v);
 #! [ 8, -16, 8, -16 ]
