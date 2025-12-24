@@ -646,7 +646,7 @@ InstallGlobalFunction(FrobeniusNormalForm1,function(mat)
     #Print("#I Zero matrix\n");
     return [A,A^0,List([1..Length(A)],i->i)];
   fi;
-  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i][i]=A[1][1]) then
+  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
     #Print("#I Scalar matrix \n");
     return [A,A^0,List([1..Length(A)],i->i)];
   fi;
