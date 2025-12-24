@@ -263,10 +263,9 @@ end);
 ##     [  1/2,  1/2,  1/2,    0 ] ]
 ##
 InstallGlobalFunction(CyclicChainMat,function(mat)
-  local A,k,v,chain,j,idm,sp,one,svec,l;
+  local A,k,v,chain,j,idm,sp,svec,l;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  one:=A[1][1]^0;
   idm:=IdentityMat(Length(A),k);
   if IsLowerTriangularMat(A) then 
     return [idm,idm,[1..Length(A)+1],[1..Length(A)]];
@@ -287,7 +286,7 @@ end);
 # M=sp[2]*A*sp[2]^-1
 BindGlobal("nfmRelMinPols",function(M,svec)
   local i,l,rpol,one;
-  one:=M[1][1]^0;
+  one:=OneOfBaseDomain(M);
   rpol:=[];
   for i in [1..Length(svec)-1] do
     l:=ShallowCopy(-M[svec[i+1]-1]{[svec[i]..svec[i+1]-1]});
@@ -347,16 +346,16 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  one:=A[1][1]^0;
+  one:=One(k);
   idm:=IdentityMat(Length(A),k);
   if IsDiagonalMat(A) then       # first deal with diagonal matrix
-    if ForAll([2..Length(A)],i->A[i][i]=A[1][1]) then
+    if ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
       v1:=idm[1];
-      np:=nfmPolCoeffs([-A[1][1],one]);
+      np:=nfmPolCoeffs([-A[1,1],one]);
     else
       v1:=ListWithIdenticalEntries(Length(A),one);
       ConvertToVectorRepNC(v1,k);
-      l:=Set(List([1..Length(A)],i->A[i][i]));
+      l:=Set(List([1..Length(A)],i->A[i,i]));
       np:=nfmPolCoeffs([-l[1],one]);
       for i in [2..Length(l)] do
         np:=nfmPolCoeffs([-l[i],one])*np;
@@ -424,7 +423,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   od;
   for i in [d+1..Length(T)] do
     for j in [1..d] do 
-      base[i][j]:=-F[d+1-j][i];
+      base[i,j]:=-F[d+1-j][i];
     od;
   od;
   ConvertToMatrixRepNC(base);
@@ -478,10 +477,10 @@ BindGlobal("nfmCompanionMat1", function(f)
   n:=Length(f)-1;
   mat:=(0*f[1])*IdentityMat(n);
   for i in [1..n-1] do 
-    mat[i][i+1]:=f[1]^0;
-    mat[n][i]:=-f[i];
+    mat[i,i+1]:=f[1]^0;
+    mat[n,i]:=-f[i];
   od;
-  mat[n][n]:=-f[n];
+  mat[n,n]:=-f[n];
   return mat;
 end);
 
@@ -530,8 +529,8 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   local A,P,invf,i,k,mv,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i][i]=A[1][1]) then
-    mv:=nfmPolCoeffs([-A[1][1],A[1][1]^0]);
+  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
+    mv:=nfmPolCoeffs([-A[1,1],A[1,1]^0]);
     return [ListWithIdenticalEntries(Length(A),mv),A^0,[1..Length(A)]];
   fi;
   mv:=MaximalVectorMat(A);
