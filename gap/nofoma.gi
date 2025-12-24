@@ -41,17 +41,17 @@ InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   fi;
 end);
 
-# TODO : take polynomial as input
 # Applies polynomial pol to A and then to v. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
-  local n,v1,i;
-  n:=Length(pol);
-  v1:=ShallowCopy(pol[n]*v);
+  local n,v1,i, coeffs;
+  coeffs := CoefficientsOfUnivariatePolynomial(pol);
+  n:=Length(coeffs);
+  v1:=ShallowCopy(coeffs[n]*v);
   for i in Reversed([1..n-1]) do
     v1:=v1*A;
-    if not IsZero(pol[i]) then
-      AddRowVector(v1,v,pol[i]);
+    if not IsZero(coeffs[i]) then
+      AddRowVector(v1,v,coeffs[i]);
     fi;
   od;
   return v1;
@@ -88,8 +88,8 @@ InstallGlobalFunction(LcmMaximalVectorMat,function(A,v1,v2,pol1,pol2)
     if Degree(d[1])=0 then
       return [v1+v2,pol1*pol2];
     else
-      v:=PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(pol1,d[2])),v1)+
-             PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(pol2,d[3])),v2);
+      v:=PolynomialToMatVec(A,Quotient(pol1,d[2]),v1)+
+             PolynomialToMatVec(A,Quotient(pol2,d[3]),v2);
       return [v,d[2]*d[3]];
     fi;
   fi;
@@ -220,7 +220,7 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
       fi;
       Add(f,g);
       if i>1 then
-        v1:=PolynomialToMatVec(M,CoefficientsOfUnivariatePolynomial(g),v1);
+        v1:=PolynomialToMatVec(M,g,v1);
       fi;
     fi;
   od;
@@ -258,7 +258,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   lm:=[idm[1],rpols[1]];
   for z in [2..Length(svec)-1] do 
     if Degree(lm[2])^3>Length(svec) or
-         not IsZero(PolynomialToMatVec(M,CoefficientsOfUnivariatePolynomial(lm[2]),idm[svec[z]])) then 
+         not IsZero(PolynomialToMatVec(M,lm[2],idm[svec[z]])) then 
       f:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
       if not IsZero(QuotientRemainder(lm[2],f)[2]) then 
         lm:=LcmMaximalVectorMat(M,lm[1],idm[svec[z]],lm[2],f);
@@ -666,7 +666,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
                     pot := pot + 1;
                     f := f2;
                 od; 
-                w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(f),v);
+                w := PolynomialToMatVec(A,f,v);
                 p := p * gs[i]^pot;
                 #minimal polynomial of w has degree smaller than or equal to n - degree(f)
                 wspan := nfmSpinUntil(w,A,n-Degree(f));
@@ -678,14 +678,14 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
                 gens[i] := toAdd;
             fi;
         od;
-        v :=PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(p),v);
+        v :=PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then 
             facs := Factors(m);
             facs := Collected(facs);
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
-                w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
+                w := PolynomialToMatVec(A,Quotient(m,qi),v);
                 wspan := SpinMatVector1(A,w,[],[],[],[])[2];
                 Add(gens,wspan);
                 Add(gs, facs[i][1]);
@@ -778,7 +778,7 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
                     pot := pot + 1;
                     f := f2;
                 od; 
-                w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(f),v);
+                w := PolynomialToMatVec(A,f,v);
                 p := p * gs[i]^pot;
                 #minimal polynomial of w has degree smaller than or equal to minpol/f
                 wspan := nfmSpinUntil(w,A,Degree(minpol)-Degree(f));
@@ -790,7 +790,7 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
                 gens[i] := toAdd;
             fi;
         od;
-        v :=PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(p),v);
+        v :=PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then 
             #TODO: make this work
@@ -798,7 +798,7 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
             facs := Collected(Factors(m));
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
-                w := PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(m,qi)),v);
+                w := PolynomialToMatVec(A,Quotient(m,qi),v);
                 wspan := SpinMatVector1(A,w,[],[],[],[])[2];
                 Add(gens,wspan);
                 Add(gs, facs[i][1]);
@@ -953,7 +953,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         wstrich := ZeroVector(F,n);
         for i in [1..Length(qis)] do #calculate new reduced w_j
             if not IsZero(qis[i]) then #avoid unnecessary computations
-                tomult :=  PolynomialToMatVec(MutableCopyMat(A), qis[i], minpolpowers[i][1]); 
+                tomult :=  PolynomialToMatVec(MutableCopyMat(A), nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
                 for k in [1..minpolpowers[i][2] - r] do
                     tomult := tomult * Ainp; #this too perhaps?
                 od;
