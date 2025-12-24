@@ -690,9 +690,7 @@ end);
 # compute squarefree part sqf of f, that is: if f = \prod_{i=1}^k f_i^{n_i}
 # where the f_i are pairwise coprime irreducible factor, then sqf is f_1
 # \cdots f_k. Assumes that all coefficients of f are in the field K.
-# Return a list [sqf,n] where n is ??? (TODO: figure out what it is supposed
-# to be; I thought it would be max(n_1, ..., n_k) but it isn't; e.g. if
-# x=X(GF(5)), then SquareFreePol(x^5*(x+1))  returns [ x_1^2+x_1, 6 ]
+# Return a list [sqf,n] where n is is an integer such that f divides sqf^n
 InstallGlobalFunction(SquareFreePol,function(K,f)
   local d,n,i,p,df,f1,g,g1,g2,cf,e;
   n:=Degree(f);
