@@ -14,10 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, see <https://www.gnu.org/licenses/>.
 
-BindGlobal("nfmCoeffsPol", function(p)
-  return CoefficientsOfUnivariatePolynomial(p);
-end);
-
 BindGlobal("nfmPolCoeffs", function(coeffs)
   return UnivariatePolynomialByCoefficients(FamilyObj(coeffs[1]),coeffs,1);
 end);
@@ -126,8 +122,8 @@ InstallGlobalFunction(LcmMaximalVectorMat,function(A,v1,v2,pol1,pol2)
     if Degree(d[1])=0 then
       return [v1+v2,pol1*pol2];
     else
-      v:=PolynomialToMatVec(A,nfmCoeffsPol(Quotient(pol1,d[2])),v1)+
-             PolynomialToMatVec(A,nfmCoeffsPol(Quotient(pol2,d[3])),v2);
+      v:=PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(pol1,d[2])),v1)+
+             PolynomialToMatVec(A,CoefficientsOfUnivariatePolynomial(Quotient(pol2,d[3])),v2);
       return [v,d[2]*d[3]];
     fi;
   fi;
@@ -297,7 +293,7 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
       fi;
       Add(f,g);
       if i>1 then
-        v1:=PolynomialToMatVec(M,nfmCoeffsPol(g),v1);
+        v1:=PolynomialToMatVec(M,CoefficientsOfUnivariatePolynomial(g),v1);
       fi;
     fi;
   od;
@@ -350,7 +346,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   lm:=[idm[1],rpols[1]];
   for z in [2..Length(svec)-1] do 
     if Degree(lm[2])^3>Length(svec) or
-         not IsZero(PolynomialToMatVec(M,nfmCoeffsPol(lm[2]),idm[svec[z]])) then 
+         not IsZero(PolynomialToMatVec(M,CoefficientsOfUnivariatePolynomial(lm[2]),idm[svec[z]])) then 
       f:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
       if not IsZero(QuotientRemainder(lm[2],f)[2]) then 
         lm:=LcmMaximalVectorMat(M,lm[1],idm[svec[z]],lm[2],f);
@@ -358,7 +354,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
     fi;
   od;
   #v:=lm[1]*sp[2];
-  #if SpinMatVector(A,v)[3]<>nfmCoeffsPol(lm[2]) then
+  #if SpinMatVector(A,v)[3]<>CoefficientsOfUnivariatePolynomial(lm[2]) then
   #  Error("mist");
   #else
   #  Print("youpie ");
@@ -470,10 +466,10 @@ InstallGlobalFunction(CreateNormalForm,function(plist)
   for i in [1..r] do
     l[i+1]:=l[i]+Degree(plist[i]);
   od;
-  A:=NullMat(l[r+1]-1,l[r+1]-1,nfmCoeffsPol(plist[1])[1]);
+  A:=NullMat(l[r+1]-1,l[r+1]-1,CoefficientsOfUnivariatePolynomial(plist[1])[1]);
   for i in [1..r] do
     A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
-              nfmCompanionMat1(nfmCoeffsPol(plist[i]));
+              nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(plist[i]));
   od;
   return A;
 end);
@@ -592,7 +588,7 @@ InstallGlobalFunction(SquareFreePol,function(K,f)
   # the derivative is zero, meaning all non-zero terms of f have an exponent
   # divisible by p. So compute a p-th root of the polynomial by dividing the
   # exponents by p, and taking p-th roots of each coefficient.
-  cf:=nfmCoeffsPol(f);
+  cf:=CoefficientsOfUnivariatePolynomial(f);
   p:=Characteristic(K);
   e:=Size(K)/p;
   g:=SquareFreePol(K,nfmPolCoeffs(List([0..n/p],i->cf[p*i+1]^e)));
@@ -631,9 +627,9 @@ end);
 InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
   local A,Ak,k0,gg,g,tg;
   A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
-  gg:=SquareFreePol(DefaultField(nfmCoeffsPol(f)),f);
-  g:=nfmCoeffsPol(gg[1]);
-  tg:=nfmCoeffsPol(GcdRepresentation(Derivative(gg[1]),gg[1])[1]);
+  gg:=SquareFreePol(DefaultField(CoefficientsOfUnivariatePolynomial(f)),f);
+  g:=CoefficientsOfUnivariatePolynomial(gg[1]);
+  tg:=CoefficientsOfUnivariatePolynomial(GcdRepresentation(Derivative(gg[1]),gg[1])[1]);
   k0:=0;
   Ak:=A;
   Info(Infonofoma,2,"Iterations (m=",gg[2],").");
@@ -649,7 +645,7 @@ InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
   f:=FrobeniusNormalForm(mat);
   Info(Infonofoma,2,"Frobenius normal form complete\n");
   Add(f[3],Length(mat)+1);
-  jc:=List(f[1],p->JordanChevalleyDecMat(nfmCompanionMat1(nfmCoeffsPol(p)),p));
+  jc:=List(f[1],p->JordanChevalleyDecMat(nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(p)),p));
   N:=0*f[2];
   D:=0*f[2];
   for p in [1..Length(f[1])] do 
