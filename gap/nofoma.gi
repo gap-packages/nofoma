@@ -44,7 +44,7 @@ end);
 # Applies polynomial pol to A and then to v. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
-  local n,v1,i, coeffs;
+  local n,v1,i,coeffs;
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
   n:=Length(coeffs);
   v1:=ShallowCopy(coeffs[n]*v);
@@ -60,14 +60,16 @@ end);
 #TODO: take polynomial as input
 # Applies polynomial pol to A. 
 InstallGlobalFunction(PolynomialToMat,function(A,pol)
-  local A1,idm,n,i;
-  idm:=A^0;
-  n:=Length(pol);
-  A1:=pol[n]*idm;
+  local A1,idm,n,i,d,coeffs;
+  d := Size(A);
+  idm:= IdentityMat(d,BaseDomain(A));
+  coeffs := CoefficientsOfUnivariatePolynomial(pol);
+  n:=Length(coeffs);
+  A1:=coeffs[n]*idm;
   for i in Reversed([1..n-1]) do
     A1:=A1*A;
-    if not IsZero(pol[i]) then
-      A1:=A1+pol[i]*idm;
+    if not IsZero(coeffs[i]) then
+      A1:=A1+coeffs[i]*idm;
     fi;
   od;
   return A1;
@@ -478,8 +480,8 @@ InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
   local A,Ak,k0,gg,g,tg;
   A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
   gg:=SquareFreePol(DefaultField(CoefficientsOfUnivariatePolynomial(f)),f);
-  g:=CoefficientsOfUnivariatePolynomial(gg[1]);
-  tg:=CoefficientsOfUnivariatePolynomial(GcdRepresentation(Derivative(gg[1]),gg[1])[1]);
+  g:=gg[1];
+  tg:=GcdRepresentation(Derivative(gg[1]),gg[1])[1];
   k0:=0;
   Ak:=A;
   Info(Infonofoma,2,"Iterations (m=",gg[2],").");

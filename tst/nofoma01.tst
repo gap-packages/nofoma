@@ -20,20 +20,18 @@ gap> GcdCoprimeSplit(a,b);
 [ x_1^5-4*x_1^4+5*x_1^3-2*x_1^2, x_1^4-6*x_1^3+12*x_1^2-10*x_1+3,               
   x_1^7-12*x_1^6+56*x_1^5-128*x_1^4+144*x_1^3-64*x_1^2 ]
 
-# doc/_Chapter_The_nofoma_package.xml:92-104
+# doc/_Chapter_The_nofoma_package.xml:91-101
 gap> A:=[ [ 0, 1, 0, 1 ],
 >         [ 0, 0, 0, 0 ],
 >         [ 0, 1, 0, 1 ],
 >         [ 1, 1, 1, 1 ] ];;
 gap> x:=X(Rationals);;
-gap> f:=x^6-6*x^5+12*x^4-10*x^3+3*x^2;;
+gap> pol:=x^6-6*x^5+12*x^4-10*x^3+3*x^2;;
 gap> v:=[ 1, 1, 1, 1];;
-gap> pol:=CoefficientsOfUnivariatePolynomial(f);
-[ 0, 0, 3, -10, 12, -6, 1 ]
 gap> PolynomialToMatVec(A,pol,v);
 [ 8, -16, 8, -16 ]
 
-# doc/_Chapter_The_nofoma_package.xml:148-168
+# doc/_Chapter_The_nofoma_package.xml:145-165
 gap> A:=[ [   5,   2,  -4,   2 ],
 >         [  -1,   0,   2,  -1 ],
 >         [  -1,  -1,   3,  -1 ],
@@ -54,7 +52,7 @@ gap> SpinMatVector(A,[1,1,0,0]);
   [ 1, -2, 1 ],             
   [ 1, 2 ] ]                
 
-# doc/_Chapter_The_nofoma_package.xml:185-199
+# doc/_Chapter_The_nofoma_package.xml:182-196
 gap> A:=[ [ 0, 1, 0, 1 ],
 >         [ 0, 0, 1, 0 ],
 >         [ 0, 1, 0, 1 ],
@@ -69,7 +67,7 @@ gap> PrintArray(sp[2]*A*sp[2]^-1);
   [    0,    3,    1,    0 ],    
   [  1/2,  1/2,  1/2,    0 ] ]
 
-# doc/_Chapter_The_nofoma_package.xml:226-239
+# doc/_Chapter_The_nofoma_package.xml:223-236
 gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
 >         [  0,  4,  0,  0,  0,  1,  0 ],
 >         [  0,  1,  1,  0,  0,  1,  1 ],
@@ -83,7 +81,7 @@ gap> v:=last[1];;
 gap> SpinMatVector(A,v)[3];         
 [ 6, -17, 17, -7, 1 ]                    
 
-# doc/_Chapter_The_nofoma_package.xml:290-301
+# doc/_Chapter_The_nofoma_package.xml:287-298
 gap> v:=[ 1, 1, 1, 1 ];;
 gap> A:=[ [ 0, 1, 0, 1 ],
 >         [ 0, 0, 1, 0 ],
@@ -95,7 +93,7 @@ gap> PrintArray(RatFormStep1(A,v)[1]);
   [  0,  3,  1,  0 ],    
   [  1,  0,  0,  0 ] ] 
 
-# doc/_Chapter_The_nofoma_package.xml:343-369
+# doc/_Chapter_The_nofoma_package.xml:340-366
 gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
 >         [  0,  4,  0,  0,  0,  1,  0 ],
 >         [  0,  1,  1,  0,  0,  1,  1 ],
@@ -122,7 +120,7 @@ gap> PrintArray(f[2]*A*f[2]^-1);
   [   0,   0,   0,   0,  -2,   3,   0 ],
   [   0,   0,   0,   0,   0,   0,   1 ] ]
 
-# doc/_Chapter_The_nofoma_package.xml:384-394
+# doc/_Chapter_The_nofoma_package.xml:381-391
 gap> A := [ [ 2,  2, 0, 1, 0,  2, 1 ],
 >           [ 0,  4, 0, 0, 0,  1, 0 ],
 >           [ 0,  1, 1, 0, 0,  1, 1 ],
@@ -133,7 +131,7 @@ gap> A := [ [ 2,  2, 0, 1, 0,  2, 1 ],
 gap> InvariantFactorsMat(A);
   [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
 
-# doc/_Chapter_The_nofoma_package.xml:415-438
+# doc/_Chapter_The_nofoma_package.xml:412-435
 gap> A:=[ [  6, -2,  6,  1,  1 ],
 >         [  1, -1,  2,  1, -2 ],
 >         [ -2,  0, -1,  0, -1 ],
@@ -157,7 +155,7 @@ gap> Factors(last);
 gap> MinimalPolynomial(jc[2]);
 x_1^2                     
 
-# doc/_Chapter_The_nofoma_package.xml:466-482
+# doc/_Chapter_The_nofoma_package.xml:463-479
 gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
 >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],  
 >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
@@ -174,7 +172,7 @@ x_1-Z(5)^0
 gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
 x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 
-# doc/_Chapter_The_nofoma_package.xml:499-514
+# doc/_Chapter_The_nofoma_package.xml:496-511
 gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
 >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
 >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
