@@ -230,23 +230,21 @@ end);
 # Returns vector that has the same minimal polynomial as mat. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(MaximalVectorMat,function(mat)
-  local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm;
+  local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm,x;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
   one:=One(k);
   idm:=OneMutable(A);
+  x:=Indeterminate(k);
   if IsDiagonalMat(A) then       # first deal with diagonal matrix
     if ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
       v1:=idm[1];
-      np:=nfmPolCoeffs([-A[1,1],one]);
+      np:=x-A[1,1];
     else
       v1:=ListWithIdenticalEntries(NrRows(A),one);
       ConvertToVectorRepNC(v1,k);
       l:=Set([1..NrRows(A)],i->A[i,i]);
-      np:=nfmPolCoeffs([-l[1],one]);
-      for i in [2..Length(l)] do
-        np:=nfmPolCoeffs([-l[i],one])*np;
-      od;
+      np:=Product(l, a -> x-a);
     fi;
     Info(Infonofoma,2,"#I Degree of minimal polynomial is ",Degree(np)," \n");
     return [v1,np];
