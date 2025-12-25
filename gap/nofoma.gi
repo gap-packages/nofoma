@@ -707,7 +707,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     for i in [1..Size(gs)] do 
       Add(combined, [gens[i],gs[i]]); 
     od;
-    Sort(combined, function(v,w) return v[2] < w[2]; end);
+    Sort(combined, {v,w} -> v[2] < w[2]);
     k := 0;
     dims := [];
     for i in [1..Size(gs)] do 
@@ -930,8 +930,8 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     dims := []; #dimensions of my cyclic subspaces
     sumdim := 0; #dimension of my direct sum
     conj := ZeroMutable(A);
-    while not Sum(minpolpowers, function(v) return v[2]*d; end) = n do #generally bigger than n, working our way down  
-        SortBy(minpolpowers, function(v) return v[2]; end); #Sort ws by their A-length (ascending)
+    while not Sum(minpolpowers, v -> v[2]*d) = n do #generally bigger than n, working our way down
+        SortBy(minpolpowers, v -> v[2]); #Sort ws by their A-length (ascending)
         vecs := ZeroVector(F,Length(minpolpowers));
         for i in [1..Length(minpolpowers)] do
             vecs[i] := minpolpowers[i][3]; #p(A)^(r-1)(w)
@@ -962,7 +962,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         fi;
     od;
     currdim := 1;
-    SortBy(minpolpowers, function(v) return v[2]; end); #sort by A-length
+    SortBy(minpolpowers, v -> v[2]); #sort by A-length
     for i in [1..Length(minpolpowers)] do
         wtrip := minpolpowers[i];
         conj{[currdim..currdim+(wtrip[2]*d)-1]}{[1..n]} := nfmSpinUntil(wtrip[1],A,wtrip[2]*d);
