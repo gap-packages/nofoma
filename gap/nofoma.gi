@@ -572,7 +572,7 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
     F := BaseDomain(gen);
     n := Length(gen[1]);
     if (r = n) then 
-        return Zero(F^n);
+        return ZeroVector(F,n);
     fi;    
     zsf := ZeroMatrix(F,r+1,r+1);
     CopySubMatrix(gen, zsf, [1..r], [1..r], [1..r], [1..r]);
