@@ -831,19 +831,16 @@ end);
 #Primary Decomposition for cyclic matrices 
 #Jordan normal form will call this function if a cyclic matrix is detected
 BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs)
-    local vspan,F,n,w,i,wspan,qi,k,v,COB,dims;
+    local vspan,n,w,mf,wspan,qi,k,COB,dims;
     n := NrRows(A);
-    F := DefaultFieldOfMatrix(A);
-    A := Matrix(F,A);
     vspan := nfmFindCyclicVectorNC(A);
-    v := vspan[1];
     dims := [];
     COB := ZeroMutable(A);
     k := 0;
-    for i in [1..Size(minpolfacs)] do 
-        qi := (minpolfacs[i][1])^(minpolfacs[i][2]);
+    for mf in minpolfacs do 
+        qi := (mf[1])^(mf[2]);
         w := nfmPolyEvalFromSpan(vspan,Quotient(minpol,qi));
-        wspan := nfmSpinUntil(w,A,Degree(minpolfacs[i][1])*minpolfacs[i][2]);
+        wspan := nfmSpinUntil(w,A,Degree(mf[1])*mf[2]);
         CopySubMatrix(wspan, COB, [1..NrRows(wspan)], [k+1..k+NrRows(wspan)], [1..n], [1..n]);
         Add(dims, NrRows(wspan));
         k := k + NrRows(wspan);
