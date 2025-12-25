@@ -912,7 +912,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     n := NrRows(A);
     d := Degree(p);
     if m * d = n then #return if it's already cyclic
-        return [One(GL(n,F)), [n]]; 
+        return [One(A), [n]];
     fi;
     Ainp := p(A); #TODO: evaluate this using frobform? or maybe polyevalfromspan 
     ws := [];
