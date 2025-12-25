@@ -244,7 +244,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
     else
       v1:=ListWithIdenticalEntries(Length(A),one);
       ConvertToVectorRepNC(v1,k);
-      l:=Set(List([1..Length(A)],i->A[i,i]));
+      l:=Set([1..Length(A)],i->A[i,i]);
       np:=nfmPolCoeffs([-l[1],one]);
       for i in [2..Length(l)] do
         np:=nfmPolCoeffs([-l[i],one])*np;
