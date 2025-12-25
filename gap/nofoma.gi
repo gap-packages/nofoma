@@ -60,9 +60,8 @@ end);
 #TODO: take polynomial as input
 # Applies polynomial pol to A. 
 InstallGlobalFunction(PolynomialToMat,function(A,pol)
-  local A1,idm,n,i,d,coeffs;
-  d := Size(A);
-  idm:= IdentityMat(d,BaseDomain(A));
+  local A1,idm,n,i,coeffs;
+  idm:= OneMutable(A);
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
   n:=Length(coeffs);
   A1:=coeffs[n]*idm;
@@ -166,10 +165,9 @@ end);
 # begin. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(CyclicChainMat,function(mat)
-  local A,k,v,chain,j,idm,sp,svec,l;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
-  idm:=IdentityMat(Length(A),k);
+  local A,v,chain,j,idm,sp,svec,l;
+  A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
+  idm:=OneMutable(A);
   if IsLowerTriangularMat(A) then 
     return [idm,idm,[1..Length(A)+1],[1..Length(A)]];
   fi;
@@ -236,7 +234,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
   one:=One(k);
-  idm:=IdentityMat(Length(A),k);
+  idm:=OneMutable(A);
   if IsDiagonalMat(A) then       # first deal with diagonal matrix
     if ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
       v1:=idm[1];
@@ -281,9 +279,8 @@ end);
 # subspace defined by Jacob. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(JacobMatComplement,function(T,d)
-  local base,i,ii,j,k,F,tT;
-  k:=DefaultFieldOfMatrix(T);
-  base:=IdentityMat(Length(T),k);
+  local base,i,ii,j,F,tT;
+  base:=OneMutable(T);
   tT:=TransposedMat(T); 
   F:=[base[d]];
   for i in [2..d] do 
@@ -319,9 +316,8 @@ BindGlobal("BuildBlockDiagonalMat1",function(d,B)
 end);
 
 InstallGlobalFunction(RatFormStep1,function(A,v)
-  local A1,sp,t,i,k,d,idm,minp;
-  k:=DefaultFieldOfMatrix(A);
-  idm:=IdentityMat(Length(A),k);
+  local A1,sp,t,i,d,idm,minp;
+  idm:=OneMutable(A);
   sp:=SpinMatVector1(A,v,[],[],[],[]);
   t:=sp[2];
   d:=Length(t);
@@ -334,9 +330,8 @@ InstallGlobalFunction(RatFormStep1,function(A,v)
 end);
 
 InstallGlobalFunction(RatFormStep1J,function(A,v)
-  local A1,sp,t,i,j,k,d,idm,minp;
-  k:=DefaultFieldOfMatrix(A);
-  idm:=IdentityMat(Length(A),k);
+  local A1,sp,t,i,j,d,idm,minp;
+  idm:=OneMutable(A);
   sp:=SpinMatVector1(A,v,[],[],[],[]);
   t:=sp[2];
   d:=Length(t);
@@ -647,7 +642,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     v := nfmGenerateRandomVector(F,n);
     A := Matrix(F,A);
     if IsZero(A) then 
-      return IdentityMat(n,F);
+      return OneMutable(A);
     fi;
     gens := []; #Li_s as in Steel paper will go in here 
     gs := []; #distinct factors of minimal polynomial 
@@ -844,7 +839,7 @@ BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs
     vspan := nfmFindCyclicVectorNC(A);
     v := vspan[1];
     dims := [];
-    COB := ZeroMatrix(F,n,n);
+    COB := ZeroMutable(A);
     k := 0;
     for i in [1..Size(minpolfacs)] do 
         qi := (minpolfacs[i][1])^(minpolfacs[i][2]);
@@ -935,7 +930,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     od;
     dims := []; #dimensions of my cyclic subspaces
     sumdim := 0; #dimension of my direct sum
-    conj := ZeroMatrix(F,n,n);
+    conj := ZeroMutable(A);
     while not Sum(minpolpowers, function(v) return v[2]*d; end) = n do #generally bigger than n, working our way down  
         SortBy(minpolpowers, function(v) return v[2]; end); #Sort ws by their A-length (ascending)
         vecs := ZeroVector(F,Length(minpolpowers));
@@ -986,7 +981,7 @@ BindGlobal("JordanBlock", function(A, p, m) #For JordanNormalform
     n := NrRows(A);
     d := Degree(p);
     spun := nfmFindCyclicVectorNC(A);
-    basis := ZeroMatrix(DefaultFieldOfMatrix(A),n,n);
+    basis := ZeroMutable(A);
     CopySubMatrix(spun,basis,[1..d],[1..d],[1..n],[1..n]);
     for r in [1..d] do
         for i in [1..m-1] do 
@@ -1011,7 +1006,7 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
       v := nfmGenerateRandomVector(F,n); #ensure that v isnt zero vec 
     od;
     spun := nfmSpinUntil(v, A, blockdim);
-    COB := ZeroMatrix(F,n,n);
+    COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
     cobrank := blockdim;
     elDivs := [minpol];  
@@ -1036,7 +1031,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     n := NrRows(A);
     elDivs := [];
     if IsZero(A) then 
-      return [IdentityMat(n,F), UnivariatePolynomial(F,One(F))];
+      return [OneMutable(A), UnivariatePolynomial(F,One(F))];
     fi;
     minpol := MinimalPolynomial(F,A);
     facOcc := Collected(Factors(minpol));  #factors of minimalpolynomial and their multiplicity
@@ -1052,7 +1047,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     COB := hauptraum[1]; #Change of basis matrix, this will be the final COB from A to JNF
     A := COB*A*Inverse(COB); #A in hauptraumform
     crhr := 1; #current row (primary subspace)
-    preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
+    preCOB := ZeroMutable(A); #COB matrix from A in primary form to primary subspaces in cyclic form
     for i in [1..Size(hauptraumdims)] do 
         if hauptraumdims[i] = 1 then 
             preCOB[crhr,crhr] := One(F);
