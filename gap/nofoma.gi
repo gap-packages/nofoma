@@ -169,12 +169,12 @@ InstallGlobalFunction(CyclicChainMat,function(mat)
   A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
   idm:=OneMutable(A);
   if IsLowerTriangularMat(A) then 
-    return [idm,idm,[1..Length(A)+1],[1..Length(A)]];
+    return [idm,idm,[1..NrRows(A)+1],[1..NrRows(A)]];
   fi;
   sp:=SpinMatVector1(A,idm[1],[],[],[],[]);
   svec:=[1,Length(sp[1])+1];
   j:=1;
-  while Length(sp[1])<Length(A) do
+  while Length(sp[1])<NrRows(A) do
     while j in sp[5] do
       j:=j+1;
     od;
@@ -236,13 +236,13 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
   one:=One(k);
   idm:=OneMutable(A);
   if IsDiagonalMat(A) then       # first deal with diagonal matrix
-    if ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
+    if ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
       v1:=idm[1];
       np:=nfmPolCoeffs([-A[1,1],one]);
     else
-      v1:=ListWithIdenticalEntries(Length(A),one);
+      v1:=ListWithIdenticalEntries(NrRows(A),one);
       ConvertToVectorRepNC(v1,k);
-      l:=Set([1..Length(A)],i->A[i,i]);
+      l:=Set([1..NrRows(A)],i->A[i,i]);
       np:=nfmPolCoeffs([-l[1],one]);
       for i in [2..Length(l)] do
         np:=nfmPolCoeffs([-l[i],one])*np;
@@ -296,7 +296,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
       fi;
     od;
   od;
-  for i in [d+1..Length(T)] do
+  for i in [d+1..NrRows(T)] do
     for j in [1..d] do 
       base[i,j]:=-F[d+1-j][i];
     od;
@@ -308,7 +308,7 @@ end);
 BindGlobal("BuildBlockDiagonalMat1",function(d,B)
   local neu,n,k;
   k:=DefaultFieldOfMatrix(B);
-  n:=d+Length(B);
+  n:=d+NrRows(B);
   neu:=IdentityMat(n,k);
   neu{[d+1..n]}{[d+1..n]}:=B;
   ConvertToMatrixRepNC(neu);
@@ -321,7 +321,7 @@ InstallGlobalFunction(RatFormStep1,function(A,v)
   sp:=SpinMatVector1(A,v,[],[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..Length(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
@@ -335,14 +335,14 @@ InstallGlobalFunction(RatFormStep1J,function(A,v)
   sp:=SpinMatVector1(A,v,[],[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..Length(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
   Add(minp,minp[1]^0);
   j:=JacobMatComplement(A1,Length(minp)-1);
   #return [j*A1*j^-1,j*t,minp];
-  return [A1{[d+1..Length(A1)]}{[d+1..Length(A1)]},j*t,minp];
+  return [A1{[d+1..NrRows(A1)]}{[d+1..NrRows(A1)]},j*t,minp];
 end);
 
 #TODO: replace by CompanionMat
@@ -382,14 +382,14 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   local A,P,invf,i,k,mv,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
+  if IsDiagonalMat(A) and ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
     mv:=nfmPolCoeffs([-A[1,1],A[1,1]^0]);
-    return [ListWithIdenticalEntries(Length(A),mv),A^0,[1..Length(A)]];
+    return [ListWithIdenticalEntries(NrRows(A),mv),A^0,[1..NrRows(A)]];
   fi;
   mv:=MaximalVectorMat(A);
   invf:=[mv[2]];
   d:=Degree(mv[2]);
-  if d=Length(A) then      # cyclic space: only one companion block
+  if d=NrRows(A) then      # cyclic space: only one companion block
     step1:=[mv[1]];        # create base change
     for i in [2..d] do
       Add(step1,step1[i-1]*A);
@@ -416,7 +416,7 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
   local A,A1,i,d,np,k,f,n,p;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  n:=Length(A);
+  n:=NrRows(A);
   np:=MaximalVectorMat(A);
   d:=Degree(np[2]);
   f:=[np[2]];
@@ -491,7 +491,7 @@ InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
   local f,jc,p,N,D;
   f:=FrobeniusNormalForm(mat);
   Info(Infonofoma,2,"Frobenius normal form complete\n");
-  Add(f[3],Length(mat)+1);
+  Add(f[3],NrRows(mat)+1);
   jc:=List(f[1],p->JordanChevalleyDecMat(nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(p)),p));
   N:=0*f[2];
   D:=0*f[2];
