@@ -882,7 +882,7 @@ BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p,
     local n,F,i,rel,tosolve,currdim,qis;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
-    tosolve := MutableCopyMat(ZeroMatrix(F,Length(vecs)*d,n));
+    tosolve := ZeroMatrix(F,Length(vecs)*d,n);
     currdim := 1; 
     for i in [1..Length(vecs)] do
         CopySubMatrix(nfmSpinUntil(vecs[i], A, d), tosolve, [1..d], [currdim..currdim +  d-1], [1..n], [1..n]);
@@ -954,7 +954,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         wstrich := ZeroVector(F,n);
         for i in [1..Length(qis)] do #calculate new reduced w_j
             if not IsZero(qis[i]) then #avoid unnecessary computations
-                tomult :=  PolynomialToMatVec(MutableCopyMat(A), nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
+                tomult :=  PolynomialToMatVec(A, nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
                 for k in [1..minpolpowers[i][2] - r] do
                     tomult := tomult * Ainp; #this too perhaps?
                 od;
