@@ -48,7 +48,7 @@ InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
   n:=Length(coeffs);
   v1:=ShallowCopy(coeffs[n]*v);
-  for i in Reversed([1..n-1]) do
+  for i in [n-1,n-2..1] do
     v1:=v1*A;
     if not IsZero(coeffs[i]) then
       AddRowVector(v1,v,coeffs[i]);
@@ -66,7 +66,7 @@ InstallGlobalFunction(PolynomialToMat,function(A,pol)
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
   n:=Length(coeffs);
   A1:=coeffs[n]*idm;
-  for i in Reversed([1..n-1]) do
+  for i in [n-1,n-2..1] do
     A1:=A1*A;
     if not IsZero(coeffs[i]) then
       A1:=A1+coeffs[i]*idm;
@@ -207,7 +207,7 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   local i,f,v1,h,g,l;
   f:=[];
   v1:=ShallowCopy(v);
-  for i in Reversed([1..z]) do
+  for i in [z,z-1..1] do
     l:=v1{[svec[i]..svec[i+1]-1]};
     if not IsZero(l) then
       if IsOne(Degree(rpols[i])) then
@@ -611,9 +611,10 @@ BindGlobal("nfmFindCyclicVectorNC", function(A) #Field F, Matrix A, n upper boun
 end);
 
 BindGlobal("nfmRemoveZeroRows", function(mat)
-    local i,matcopy;
+    local n,i,matcopy;
     matcopy := MutableCopyMat(mat);
-    for i in Reversed([1..NrRows(matcopy)]) do 
+    n := NrRows(matcopy);
+    for i in [n,n-1..1] do
         if IsZero(matcopy[i]) then 
             Remove(matcopy, i);
         fi;
