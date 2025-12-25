@@ -572,7 +572,6 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
     F := BaseDomain(gen);
     n := Length(gen[1]);
     if (r = n) then 
-        Print("Subspace is already equal to entire space.");
         return Zero(F^n);
     fi;    
     zsf := ZeroMatrix(F,r+1,r+1);
@@ -584,7 +583,7 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
             return w;
         fi;
     od;
-    Print("Could not find vector that isn't in subspace!"); 
+    Error("Failed to find vector that is not in the generated subspace."); 
     return fail;
 end);
 
@@ -891,7 +890,7 @@ BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p,
     od;
     rel := NullspaceMat(tosolve);
     if rel = fail or rel = [] then #shouldn't happen
-        Print("Couldn't find F[A]-linear dependence"); 
+        Error("Failed to find a linear dependence.");
     fi;
     rel := rel[1];
     #turn into usable polynomial coeffs
