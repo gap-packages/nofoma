@@ -242,7 +242,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
     else
       v1:=ListWithIdenticalEntries(Length(A),one);
       ConvertToVectorRepNC(v1,k);
-      l:=Set(List([1..Length(A)],i->A[i,i]));
+      l:=Set([1..Length(A)],i->A[i,i]);
       np:=nfmPolCoeffs([-l[1],one]);
       for i in [2..Length(l)] do
         np:=nfmPolCoeffs([-l[i],one])*np;
@@ -878,7 +878,7 @@ BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p,
     local n,F,i,rel,tosolve,currdim,qis;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
-    tosolve := MutableCopyMat(ZeroMatrix(F,Length(vecs)*d,n));
+    tosolve := ZeroMatrix(F,Length(vecs)*d,n);
     currdim := 1; 
     for i in [1..Length(vecs)] do
         CopySubMatrix(nfmSpinUntil(vecs[i], A, d), tosolve, [1..d], [currdim..currdim +  d-1], [1..n], [1..n]);
@@ -908,7 +908,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     n := NrRows(A);
     d := Degree(p);
     if m * d = n then #return if it's already cyclic
-        return [One(GL(n,F)), [n]]; 
+        return [One(A), [n]];
     fi;
     Ainp := p(A); #TODO: evaluate this using frobform? or maybe polyevalfromspan 
     ws := [];
@@ -950,7 +950,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         wstrich := ZeroVector(F,n);
         for i in [1..Length(qis)] do #calculate new reduced w_j
             if not IsZero(qis[i]) then #avoid unnecessary computations
-                tomult :=  PolynomialToMatVec(MutableCopyMat(A), nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
+                tomult :=  PolynomialToMatVec(A, nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
                 for k in [1..minpolpowers[i][2] - r] do
                     tomult := tomult * Ainp; #this too perhaps?
                 od;
