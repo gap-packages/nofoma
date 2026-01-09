@@ -634,99 +634,6 @@ BindGlobal("nfmPolyEvalFromSpan", function(span,pol)
     return resu;
 end);
 
-#TODO: recognise cyclic matrices 
-#Primary Decomposition using a modified version of Allan Steel's algorithm 
-#Standalone version 
-#Returns matrix B such that B*A*B^-1 is in primary decomposition form 
-#along with dimensions of primary subspaces 
-InstallGlobalFunction(PrimaryDecomp, function(A) 
-    local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
-    COB,pot,gs,f2,dims,toAdd,combined,dim;
-    rank := 0;
-    n := NrRows(A);
-    F := DefaultFieldOfMatrix(A);
-    v := nfmGenerateRandomVector(F,n);
-    A := Matrix(F,A);
-    if IsZero(A) then 
-      return IdentityMat(n,F);
-    fi;
-    gens := []; #Li_s as in Steel paper will go in here 
-    gs := []; #distinct factors of minimal polynomial 
-    while not rank = n do 
-        m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
-        p := One(PolynomialRing(F));
-        for i in [1..Size(gens)] do 
-            L_i := gens[i];
-            if not IsOne(Gcd(m,gs[i])) then
-                f := m;
-                pot := 0; 
-                for j in [1..n] do 
-                    f2 := Quotient(f,gs[i]);
-                    if f2 = fail then 
-                        break;
-                    fi;
-                    pot := pot + 1;
-                    f := f2;
-                od; 
-                w := PolynomialToMatVec(A,f,v);
-                p := p * gs[i]^pot;
-                #minimal polynomial of w has degree smaller than or equal to n - degree(f)
-                wspan := nfmSpinUntil(w,A,n-Degree(f));
-                toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
-                if not IsMatrix(toAdd) then 
-                    toAdd := [toAdd];  # Convert vector to 1-row matrix
-                    toAdd := Matrix(toAdd);
-                fi;
-                gens[i] := toAdd;
-            fi;
-        od;
-        v :=PolynomialToMatVec(A,p,v);
-        m := Quotient(m,p);
-        if not IsOne(m) then 
-            facs := Factors(m);
-            facs := Collected(facs);
-            for i in [1..Size(facs)] do 
-                qi := (facs[i][1])^(facs[i][2]);
-                w := PolynomialToMatVec(A,Quotient(m,qi),v);
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
-                Add(gens,wspan);
-                Add(gs, facs[i][1]);
-            od;
-        fi;
-        #alles in eine matrix
-        COB := ZeroMatrix(F,n,n);
-        k := 0;
-        for i in [1..Size(gens)] do 
-            L_i := gens[i];
-            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
-            k := k+NrRows(L_i);
-        od;
-        COB := nfmRemoveZeroRows(COB);
-        rank := NrRows(COB);
-        if not rank = n then 
-            COB := EcheloniseMat(COB);
-            v := nfmFindVectorNotInSubspaceNC(COB);
-        fi;
-    od;
-    #sorted blocks and count dims
-    COB := ZeroMatrix(F,n,n);
-    combined := [];
-    for i in [1..Size(gs)] do 
-      Add(combined, [gens[i],gs[i]]); 
-    od;
-    Sort(combined, function(v,w) return v[2] < w[2]; end);
-    k := 0;
-    dims := [];
-    for i in [1..Size(gs)] do 
-      L_i := combined[i][1];
-      dim := NrRows(L_i); 
-      Add(dims, dim);
-      CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
-      k := k + dim;
-    od;
-    return [COB, dims];
-end);
-
 BindGlobal("factoriseByKnownFactors", function(kFacs,pol)
   local fac,factup,i,resfacs,count,newpol,oldpol; 
   resfacs := [];
@@ -854,6 +761,103 @@ BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs
         CopySubMatrix(wspan, COB, [1..NrRows(wspan)], [k+1..k+NrRows(wspan)], [1..n], [1..n]);
         Add(dims, NrRows(wspan));
         k := k + NrRows(wspan);
+    od;
+    return [COB, dims];
+end);
+
+#TODO: recognise cyclic matrices 
+#Primary Decomposition using a modified version of Allan Steel's algorithm 
+#Standalone version 
+#Returns matrix B such that B*A*B^-1 is in primary decomposition form 
+#along with dimensions of primary subspaces 
+InstallGlobalFunction(PrimaryDecomp, function(A) 
+    local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
+    COB,pot,gs,f2,dims,toAdd,combined,dim,minpol;
+    rank := 0;
+    n := NrRows(A);
+    F := DefaultFieldOfMatrix(A);
+    v := nfmGenerateRandomVector(F,n);
+    A := Matrix(F,A);
+    minpol := MinimalPolynomial(F,A);
+    if Degree(minpol) = n then 
+      return nfmPrimaryDecompositionforJNFCyclic(A,minpol,Collected(Factors(minpol)));
+    fi;
+    if IsZero(A) then 
+      return IdentityMat(n,F);
+    fi;
+    gens := []; #Li_s as in Steel paper will go in here 
+    gs := []; #distinct factors of minimal polynomial 
+    while not rank = n do 
+        m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
+        p := One(PolynomialRing(F));
+        for i in [1..Size(gens)] do 
+            L_i := gens[i];
+            if not IsOne(Gcd(m,gs[i])) then
+                f := m;
+                pot := 0; 
+                for j in [1..n] do 
+                    f2 := Quotient(f,gs[i]);
+                    if f2 = fail then 
+                        break;
+                    fi;
+                    pot := pot + 1;
+                    f := f2;
+                od; 
+                w := PolynomialToMatVec(A,f,v);
+                p := p * gs[i]^pot;
+                #minimal polynomial of w has degree smaller than or equal to n - degree(f)
+                wspan := nfmSpinUntil(w,A,n-Degree(f));
+                toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
+                if not IsMatrix(toAdd) then 
+                    toAdd := [toAdd];  # Convert vector to 1-row matrix
+                    toAdd := Matrix(toAdd);
+                fi;
+                gens[i] := toAdd;
+            fi;
+        od;
+        v :=PolynomialToMatVec(A,p,v);
+        m := Quotient(m,p);
+        if not IsOne(m) then 
+            facs := Factors(m);
+            facs := Collected(facs);
+            for i in [1..Size(facs)] do 
+                qi := (facs[i][1])^(facs[i][2]);
+                w := PolynomialToMatVec(A,Quotient(m,qi),v);
+                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
+                Add(gens,wspan);
+                Add(gs, facs[i][1]);
+            od;
+        fi;
+        #alles in eine matrix
+        COB := ZeroMatrix(F,n,n);
+        k := 0;
+        for i in [1..Size(gens)] do 
+            L_i := gens[i];
+            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
+            k := k+NrRows(L_i);
+        od;
+        COB := nfmRemoveZeroRows(COB);
+        rank := NrRows(COB);
+        if not rank = n then 
+            COB := EcheloniseMat(COB);
+            v := nfmFindVectorNotInSubspaceNC(COB);
+        fi;
+    od;
+    #sorted blocks and count dims
+    COB := ZeroMatrix(F,n,n);
+    combined := [];
+    for i in [1..Size(gs)] do 
+      Add(combined, [gens[i],gs[i]]); 
+    od;
+    Sort(combined, function(v,w) return v[2] < w[2]; end);
+    k := 0;
+    dims := [];
+    for i in [1..Size(gs)] do 
+      L_i := combined[i][1];
+      dim := NrRows(L_i); 
+      Add(dims, dim);
+      CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
+      k := k + dim;
     od;
     return [COB, dims];
 end);
