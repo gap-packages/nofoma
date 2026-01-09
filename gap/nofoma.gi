@@ -697,9 +697,7 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
         v :=PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then 
-            #TODO: make this work
-            #facs := factoriseByKnownFactors(minpolfacs,m);
-            facs := Collected(Factors(m));
+            facs := factoriseByKnownFactors(minpolfacs,m);
             for i in [1..Size(facs)] do 
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,Quotient(m,qi),v);
@@ -875,7 +873,7 @@ BindGlobal("GetMinPolPowerWithVec", function(m,v,Ainp)
 end);
 
 #Returns linear dependence q_1,...,q_k as described in paper for cyclic decomposition
-BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p, returns coeffs of qis (ascending degree) #THIS ONLY WORKS FOR SETTING IN THEOREM 
+BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p, returns coeffs of qis (ascending degree) 
     local n,F,i,rel,tosolve,currdim,qis;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
