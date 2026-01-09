@@ -48,7 +48,7 @@ InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
   n:=Length(coeffs);
   v1:=ShallowCopy(coeffs[n]*v);
-  for i in Reversed([1..n-1]) do
+  for i in [n-1,n-2..1] do
     v1:=v1*A;
     if not IsZero(coeffs[i]) then
       AddRowVector(v1,v,coeffs[i]);
@@ -60,13 +60,12 @@ end);
 #TODO: take polynomial as input
 # Applies polynomial pol to A. 
 InstallGlobalFunction(PolynomialToMat,function(A,pol)
-  local A1,idm,n,i,d,coeffs;
-  d := Size(A);
-  idm:= IdentityMat(d,BaseDomain(A));
+  local A1,idm,n,i,coeffs;
+  idm:= OneMutable(A);
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
   n:=Length(coeffs);
   A1:=coeffs[n]*idm;
-  for i in Reversed([1..n-1]) do
+  for i in [n-1,n-2..1] do
     A1:=A1*A;
     if not IsZero(coeffs[i]) then
       A1:=A1+coeffs[i]*idm;
@@ -166,17 +165,16 @@ end);
 # begin. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(CyclicChainMat,function(mat)
-  local A,k,v,chain,j,idm,sp,svec,l;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
-  idm:=IdentityMat(Length(A),k);
+  local A,v,chain,j,idm,sp,svec,l;
+  A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
+  idm:=OneMutable(A);
   if IsLowerTriangularMat(A) then 
-    return [idm,idm,[1..Length(A)+1],[1..Length(A)]];
+    return [idm,idm,[1..NrRows(A)+1],[1..NrRows(A)]];
   fi;
   sp:=SpinMatVector1(A,idm[1],[],[],[],[]);
   svec:=[1,Length(sp[1])+1];
   j:=1;
-  while Length(sp[1])<Length(A) do
+  while Length(sp[1])<NrRows(A) do
     while j in sp[5] do
       j:=j+1;
     od;
@@ -207,7 +205,7 @@ BindGlobal("nfmOrderPolM",function(M,svec,rpols,z,v)
   local i,f,v1,h,g,l;
   f:=[];
   v1:=ShallowCopy(v);
-  for i in Reversed([1..z]) do
+  for i in [z,z-1..1] do
     l:=v1{[svec[i]..svec[i+1]-1]};
     if not IsZero(l) then
       if IsOne(Degree(rpols[i])) then
@@ -232,23 +230,21 @@ end);
 # Returns vector that has the same minimal polynomial as mat. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(MaximalVectorMat,function(mat)
-  local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm;
+  local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm,x;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
   one:=One(k);
-  idm:=IdentityMat(Length(A),k);
+  idm:=OneMutable(A);
+  x:=Indeterminate(k);
   if IsDiagonalMat(A) then       # first deal with diagonal matrix
-    if ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
+    if ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
       v1:=idm[1];
-      np:=nfmPolCoeffs([-A[1,1],one]);
+      np:=x-A[1,1];
     else
-      v1:=ListWithIdenticalEntries(Length(A),one);
+      v1:=ListWithIdenticalEntries(NrRows(A),one);
       ConvertToVectorRepNC(v1,k);
-      l:=Set(List([1..Length(A)],i->A[i,i]));
-      np:=nfmPolCoeffs([-l[1],one]);
-      for i in [2..Length(l)] do
-        np:=nfmPolCoeffs([-l[i],one])*np;
-      od;
+      l:=Set([1..NrRows(A)],i->A[i,i]);
+      np:=Product(l, a -> x-a);
     fi;
     Info(Infonofoma,2,"#I Degree of minimal polynomial is ",Degree(np)," \n");
     return [v1,np];
@@ -281,9 +277,8 @@ end);
 # subspace defined by Jacob. 
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(JacobMatComplement,function(T,d)
-  local base,i,ii,j,k,F,tT;
-  k:=DefaultFieldOfMatrix(T);
-  base:=IdentityMat(Length(T),k);
+  local base,i,ii,j,F,tT;
+  base:=OneMutable(T);
   tT:=TransposedMat(T); 
   F:=[base[d]];
   for i in [2..d] do 
@@ -299,7 +294,7 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
       fi;
     od;
   od;
-  for i in [d+1..Length(T)] do
+  for i in [d+1..NrRows(T)] do
     for j in [1..d] do 
       base[i,j]:=-F[d+1-j][i];
     od;
@@ -311,7 +306,7 @@ end);
 BindGlobal("BuildBlockDiagonalMat1",function(d,B)
   local new,n,k;
   k:=DefaultFieldOfMatrix(B);
-  n:=d+Length(B);
+  n:=d+NrRows(B);
   new:=IdentityMat(n,k);
   new{[d+1..n]}{[d+1..n]}:=B;
   ConvertToMatrixRepNC(new);
@@ -319,13 +314,12 @@ BindGlobal("BuildBlockDiagonalMat1",function(d,B)
 end);
 
 InstallGlobalFunction(RatFormStep1,function(A,v)
-  local A1,sp,t,i,k,d,idm,minp;
-  k:=DefaultFieldOfMatrix(A);
-  idm:=IdentityMat(Length(A),k);
+  local A1,sp,t,i,d,idm,minp;
+  idm:=OneMutable(A);
   sp:=SpinMatVector1(A,v,[],[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..Length(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
@@ -334,20 +328,19 @@ InstallGlobalFunction(RatFormStep1,function(A,v)
 end);
 
 InstallGlobalFunction(RatFormStep1J,function(A,v)
-  local A1,sp,t,i,j,k,d,idm,minp;
-  k:=DefaultFieldOfMatrix(A);
-  idm:=IdentityMat(Length(A),k);
+  local A1,sp,t,i,j,d,idm,minp;
+  idm:=OneMutable(A);
   sp:=SpinMatVector1(A,v,[],[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..Length(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
   Add(minp,minp[1]^0);
   j:=JacobMatComplement(A1,Length(minp)-1);
   #return [j*A1*j^-1,j*t,minp];
-  return [A1{[d+1..Length(A1)]}{[d+1..Length(A1)]},j*t,minp];
+  return [A1{[d+1..NrRows(A1)]}{[d+1..NrRows(A1)]},j*t,minp];
 end);
 
 #TODO: replace by CompanionMat
@@ -387,14 +380,14 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   local A,P,invf,i,k,mv,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  if IsDiagonalMat(A) and ForAll([2..Length(A)],i->A[i,i]=A[1,1]) then
+  if IsDiagonalMat(A) and ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
     mv:=nfmPolCoeffs([-A[1,1],A[1,1]^0]);
-    return [ListWithIdenticalEntries(Length(A),mv),A^0,[1..Length(A)]];
+    return [ListWithIdenticalEntries(NrRows(A),mv),A^0,[1..NrRows(A)]];
   fi;
   mv:=MaximalVectorMat(A);
   invf:=[mv[2]];
   d:=Degree(mv[2]);
-  if d=Length(A) then      # cyclic space: only one companion block
+  if d=NrRows(A) then      # cyclic space: only one companion block
     step1:=[mv[1]];        # create base change
     for i in [2..d] do
       Add(step1,step1[i-1]*A);
@@ -421,7 +414,7 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
   local A,A1,i,d,np,k,f,n,p;
   k:=DefaultFieldOfMatrix(mat);
   A:=ImmutableMatrix(k,mat);
-  n:=Length(A);
+  n:=NrRows(A);
   np:=MaximalVectorMat(A);
 
   d:=Degree(np[2]);
@@ -497,7 +490,7 @@ InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
   local f,jc,p,N,D;
   f:=FrobeniusNormalForm(mat);
   Info(Infonofoma,2,"Frobenius normal form complete\n");
-  Add(f[3],Length(mat)+1);
+  Add(f[3],NrRows(mat)+1);
   jc:=List(f[1],p->JordanChevalleyDecMat(nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(p)),p));
   N:=0*f[2];
   D:=0*f[2];
@@ -573,8 +566,7 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
     F := BaseDomain(gen);
     n := Length(gen[1]);
     if (r = n) then 
-        Print("Subspace is already equal to entire space.");
-        return Zero(F^n);
+        return ZeroVector(F,n);
     fi;    
     zsf := ZeroMatrix(F,r+1,r+1);
     CopySubMatrix(gen, zsf, [1..r], [1..r], [1..r], [1..r]);
@@ -585,7 +577,7 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
             return w;
         fi;
     od;
-    Print("Could not find vector that isn't in subspace!"); 
+    Error("Failed to find vector that is not in the generated subspace."); 
     return fail;
 end);
 
@@ -613,9 +605,10 @@ BindGlobal("nfmFindCyclicVectorNC", function(A) #Field F, Matrix A, n upper boun
 end);
 
 BindGlobal("nfmRemoveZeroRows", function(mat)
-    local i,matcopy;
+    local n,i,matcopy;
     matcopy := MutableCopyMat(mat);
-    for i in Reversed([1..NrRows(matcopy)]) do 
+    n := NrRows(matcopy);
+    for i in [n,n-1..1] do
         if IsZero(matcopy[i]) then 
             Remove(matcopy, i);
         fi;
@@ -635,98 +628,6 @@ BindGlobal("nfmPolyEvalFromSpan", function(span,pol)
     return resu;
 end);
 
-#TODO: recognise cyclic matrices 
-#Primary Decomposition using a modified version of Allan Steel's algorithm 
-#Standalone version 
-#Returns matrix B such that B*A*B^-1 is in primary decomposition form 
-#along with dimensions of primary subspaces 
-InstallGlobalFunction(PrimaryDecomp, function(A) 
-    local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
-    COB,pot,gs,f2,dims,toAdd,combined,dim;
-    rank := 0;
-    n := NrRows(A);
-    F := DefaultFieldOfMatrix(A);
-    v := nfmGenerateRandomVector(F,n);
-    A := Matrix(F,A);
-    if IsZero(A) then 
-      return IdentityMat(n,F);
-    fi;
-    gens := []; #Li_s as in Steel paper will go in here 
-    gs := []; #distinct factors of minimal polynomial 
-    while not rank = n do 
-        m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
-        p := One(PolynomialRing(F));
-        for i in [1..Size(gens)] do 
-            L_i := gens[i];
-            if not IsOne(Gcd(m,gs[i])) then
-                f := m;
-                pot := 0; 
-                for j in [1..n] do 
-                    f2 := Quotient(f,gs[i]);
-                    if f2 = fail then 
-                        break;
-                    fi;
-                    pot := pot + 1;
-                    f := f2;
-                od; 
-                w := PolynomialToMatVec(A,f,v);
-                p := p * gs[i]^pot;
-                #minimal polynomial of w has degree smaller than or equal to n - degree(f)
-                wspan := nfmSpinUntil(w,A,n-Degree(f));
-                toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
-                if not IsMatrix(toAdd) then 
-                    toAdd := [toAdd];  # Convert vector to 1-row matrix
-                    toAdd := Matrix(toAdd);
-                fi;
-                gens[i] := toAdd;
-            fi;
-        od;
-        v :=PolynomialToMatVec(A,p,v);
-        m := Quotient(m,p);
-        if not IsOne(m) then 
-            facs := Factors(m);
-            facs := Collected(facs);
-            for i in [1..Size(facs)] do 
-                qi := (facs[i][1])^(facs[i][2]);
-                w := PolynomialToMatVec(A,Quotient(m,qi),v);
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
-                Add(gens,wspan);
-                Add(gs, facs[i][1]);
-            od;
-        fi;
-        #alles in eine matrix
-        COB := ZeroMatrix(F,n,n);
-        k := 0;
-        for i in [1..Size(gens)] do 
-            L_i := gens[i];
-            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
-            k := k+NrRows(L_i);
-        od;
-        COB := nfmRemoveZeroRows(COB);
-        rank := NrRows(COB);
-        if not rank = n then 
-            COB := EcheloniseMat(COB);
-            v := nfmFindVectorNotInSubspaceNC(COB);
-        fi;
-    od;
-    #sorted blocks and count dims
-    COB := ZeroMatrix(F,n,n);
-    combined := [];
-    for i in [1..Size(gs)] do 
-      Add(combined, [gens[i],gs[i]]); 
-    od;
-    Sort(combined, function(v,w) return v[2] < w[2]; end);
-    k := 0;
-    dims := [];
-    for i in [1..Size(gs)] do 
-      L_i := combined[i][1];
-      dim := NrRows(L_i); 
-      Add(dims, dim);
-      CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
-      k := k + dim;
-    od;
-    return [COB, dims];
-end);
 
 BindGlobal("factoriseByKnownFactors", function(kFacs,pol)
   local fac,factup,i,resfacs,count,newpol,oldpol; 
@@ -839,22 +740,116 @@ end);
 #Primary Decomposition for cyclic matrices 
 #Jordan normal form will call this function if a cyclic matrix is detected
 BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs)
-    local vspan,F,n,w,i,wspan,qi,k,v,COB,dims;
+    local vspan,n,w,mf,wspan,qi,k,COB,dims;
     n := NrRows(A);
-    F := DefaultFieldOfMatrix(A);
-    A := Matrix(F,A);
     vspan := nfmFindCyclicVectorNC(A);
-    v := vspan[1];
     dims := [];
-    COB := ZeroMatrix(F,n,n);
+    COB := ZeroMutable(A);
     k := 0;
-    for i in [1..Size(minpolfacs)] do 
-        qi := (minpolfacs[i][1])^(minpolfacs[i][2]);
+    for mf in minpolfacs do 
+        qi := (mf[1])^(mf[2]);
         w := nfmPolyEvalFromSpan(vspan,Quotient(minpol,qi));
-        wspan := nfmSpinUntil(w,A,Degree(minpolfacs[i][1])*minpolfacs[i][2]);
+        wspan := nfmSpinUntil(w,A,Degree(mf[1])*mf[2]);
         CopySubMatrix(wspan, COB, [1..NrRows(wspan)], [k+1..k+NrRows(wspan)], [1..n], [1..n]);
         Add(dims, NrRows(wspan));
         k := k + NrRows(wspan);
+    od;
+    return [COB, dims];
+end);
+
+#TODO: recognise cyclic matrices 
+#Primary Decomposition using a modified version of Allan Steel's algorithm 
+#Standalone version 
+#Returns matrix B such that B*A*B^-1 is in primary decomposition form 
+#along with dimensions of primary subspaces 
+InstallGlobalFunction(PrimaryDecomp, function(A) 
+    local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
+    COB,pot,gs,f2,dims,toAdd,combined,dim,minpol;
+    rank := 0;
+    n := NrRows(A);
+    F := DefaultFieldOfMatrix(A);
+    v := nfmGenerateRandomVector(F,n);
+    A := Matrix(F,A);
+    minpol := MinimalPolynomial(F,A);
+    if Degree(minpol) = n then 
+      return nfmPrimaryDecompositionforJNFCyclic(A,minpol,Collected(Factors(minpol)));
+    fi;
+    if IsZero(A) then 
+      return IdentityMat(n,F);
+    fi;
+    gens := []; #Li_s as in Steel paper will go in here 
+    gs := []; #distinct factors of minimal polynomial 
+    while not rank = n do 
+        m := UnivariatePolynomial(F,SpinMatVector(A,v)[3]);
+        p := One(PolynomialRing(F));
+        for i in [1..Size(gens)] do 
+            L_i := gens[i];
+            if not IsOne(Gcd(m,gs[i])) then
+                f := m;
+                pot := 0; 
+                for j in [1..n] do 
+                    f2 := Quotient(f,gs[i]);
+                    if f2 = fail then 
+                        break;
+                    fi;
+                    pot := pot + 1;
+                    f := f2;
+                od; 
+                w := PolynomialToMatVec(A,f,v);
+                p := p * gs[i]^pot;
+                #minimal polynomial of w has degree smaller than or equal to n - degree(f)
+                wspan := nfmSpinUntil(w,A,n-Degree(f));
+                toAdd := EcheloniseMat(Concatenation(wspan,gens[i]));
+                if not IsMatrix(toAdd) then 
+                    toAdd := [toAdd];  # Convert vector to 1-row matrix
+                    toAdd := Matrix(toAdd);
+                fi;
+                gens[i] := toAdd;
+            fi;
+        od;
+        v :=PolynomialToMatVec(A,p,v);
+        m := Quotient(m,p);
+        if not IsOne(m) then 
+            facs := Factors(m);
+            facs := Collected(facs);
+            for i in [1..Size(facs)] do 
+                qi := (facs[i][1])^(facs[i][2]);
+                w := PolynomialToMatVec(A,Quotient(m,qi),v);
+                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
+                Add(gens,wspan);
+                Add(gs, facs[i][1]);
+            od;
+        fi;
+        #alles in eine matrix
+        COB := ZeroMatrix(F,n,n);
+        k := 0;
+        for i in [1..Size(gens)] do 
+            L_i := gens[i];
+            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
+            k := k+NrRows(L_i);
+        od;
+        COB := nfmRemoveZeroRows(COB);
+        rank := NrRows(COB);
+        if not rank = n then 
+            COB := EcheloniseMat(COB);
+            v := nfmFindVectorNotInSubspaceNC(COB);
+        fi;
+    od;
+    #sorted blocks and count dims
+    COB := ZeroMatrix(F,n,n);
+    combined := [];
+    for i in [1..Size(gs)] do 
+      Add(combined, [gens[i],gs[i]]); 
+    od;
+    Sort(combined, function(v,w) return v[2] < w[2]; end);
+    k := 0;
+    dims := [];
+    for i in [1..Size(gs)] do 
+      L_i := combined[i][1];
+      dim := NrRows(L_i); 
+      Add(dims, dim);
+      CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
+      k := k + dim;
     od;
     return [COB, dims];
 end);
@@ -884,7 +879,7 @@ BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p,
     local n,F,i,rel,tosolve,currdim,qis;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
-    tosolve := MutableCopyMat(ZeroMatrix(F,Length(vecs)*d,n));
+    tosolve := ZeroMatrix(F,Length(vecs)*d,n);
     currdim := 1; 
     for i in [1..Length(vecs)] do
         CopySubMatrix(nfmSpinUntil(vecs[i], A, d), tosolve, [1..d], [currdim..currdim +  d-1], [1..n], [1..n]);
@@ -892,7 +887,7 @@ BindGlobal("FindLinearDependenceNC", function(vecs, A, d) #vecs, A, degree of p,
     od;
     rel := NullspaceMat(tosolve);
     if rel = fail or rel = [] then #shouldn't happen
-        Print("Couldn't find F[A]-linear dependence"); 
+        Error("Failed to find a linear dependence.");
     fi;
     rel := rel[1];
     #turn into usable polynomial coeffs
@@ -914,7 +909,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     n := NrRows(A);
     d := Degree(p);
     if m * d = n then #return if it's already cyclic
-        return [One(GL(n,F)), [n]]; 
+        return [One(A), [n]];
     fi;
     Ainp := p(A); #TODO: evaluate this using frobform? or maybe polyevalfromspan 
     ws := [];
@@ -937,9 +932,9 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     od;
     dims := []; #dimensions of my cyclic subspaces
     sumdim := 0; #dimension of my direct sum
-    conj := ZeroMatrix(F,n,n);
-    while not Sum(minpolpowers, function(v) return v[2]*d; end) = n do #generally bigger than n, working our way down  
-        SortBy(minpolpowers, function(v) return v[2]; end); #Sort ws by their A-length (ascending)
+    conj := ZeroMutable(A);
+    while not Sum(minpolpowers, v -> v[2]*d) = n do #generally bigger than n, working our way down
+        SortBy(minpolpowers, v -> v[2]); #Sort ws by their A-length (ascending)
         vecs := ZeroVector(F,Length(minpolpowers));
         for i in [1..Length(minpolpowers)] do
             vecs[i] := minpolpowers[i][3]; #p(A)^(r-1)(w)
@@ -956,7 +951,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         wstrich := ZeroVector(F,n);
         for i in [1..Length(qis)] do #calculate new reduced w_j
             if not IsZero(qis[i]) then #avoid unnecessary computations
-                tomult :=  PolynomialToMatVec(MutableCopyMat(A), nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
+                tomult :=  PolynomialToMatVec(A, nfmPolCoeffs(qis[i]), minpolpowers[i][1]); 
                 for k in [1..minpolpowers[i][2] - r] do
                     tomult := tomult * Ainp; #this too perhaps?
                 od;
@@ -970,7 +965,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         fi;
     od;
     currdim := 1;
-    SortBy(minpolpowers, function(v) return v[2]; end); #sort by A-length
+    SortBy(minpolpowers, v -> v[2]); #sort by A-length
     for i in [1..Length(minpolpowers)] do
         wtrip := minpolpowers[i];
         conj{[currdim..currdim+(wtrip[2]*d)-1]}{[1..n]} := nfmSpinUntil(wtrip[1],A,wtrip[2]*d);
@@ -988,7 +983,7 @@ BindGlobal("JordanBlock", function(A, p, m) #For JordanNormalform
     n := NrRows(A);
     d := Degree(p);
     spun := nfmFindCyclicVectorNC(A);
-    basis := ZeroMatrix(DefaultFieldOfMatrix(A),n,n);
+    basis := ZeroMutable(A);
     CopySubMatrix(spun,basis,[1..d],[1..d],[1..n],[1..n]);
     for r in [1..d] do
         for i in [1..m-1] do 
@@ -1013,7 +1008,7 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
       v := nfmGenerateRandomVector(F,n); #ensure that v isnt zero vec 
     od;
     spun := nfmSpinUntil(v, A, blockdim);
-    COB := ZeroMatrix(F,n,n);
+    COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
     cobrank := blockdim;
     elDivs := [minpol];  
@@ -1038,7 +1033,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     n := NrRows(A);
     elDivs := [];
     if IsZero(A) then 
-      return [IdentityMat(n,F), UnivariatePolynomial(F,One(F))];
+      return [OneMutable(A), UnivariatePolynomial(F,One(F))];
     fi;
     minpol := MinimalPolynomial(F,A);
     facOcc := Collected(Factors(minpol));  #factors of minimalpolynomial and their multiplicity
@@ -1054,7 +1049,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     COB := primary[1]; #Change of basis matrix, this will be the final COB from A to JNF
     A := COB*A*Inverse(COB); #A in hauptraumform
     crhr := 1; #current row (primary subspace)
-    preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
+    preCOB := ZeroMutable(A); #COB matrix from A in primary form to primary subspaces in cyclic form
     for i in [1..Size(primarydims)] do 
         if primarydims[i] = 1 then 
             preCOB[crhr,crhr] := One(F);
