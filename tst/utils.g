@@ -1,8 +1,7 @@
 # F=output of FrobeniusNormalForm
 CheckFrobForm := function(A,F)
-  local P,k,i,nf;
+  local P,i,nf;
   nf:=CreateNormalForm(F[1]);
-  k:=DefaultFieldOfMatrix(A);
   P:=F[2];
   if P*A*P^(-1)<>nf then
     Error("base change not ok!");
