@@ -106,8 +106,8 @@ end);
 
 # SpinMatVector1 does not compute the minimal polynomial, only the subspace;
 # here, the last four arguments can be empty lists.
-InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
-  local d,i,j,v1,nv,nv1,koeff,weiter;
+InstallGlobalFunction(SpinMatVector1,function(A,v,orbit1,orbit,piv,spiv)
+  local d,i,j,v1,nv,nv1,coeff,cont;
   A := List(A, List);
   v := List(v);
   i:=PositionNonZero(v);
@@ -116,40 +116,40 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,bahn1,bahn,piv,spiv)
   fi;
   Add(piv,i);
   AddSet(spiv,i);
-  Add(bahn,v);
+  Add(orbit,v);
   v1:=ShallowCopy(v);
   MultVector(v1,Inverse(v[i]));
-  Add(bahn1,v1);
-  d:=Length(bahn1);
-  weiter:=true;
-  while weiter do 
-    nv1:=bahn[Length(bahn)]*A;
+  Add(orbit1,v1);
+  d:=Length(orbit1);
+  cont:=true;
+  while cont do 
+    nv1:=orbit[Length(orbit)]*A;
     nv:=ShallowCopy(nv1);
     for j in [1..d] do 
-      koeff:=-nv[piv[j]];
-      if not IsZero(koeff) then
-        AddRowVector(nv,bahn1[j],koeff);
+      coeff:=-nv[piv[j]];
+      if not IsZero(coeff) then
+        AddRowVector(nv,orbit1[j],coeff);
       fi;
     od;
     i:=PositionNonZero(nv);
     if i>Length(nv) then 
-      weiter:=false;
+      cont:=false;
     else
       Add(piv,i);
       AddSet(spiv,i);
       if IsOne(nv[i]) then 
-        Add(bahn1,nv);
+        Add(orbit1,nv);
       else
         MultVector(nv,Inverse(nv[i]));
-        Add(bahn1,nv);
+        Add(orbit1,nv);
       fi;
-      Add(bahn,nv1);
+      Add(orbit,nv1);
       d:=d+1;
     fi;
   od;
-  ConvertToMatrixRepNC(bahn);
-  ConvertToMatrixRepNC(bahn1);
-  return [bahn1,bahn,nv1,piv,spiv];
+  ConvertToMatrixRepNC(orbit);
+  ConvertToMatrixRepNC(orbit1);
+  return [orbit1,orbit,nv1,piv,spiv];
 end);
 
 InstallGlobalFunction(SpinMatVector,function(mat,vec)
@@ -309,13 +309,13 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
 end);
 
 BindGlobal("BuildBlockDiagonalMat1",function(d,B)
-  local neu,n,k;
+  local new,n,k;
   k:=DefaultFieldOfMatrix(B);
   n:=d+Length(B);
-  neu:=IdentityMat(n,k);
-  neu{[d+1..n]}{[d+1..n]}:=B;
-  ConvertToMatrixRepNC(neu);
-  return neu;
+  new:=IdentityMat(n,k);
+  new{[d+1..n]}{[d+1..n]}:=B;
+  ConvertToMatrixRepNC(new);
+  return new;
 end);
 
 InstallGlobalFunction(RatFormStep1,function(A,v)
@@ -423,6 +423,7 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
   A:=ImmutableMatrix(k,mat);
   n:=Length(A);
   np:=MaximalVectorMat(A);
+
   d:=Degree(np[2]);
   f:=[np[2]];
   if d=n then 
@@ -1030,7 +1031,7 @@ end);
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form 
 InstallGlobalFunction(JordanNormalform, function(A)
-    local n,F,pol,minpol,hauptraum,hauptraumdims,crhr,cyclicdims,elDivs, 
+    local n,F,pol,minpol,primary,primarydims,crhr,cyclicdims,elDivs, 
     subsubCOB,COB,subA,cy,i,j,facOcc,subCOB,crcy,subsubA,prepreCOB,preCOB;
     F := DefaultFieldOfMatrix(A);
     A := Matrix(F,A);
@@ -1045,28 +1046,28 @@ InstallGlobalFunction(JordanNormalform, function(A)
         return JordanNormalformIrred(A,minpol);
     fi;
     if Degree(minpol) = n then 
-        hauptraum := nfmPrimaryDecompositionforJNFCyclic(A, minpol, facOcc); 
+        primary := nfmPrimaryDecompositionforJNFCyclic(A, minpol, facOcc); 
     else
-        hauptraum := nfmPrimaryDecompositionforJNF(A, minpol, facOcc);
+        primary := nfmPrimaryDecompositionforJNF(A, minpol, facOcc);
     fi;
-    hauptraumdims := hauptraum[2]; #dimensions of generalized eigenspaces
-    COB := hauptraum[1]; #Change of basis matrix, this will be the final COB from A to JNF
+    primarydims := primary[2]; #dimensions of generalized eigenspaces
+    COB := primary[1]; #Change of basis matrix, this will be the final COB from A to JNF
     A := COB*A*Inverse(COB); #A in hauptraumform
     crhr := 1; #current row (primary subspace)
     preCOB := ZeroMatrix(F,n,n); #COB matrix from A in primary form to primary subspaces in cyclic form
-    for i in [1..Size(hauptraumdims)] do 
-        if hauptraumdims[i] = 1 then 
+    for i in [1..Size(primarydims)] do 
+        if primarydims[i] = 1 then 
             preCOB[crhr,crhr] := One(F);
             crhr := crhr + 1;
             continue;
         fi;
         pol := facOcc[i][1];
-        subA := ExtractSubMatrix(A,[crhr..crhr+hauptraumdims[i]-1],[crhr..crhr+hauptraumdims[i]-1]);
+        subA := ExtractSubMatrix(A,[crhr..crhr+primarydims[i]-1],[crhr..crhr+primarydims[i]-1]);
         if facOcc[i][2] = 1 then 
             cy := JordanNormalformIrred(subA,pol);
             Concatenation(elDivs,cy[2]);
-            CopySubMatrix(cy[1], preCOB, [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1], [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1]);
-            crhr := crhr + hauptraumdims[i];
+            CopySubMatrix(cy[1], preCOB, [1..primarydims[i]], [crhr..crhr+primarydims[i]-1], [1..primarydims[i]], [crhr..crhr+primarydims[i]-1]);
+            crhr := crhr + primarydims[i];
             continue;
         fi;
         cy := CyclicDecompositionOfPrimarySubspace(subA, pol, facOcc[i][2]); #decompose primary spaces into cyclic ones
@@ -1075,7 +1076,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
         subCOB := Matrix(F,subCOB); #TODO: Why doesn't this work in the cyclic decomp function?
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
         crcy := 1; #current row (cyclic subspace)
-        prepreCOB := ZeroMatrix(F,hauptraumdims[i], hauptraumdims[i]);
+        prepreCOB := ZeroMatrix(F,primarydims[i], primarydims[i]);
         for j in [1..Size(cyclicdims)] do 
             if cyclicdims[j] = 1 then
                 prepreCOB[crcy,crcy] := One(F);
@@ -1090,8 +1091,8 @@ InstallGlobalFunction(JordanNormalform, function(A)
             Add(elDivs,pol^(cyclicdims[j]/Degree(pol)));
         od;
         subCOB := prepreCOB * subCOB;
-        CopySubMatrix(subCOB, preCOB, [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1], [1..hauptraumdims[i]], [crhr..crhr+hauptraumdims[i]-1]);
-        crhr := crhr + hauptraumdims[i];
+        CopySubMatrix(subCOB, preCOB, [1..primarydims[i]], [crhr..crhr+primarydims[i]-1], [1..primarydims[i]], [crhr..crhr+primarydims[i]-1]);
+        crhr := crhr + primarydims[i];
     od;
     return [preCOB*COB, elDivs];
 end);
