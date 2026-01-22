@@ -379,6 +379,9 @@ end);
 InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   local A,P,invf,i,k,mv,step1,rest,d,piv;
   k:=DefaultFieldOfMatrix(mat);
+  if not IsList(mat) then #if matrix is not a list of list, it needs to be converted
+    mat := List(mat,List);
+  fi;
   A:=ImmutableMatrix(k,mat);
   if IsDiagonalMat(A) and ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
     mv:=nfmPolCoeffs([-A[1,1],A[1,1]^0]);
