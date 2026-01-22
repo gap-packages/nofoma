@@ -80,9 +80,9 @@ end);
 # For details about this function, see nofoma.gd.
 InstallGlobalFunction(LcmMaximalVectorMat,function(A,v1,v2,pol1,pol2)
   local d,v;
-  if QuotientRemainder(pol1,pol2)=0*pol1 then 
+  if EuclideanRemainder(pol1,pol2)=0*pol1 then 
     return [v1,pol1];
-  elif QuotientRemainder(pol2,pol1)=0*pol2 then 
+  elif EuclideanRemainder(pol2,pol1)=0*pol2 then 
     return [v2,pol2];
   else
     d:=GcdCoprimeSplit(pol1,pol2);
@@ -258,7 +258,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
     if Degree(lm[2])^3>Length(svec) or
          not IsZero(PolynomialToMatVec(M,lm[2],idm[svec[z]])) then 
       f:=nfmOrderPolM(M,svec,rpols,z,idm[svec[z]]);
-      if not IsZero(QuotientRemainder(lm[2],f)[2]) then 
+      if not IsZero(EuclideanRemainder(lm[2],f)) then 
         lm:=LcmMaximalVectorMat(M,lm[1],idm[svec[z]],lm[2],f);
       fi;
     fi;
