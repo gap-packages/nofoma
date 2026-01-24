@@ -51,3 +51,20 @@ nfmCheckPrimaryDecomp := function(F, n)
   od;
   return true;
 end;
+
+nfmCheckPrimaryDecompNonCyclic := function(F, n)
+  local A,Prim,B,dim,k,minpolfacs,sub;
+  A := Matrix(F,nfmGenerateNonCyclicMatrix(F,n));
+  Prim := PrimaryDecomp(A);
+  B := A^Inverse(Prim[1]);
+  minpolfacs := Factors(MinimalPolynomial(F,A));
+  k := 1;
+  for dim in Prim[2] do
+    sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
+    k := k+dim;
+    if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then
+      return false;
+    fi;
+  od;
+  return true;
+end;
