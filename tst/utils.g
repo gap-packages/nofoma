@@ -7,7 +7,7 @@ CheckFrobForm := function(A,F)
     Error("base change not ok!");
   fi;
   for i in [1..Length(F[1])-1] do
-    if QuotientRemainder(F[1][i],F[1][i+1])[2]<>0*F[1][i] then
+    if EuclideanRemainder(F[1][i],F[1][i+1])<>0*F[1][i] then
       Error("divisibility not ok!");
     fi;
   od;
