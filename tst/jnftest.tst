@@ -214,6 +214,11 @@ gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
 gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
 true
 
+## Regression test for issue #70
+gap> A := [ [ 0*Z(3), Z(3)^0, 0*Z(3) ], [ Z(3)^0, 0*Z(3), 0*Z(3) ],
+>   [ 0*Z(3), 0*Z(3), Z(3)^0 ] ];;
+gap> for i in [1..100] do JordanNormalform(A);; od;
+
 ##A few randomised tests 
 gap> A := RandomInvertibleMat(50,GF(5));;
 gap> Aconj := A^RandomInvertibleMat(50,GF(5));;

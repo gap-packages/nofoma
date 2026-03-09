@@ -529,6 +529,15 @@ BindGlobal("nfmGenerateRandomVector", function(F, d) #Field d, length d
     return vec;
 end);
 
+BindGlobal("nfmGenerateNonZeroVector", function(F, d)
+    local vec;
+    vec := ZeroVector(F,d);
+    while IsZero(vec) do
+        vec := nfmGenerateRandomVector(F,d);
+    od;
+    return vec;
+end);
+
 BindGlobal("nfmGenerateNonCyclicMatrix", function(F,n) #Field F, dimension n
     local dim, A, num, subA, scr;
     A := ZeroMatrix(F,n,n);
@@ -668,7 +677,7 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
-    v := nfmGenerateRandomVector(F,n);
+    v := nfmGenerateNonZeroVector(F,n);
     gens := []; #Li_s as in Steel paper will go in here (but without separate U)
     gs := []; #distinct factors of minimal polynomial 
     dims := [];
@@ -772,7 +781,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
-    v := nfmGenerateRandomVector(F,n);
+    v := nfmGenerateNonZeroVector(F,n);
     A := Matrix(F,A);
     minpol := MinimalPolynomial(F,A);
     if Degree(minpol) = n then 
@@ -1007,10 +1016,7 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     if blockdim = n then 
       return[nfmFindCyclicVectorNC(A), [minpol]];
     fi;
-    v := ZeroVector(F,n);
-    while IsZero(v) do 
-      v := nfmGenerateRandomVector(F,n); #ensure that v isnt zero vec 
-    od;
+    v := nfmGenerateNonZeroVector(F,n);
     spun := nfmSpinUntil(v, A, blockdim);
     COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
