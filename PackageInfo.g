@@ -60,7 +60,7 @@ ArchiveFormats := ".tar.gz .tar.bz2",
 ##
 Status := "dev",
 
-AbstractHTML   :=  
+AbstractHTML   :=
   "This package computes maximal vectors, the Frobenius normal form and\
   the Jordan-Chevalley decomposition of a (square) matrix over any field\
   that is available in GAP.",
@@ -85,7 +85,7 @@ PackageDoc := rec(
 
 Dependencies := rec(
   GAP := ">= 4.12",
-  NeededOtherPackages := [ 
+  NeededOtherPackages := [
     ["AutPGrp", ">= 1.5"],
   ],
   SuggestedOtherPackages := [ ],
@@ -133,4 +133,3 @@ AutoDoc := rec(
 ),
 
 ));
-

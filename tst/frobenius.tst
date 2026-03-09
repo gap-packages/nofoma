@@ -23,7 +23,6 @@ gap> ddd:=DiagonalMat([1,2,-1,0,4,3,3,4,5,6,7,-1,5,4,0,0,3,2,1]);;
 gap> bigfield := RandomInvertibleMat(10,GF(5^5));; #check non-list matrices
 gap> bigfield := Matrix(GF(5^5), bigfield);;
 
-
 ## Testing Frobenius Normalform
 gap> CheckFrobForm(bev, FrobeniusNormalForm(bev));
 true
@@ -68,6 +67,3 @@ gap> CheckJordanChev(Z(29)*nfmmat1(steel),JordanChevalleyDecMatF(Z(29)*nfmmat1(s
 
 ## Stop test
 gap> STOP_TEST("nofoma");
-
-
-
