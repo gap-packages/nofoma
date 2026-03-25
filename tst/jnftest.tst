@@ -1,11 +1,11 @@
 gap> START_TEST("JordanNormalform");
 
 ##These test the cyclic decomposition
-gap> A := [ [ Z(5), Z(5)^3, Z(5), 0*Z(5), Z(5)^3, Z(5)^3 ], 
->   [ Z(5)^0, 0*Z(5), Z(5)^2, 0*Z(5), Z(5)^0, Z(5)^0 ], 
->   [ Z(5)^3, Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^3 ], 
->   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5) ], 
->   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5), Z(5)^3 ], 
+gap> A := [ [ Z(5), Z(5)^3, Z(5), 0*Z(5), Z(5)^3, Z(5)^3 ],
+>   [ Z(5)^0, 0*Z(5), Z(5)^2, 0*Z(5), Z(5)^0, Z(5)^0 ],
+>   [ Z(5)^3, Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^3 ],
+>   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5) ],
+>   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5), Z(5)^3 ],
 >   [ Z(5)^0, Z(5)^0, Z(5)^2, 0*Z(5), Z(5)^0, 0*Z(5) ] ];;
 gap> Aconj := A^PseudoRandom(GL(6,5));;
 gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
@@ -246,10 +246,3 @@ false
 
 ## Stop test
 gap> STOP_TEST("JordanNormalform");
-
-
-
-
-
-
-
