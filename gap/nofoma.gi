@@ -1015,9 +1015,11 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
     cobrank := blockdim;
-    elDivs := [minpol];
-    while not cobrank = n do
-        w := nfmFindVectorNotInSubspaceNC(COB{[1..cobrank]}{[1..n]});
+    elDivs := [minpol];  
+    while not cobrank = n do 
+        w := nfmFindVectorNotInSubspaceNC(
+            EcheloniseMat(COB{[1..cobrank]}{[1..n]})
+        );
         spun := nfmSpinUntil(w,A,blockdim);
         CopySubMatrix(spun, COB, [1..blockdim],[cobrank+1..cobrank+blockdim],[1..n],[1..n]);
         cobrank := cobrank + blockdim;
