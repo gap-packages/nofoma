@@ -238,6 +238,12 @@ gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
 gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
 true
 
+## Scalar matrices must still produce an invertible change of basis, see issue #72
+gap> Reset(GlobalMersenneTwister,3);;
+gap> A := Z(5)^0 * IdentityMat(3,GF(5));;
+gap> DeterminantMat(JordanNormalform(A)[1]) = 0*Z(5);
+false
+
 ## Stop test
 gap> STOP_TEST("JordanNormalform");
 
