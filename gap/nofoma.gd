@@ -18,34 +18,11 @@
 #! @ChapterLabel The nofoma package
 #! @Section Maximal vectors and normal forms
 #! Let <M>K</M> be a field and <M>A</M> be an <M>n\times n</M>-matrix over 
-#! <M>K</M>. This package provides functions for computing a maximal vector
-#! for <M>A</M>, the Frobenius normal form of <M>A</M> and the 
-#! Jordan-Chevalley decomposition of <M>A</M>.
-#! 
-#! For any (row) vector <M>v\in K^n</M>, the local minimal polynomial is the 
-#! unique monic polynomial <M>f\in K[X]</M> of smallest possible degree such 
-#! that <M>v.f(A)=0</M>. (Note that, as usual in &GAP;, matrices act on the
-#! right on row vectors.) It is known that there always exists a 
-#! <M>v\in K^n</M> such that the local minimal polynomial of <M>v</M> equals 
-#! the minimal polynomial of <M>A</M>; such a <M>v</M> is called a 'maximal 
-#! vector' for <M>A</M>. 
-#! 
-#! The currently best algorithm for computing the minimal polynomial of 
-#! <M>A</M> is probably that of Neunhoeffer--Praeger (already implemented 
-#! in &GAP;). One of the purposes of this package is to modify that algorithm
-#! so that it also includes the computation of a maximal vector for <M>A</M>; 
-#! this is done by the function <Ref Func="MaximalVectorMat"/>. Once this is
-#! available, the Frobenius normal form (or rational canonical form) of <M>A</M>
-#! can be computed efficiently by a recursive algorithm.
-#! 
-#! Finally, we also provide a function for computing the Jordan-Chevalley
-#! decomposition of <M>A</M>. Usually, this is obtained as a consequence of 
-#! the Jordan normal form of <M>A</M>, but in general the latter is difficult 
-#! to compute because one needs to know the eigenvalues of <M>A</M>. However,
-#! there is an elegant algorithmic approach (going back to Chevalley), which 
-#! is inspired by the Newton iteration for finding the zeroes of a function;
-#! and it does not require the knowledge of the eigenvalues of <M>A</M>. This
-#! is implemented in the function <Ref Func="JordanChevalleyDecMat"/>.
+#! <M>K</M>. This package provides functions for computing both the Frobenius normal form 
+#! and the Jordan normal form of <M>A</M>. 
+#! Furthermore, it also includes a functions for
+#! the computation of a primary decomposition and the Jordan-Chevalley decomposition of 
+#! <M>A</M>. 
 #! 
 #! @Section Installation of the &nofoma; package
 #!
@@ -54,9 +31,239 @@
 #! the &GAP; reference manual). Then &nofoma; can already be loaded and used
 #! (just type `LoadPackage("nofoma");`).
 #!
-#! @Section The main functions
+
 
 DeclareInfoClass("Infonofoma"); 
+
+#! @Chapter Normal forms of matrices
+#! @Section The Frobenius normal form
+#! Given a field <M>K</M> and an <M>n\times n</M>-matrix <M>A</M> 
+#! over <M>K</M>, the Frobenius normal form of <M>A</M> is a block diagonal
+#! matrix, where the diagonal blocks are companion matrices 
+#! corresponding to the invariant factors of <M>A</M>. It reflects the minimal
+#! decomposition of the vector space <M>K^n</M> into cyclic subspaces 
+#! under the action of <M>A</M>.
+#! The Frobenius normal form is also called the rational canonical form.
+
+#! @Arguments A
+#! @Description
+#!  Returns the invariant factors of a matrix <A>A</A>
+#!  and an invertible matrix <M>P</M> such that <M>PAP^{{-1}}</M> is the 
+#!  Frobenius normal form of <A>A</A>. The algorithm first computes a maximal 
+#!  vector and an <A>A</A>-invariant complement following Jacob's construction
+#!  (as described in matrix language in <Cite Key ="Gec20"/>); then the 
+#!  algorithm continues recursively. It works for matrices over any field 
+#!  that is available in &GAP;. The output is a triple with
+#!  * 1st component  = list of invariant factors; 
+#!  * 2nd component = base change matrix <M>P</M>; and 
+#!  * 3rd component = indices where the various blocks in the normal form 
+#!       begin.
+#!  You can also use  'CreateNormalForm( f[1] );' to produce the Frobenius
+#!  normal form. (This function just builds the block diagonal matrix with 
+#!  diagonal blocks given by the companion matrices corresponding to the 
+#!  various invariant factors of <A>A</A>.) 
+#! 
+#! @BeginExampleSession
+#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
+#! >         [  0,  4,  0,  0,  0,  1,  0 ],
+#! >         [  0,  1,  1,  0,  0,  1,  1 ],
+#! >         [  0, -1,  0,  1,  0, -1,  0 ],
+#! >         [  0, -7,  0,  0,  1, -5,  0 ],
+#! >         [  0, -2,  0,  0,  0,  1,  0 ],
+#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
+#! gap> f:=FrobeniusNormalForm(A);
+#! [ [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ], 
+#!   [ [    1,   -2,    1,    1,    0,    0,    1 ],
+#!     [    2,   -7,    1,    2,    0,   -1,    3 ],
+#!     [    4,  -26,    1,    4,    0,   -8,    6 ],
+#!     [    8,  -89,    1,    8,    0,  -35,   11 ],
+#!     [ -1/2,   -2,    0,  1/2,    0,   -2, -3/2 ],
+#!     [   -1,   -4,    0,    0,    0,   -4,   -2 ],
+#!     [    0,  9/4,    0,   -3,    1,  5/4,  1/4 ] ],
+#!   [ 1, 5, 7 ]  ]                 
+#! gap> PrintArray(f[2]*A*f[2]^-1);
+#! [ [   0,   1,   0,   0,   0,   0,   0 ], 
+#!   [   0,   0,   1,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   1,   0,   0,   0 ],
+#!   [  -6,  17, -17,   7,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   1,   0 ],
+#!   [   0,   0,   0,   0,  -2,   3,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   1 ] ]
+#! @EndExampleSession
+DeclareGlobalFunction("FrobeniusNormalForm");
+
+#! @Arguments facs
+#! @Description
+#!  Returns the Frobenius normal form of a matrix with invariant factors 
+#!  <A>facs</A>. It works by building the block diagonal matrix with 
+#!  diagonal blocks given by the companion matrices according to the invariant
+#!  factors. 
+#!  To compute the invariant factors of a matrix, see ?InvariantFactorsMat.
+#!
+#! @BeginExampleSession
+#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
+#! >         [  0,  4,  0,  0,  0,  1,  0 ],
+#! >         [  0,  1,  1,  0,  0,  1,  1 ],
+#! >         [  0, -1,  0,  1,  0, -1,  0 ],
+#! >         [  0, -7,  0,  0,  1, -5,  0 ],
+#! >         [  0, -2,  0,  0,  0,  1,  0 ],
+#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
+#! gap> facs := InvariantFactorsMat(A);
+#! [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
+#! gap> Rat1 := CreateNormalForm(facs);
+#! [ [ 0, 1, 0, 0, 0, 0, 0 ], [ 0, 0, 1, 0, 0, 0, 0 ], 
+#! [ 0, 0, 0, 1, 0, 0, 0 ], [ -6, 17, -17, 7, 0, 0, 0 ], 
+#! [ 0, 0, 0, 0, 0, 1, 0 ], [ 0, 0, 0, 0, -2, 3, 0 ], 
+#! [ 0, 0, 0, 0, 0, 0, 1 ] ]
+#! gap> Rat2 := A^Inverse(FrobeniusNormalForm(A)[2]);;
+#! gap> Rat1 = Rat2;
+#! true
+#! @EndExampleSession
+DeclareGlobalFunction("CreateNormalForm");
+
+#! @Arguments A
+#! @Description
+#!  Returns the invariant factors of the matrix <A>A</A>,
+#!  i.e.,  the minimal polynomials of the  diagonal blocks in the Frobenius
+#!  normal form  of <A>A</A>. Thus, 'InvariantFactorsMat' also specifies the
+#!  rational canonical form of <A>A</A>, but without computing the base change.
+#!
+#! @BeginExampleSession
+#! gap> A := [ [ 2,  2, 0, 1, 0,  2, 1 ],
+#! >           [ 0,  4, 0, 0, 0,  1, 0 ],
+#! >           [ 0,  1, 1, 0, 0,  1, 1 ],
+#! >           [ 0, -1, 0, 1, 0, -1, 0 ],
+#! >           [ 0, -7, 0, 0, 1, -5, 0 ],
+#! >           [ 0, -2, 0, 0, 0,  1, 0 ],
+#! >           [ 0, -1, 0, 0, 0, -1, 1 ] ];;
+#! gap> InvariantFactorsMat(A);
+#!   [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
+#! @EndExampleSession
+DeclareGlobalFunction("InvariantFactorsMat");
+
+#! @Section The Jordan normal form
+
+#! The Jordan normal form of a matrix <M>A</M> is a block diagonal matrix, 
+#! where the diagonal blocks are Jordan blocks corresponding to the 
+#! elementary divisors of <M>A</M>. It reflects the maximal decomposition of 
+#! the vector space <M>K^n</M> into cyclic subspaces under the action of
+#! <M>A</M>.
+
+DeclareGlobalFunction("JordanNormalformIrred");
+
+#! @Arguments A
+#! @Description
+#!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
+#!  normal form of <A>A</A>. The algorithm first computes a primary decomposition
+#!  of <A>A</A> following a modified version of Steel's algorithm and then 
+#!  computes a cyclic decomposition of the primary components. Finally it computes 
+#!  Jordan block form for each of the cyclic components. It works for matrices 
+#!  over finite fields. 
+#! 
+#! @BeginExampleSession
+#! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
+#! >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
+#! >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
+#! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
+#! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
+#! >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
+#! gap> B := JordanNormalform(A);;
+#! gap> Display(A^Inverse(B[1]));
+#! 3 . . . . .
+#! . 1 . . . .
+#! . . . 1 . .
+#! . . 2 . . .
+#! . . . . . 1
+#! . . . . 3 4
+#! @EndExampleSession
+DeclareGlobalFunction("JordanNormalform");
+
+#! This function computes the Jordan normal form of <M>A</M> 
+#! significantly faster if <M>A</M> is either cyclic or has irreducible 
+#! minimal polynomial. 
+
+#! @Chapter Matrix decompositions
+
+#! @Arguments A,f
+#! @Description
+#!  Returns the unique pair of matrices <M>D</M>, 
+#!  <M>N</M> such that the matrix <A>A</A> is written as <M>A=D+N</M>, where 
+#!  <M>N</M> is a nilpotent matrix and <M>D</M> is a matrix that is 
+#!  diagonalisable (over some extension field of the default field of 
+#!  <A>A</A>), such that <M>D.N=N.D</M>; the argument <A>f</A> is a 
+#!  polynomial such that <M>f(A)=0</M> (e.g., the minimal polynomial of 
+#!  <A>A</A>). This is called the Jordan-Chevalley decomposition of <A>A</A>; 
+#!  the algorithm is based on <Cite Key ="Gec22"/>. Note that this 
+#!  algorithm does not require the knowledge of the eigenvalues of <A>A</A>; 
+#!  it works over any perfect field that is available in &GAP;.
+#!
+#! @BeginExampleSession
+#! gap> A:=[ [  6, -2,  6,  1,  1 ],
+#! >         [  1, -1,  2,  1, -2 ],
+#! >         [ -2,  0, -1,  0, -1 ],
+#! >         [ -1,  0, -2,  2, -1 ],
+#! >         [ -4,  4, -6, -2,  3 ] ];;
+#! gap> jc:=JordanChevalleyDecMat(A,MinimalPolynomial(A));
+#! [ [ [  4,  0,  4, -1,  1 ], 
+#!     [  1,  0,  1,  1, -1 ], 
+#!     [ -1, -1,  0,  1, -1 ], 
+#!     [  0,  0, -2,  3,  0 ], 
+#!     [ -3,  2, -4, -1,  2 ] ], 
+#!   [ [  2, -2,  2,  2,  0 ], 
+#!     [  0, -1,  1,  0, -1 ], 
+#!     [ -1,  1, -1, -1,  0 ], 
+#!     [ -1,  0,  0, -1, -1 ], 
+#!     [ -1,  2, -2, -1,  1 ] ] ]
+#! gap> MinimalPolynomial(jc[1]);
+#! x_1^3-5*x_1^2+9*x_1-5
+#! gap> Factors(last);
+#! [ x_1-1, x_1^2-4*x_1+5 ]  
+#! gap> MinimalPolynomial(jc[2]);
+#! x_1^2                     
+#! @EndExampleSession
+#!  If the input matrix is very large, then 'JordanChevalleyDecMatF(<A>A</A>);' 
+#!  may be more efficient; this function first computes the Frobenius normal 
+#!  form of <A>A</A> and then applies 'JordanChevalleyDecMat' to each diagonal 
+#!  block. (The result will be the same as that of 
+#!  'JordanChevalleyDecMat(<A>A</A>);)'
+DeclareGlobalFunction("JordanChevalleyDecMat");
+
+#! @Arguments A
+#! @Description
+#!  First computes the Frobenius normal form and
+#!  then applies 'JordanChevalleyDecMat' to each diagonal block.
+DeclareGlobalFunction("JordanChevalleyDecMatF");
+
+#! @Arguments A
+#! @Description
+#!  Returns a list containing two elements. The first element is
+#!  a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
+#!  primary form of <A>A</A>, i.e., a block diagonal matrix where the minimal polynomials
+#!  of the the diagonal blocks are precisely the powers of irreducible factors
+#!  of the minimal polynomial of <A>A</A>. The second element is the size of each 
+#!  block. 
+#!  This function uses a modified version of Steel's algorithm.
+#! 
+#! @BeginExampleSession
+#! gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
+#! >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],  
+#! >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
+#! >    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
+#! >    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
+#! gap> B := PrimaryDecomp(A);;
+#! gap> Display(B[2]);
+#! [ 1, 4 ]
+#! gap> Factors(MinimalPolynomial(A));
+#! [ x_1-Z(5)^0, x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3 ]
+#! gap> PrimA := A^Inverse(B[1]);;
+#! gap> MinimalPolynomial(PrimA{[1..1]}{[1..1]});
+#! x_1-Z(5)^0
+#! gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
+#! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
+#! @EndExampleSession
+DeclareGlobalFunction("PrimaryDecomp");
+
+#! @Chapter Auxiliary functions
 
 #! @Arguments a,b
 #! @Description 
@@ -256,207 +463,7 @@ DeclareGlobalFunction("JacobMatComplement");
 DeclareGlobalFunction("RatFormStep1");
 DeclareGlobalFunction("RatFormStep1J");
 
-#! @Arguments A
-#! @Description
-#!  Returns the invariant factors of a matrix <A>A</A>
-#!  and an invertible matrix <M>P</M> such that <M>P.A.P^{{-1}}</M> is the 
-#!  Frobenius normal form of <A>A</A>. The algorithm first computes a maximal 
-#!  vector and an <A>A</A>-invariant complement following Jacob's construction
-#!  (as described in matrix language in <Cite Key ="Gec20"/>); then the 
-#!  algorithm continues recursively. It works for matrices over any field 
-#!  that is available in &GAP;. The output is a triple with
-#!  * 1st component  = list of invariant factors; 
-#!  * 2nd component = base change matrix <M>P</M>; and 
-#!  * 3rd component = indices where the various blocks in the normal form 
-#!       begin.
-#!  You can also use  'CreateNormalForm( f[1] );' to produce the Frobenius
-#!  normal form. (This function just builds the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices corresponding to the 
-#!  various invariant factors of <A>A</A>.) 
-#! 
-#! @BeginExampleSession
-#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
-#! >         [  0,  4,  0,  0,  0,  1,  0 ],
-#! >         [  0,  1,  1,  0,  0,  1,  1 ],
-#! >         [  0, -1,  0,  1,  0, -1,  0 ],
-#! >         [  0, -7,  0,  0,  1, -5,  0 ],
-#! >         [  0, -2,  0,  0,  0,  1,  0 ],
-#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
-#! gap> f:=FrobeniusNormalForm(A);
-#! [ [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ], 
-#!   [ [    1,   -2,    1,    1,    0,    0,    1 ],
-#!     [    2,   -7,    1,    2,    0,   -1,    3 ],
-#!     [    4,  -26,    1,    4,    0,   -8,    6 ],
-#!     [    8,  -89,    1,    8,    0,  -35,   11 ],
-#!     [ -1/2,   -2,    0,  1/2,    0,   -2, -3/2 ],
-#!     [   -1,   -4,    0,    0,    0,   -4,   -2 ],
-#!     [    0,  9/4,    0,   -3,    1,  5/4,  1/4 ] ],
-#!   [ 1, 5, 7 ]  ]                 
-#! gap> PrintArray(f[2]*A*f[2]^-1);
-#! [ [   0,   1,   0,   0,   0,   0,   0 ], 
-#!   [   0,   0,   1,   0,   0,   0,   0 ],
-#!   [   0,   0,   0,   1,   0,   0,   0 ],
-#!   [  -6,  17, -17,   7,   0,   0,   0 ],
-#!   [   0,   0,   0,   0,   0,   1,   0 ],
-#!   [   0,   0,   0,   0,  -2,   3,   0 ],
-#!   [   0,   0,   0,   0,   0,   0,   1 ] ]
-#! @EndExampleSession
-DeclareGlobalFunction("FrobeniusNormalForm");
-
-#! @Arguments facs
-#! @Description
-#!  Returns the rational canonical form of a matrix with invariant factors 
-#!  <A>facs</A>. It works by building the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices according to the invariant
-#!  factors. 
-#!  To compute the invariant factors of a matrix, see ?InvariantFactorsMat.
-#!
-#! @BeginExampleSession
-#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
-#! >         [  0,  4,  0,  0,  0,  1,  0 ],
-#! >         [  0,  1,  1,  0,  0,  1,  1 ],
-#! >         [  0, -1,  0,  1,  0, -1,  0 ],
-#! >         [  0, -7,  0,  0,  1, -5,  0 ],
-#! >         [  0, -2,  0,  0,  0,  1,  0 ],
-#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
-#! gap> facs := InvariantFactorsMat(A);
-#! [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
-#! gap> Rat1 := CreateNormalForm(facs);
-#! [ [ 0, 1, 0, 0, 0, 0, 0 ], [ 0, 0, 1, 0, 0, 0, 0 ], 
-#! [ 0, 0, 0, 1, 0, 0, 0 ], [ -6, 17, -17, 7, 0, 0, 0 ], 
-#! [ 0, 0, 0, 0, 0, 1, 0 ], [ 0, 0, 0, 0, -2, 3, 0 ], 
-#! [ 0, 0, 0, 0, 0, 0, 1 ] ]
-#! gap> Rat2 := A^Inverse(FrobeniusNormalForm(A)[2]);;
-#! gap> Rat1 = Rat2;
-#! true
-#! @EndExampleSession
-DeclareGlobalFunction("CreateNormalForm");
-
-#! @Arguments A
-#! @Description
-#!  Returns the invariant factors of the matrix <A>A</A>,
-#!  i.e.,  the minimal polynomials of the  diagonal blocks in the rational 
-#!  canonical form  of <A>A</A>. Thus, 'InvariantFactorsMat' also specifies the
-#!  rational canonical form of <A>A</A>, but without computing the base change.
-#!
-#! @BeginExampleSession
-#! gap> A := [ [ 2,  2, 0, 1, 0,  2, 1 ],
-#! >           [ 0,  4, 0, 0, 0,  1, 0 ],
-#! >           [ 0,  1, 1, 0, 0,  1, 1 ],
-#! >           [ 0, -1, 0, 1, 0, -1, 0 ],
-#! >           [ 0, -7, 0, 0, 1, -5, 0 ],
-#! >           [ 0, -2, 0, 0, 0,  1, 0 ],
-#! >           [ 0, -1, 0, 0, 0, -1, 1 ] ];;
-#! gap> InvariantFactorsMat(A);
-#!   [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
-#! @EndExampleSession
-DeclareGlobalFunction("InvariantFactorsMat");
-
 DeclareGlobalFunction("SquareFreePol");
-
-#! @Arguments A,f
-#! @Description
-#!  Returns the unique pair of matrices <M>D</M>, 
-#!  <M>N</M> such that the matrix <A>A</A> is written as <M>A=D+N</M>, where 
-#!  <M>N</M> is a nilpotent matrix and <M>D</M> is a matrix that is 
-#!  diagonalisable (over some extension field of the default field of 
-#!  <A>A</A>), such that <M>D.N=N.D</M>; the argument <A>f</A> is a 
-#!  polynomial such that <M>f(A)=0</M> (e.g., the minimal polynomial of 
-#!  <A>A</A>). This is called the Jordan-Chevalley decomposition of <A>A</A>; 
-#!  the algorithm is based on <Cite Key ="Gec22"/>. Note that this 
-#!  algorithm does not require the knowledge of the eigenvalues of <A>A</A>; 
-#!  it works over any perfect field that is available in &GAP;.
-#!
-#! @BeginExampleSession
-#! gap> A:=[ [  6, -2,  6,  1,  1 ],
-#! >         [  1, -1,  2,  1, -2 ],
-#! >         [ -2,  0, -1,  0, -1 ],
-#! >         [ -1,  0, -2,  2, -1 ],
-#! >         [ -4,  4, -6, -2,  3 ] ];;
-#! gap> jc:=JordanChevalleyDecMat(A,MinimalPolynomial(A));
-#! [ [ [  4,  0,  4, -1,  1 ], 
-#!     [  1,  0,  1,  1, -1 ], 
-#!     [ -1, -1,  0,  1, -1 ], 
-#!     [  0,  0, -2,  3,  0 ], 
-#!     [ -3,  2, -4, -1,  2 ] ], 
-#!   [ [  2, -2,  2,  2,  0 ], 
-#!     [  0, -1,  1,  0, -1 ], 
-#!     [ -1,  1, -1, -1,  0 ], 
-#!     [ -1,  0,  0, -1, -1 ], 
-#!     [ -1,  2, -2, -1,  1 ] ] ]
-#! gap> MinimalPolynomial(jc[1]);
-#! x_1^3-5*x_1^2+9*x_1-5
-#! gap> Factors(last);
-#! [ x_1-1, x_1^2-4*x_1+5 ]  
-#! gap> MinimalPolynomial(jc[2]);
-#! x_1^2                     
-#! @EndExampleSession
-#!  If the input matrix is very large, then 'JordanChevalleyDecMatF(<A>A</A>);' 
-#!  may be more efficient; this function first computes the Frobenius normal 
-#!  form of <A>A</A> and then applies 'JordanChevalleyDecMat' to each diagonal 
-#!  block. (The result will be the same as that of 
-#!  'JordanChevalleyDecMat(<A>A</A>);)'
-DeclareGlobalFunction("JordanChevalleyDecMat");
-
-#! @Arguments A
-#! @Description
-#!  First computes the Frobenius normal form and
-#!  then applies 'JordanChevalleyDecMat' to each diagonal block.
-DeclareGlobalFunction("JordanChevalleyDecMatF");
-
-#! @Arguments A
-#! @Description
-#!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
-#!  primary form of <A>A</A>.
-#!  This function uses a modified version of Steel's algorithm.
-#! 
-#! @BeginExampleSession
-#! gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
-#! >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],  
-#! >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
-#! >    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
-#! >    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
-#! gap> B := PrimaryDecomp(A);;
-#! gap> Display(B[2]);
-#! [ 1, 4 ]
-#! gap> Factors(MinimalPolynomial(A));
-#! [ x_1-Z(5)^0, x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3 ]
-#! gap> PrimA := A^Inverse(B[1]);;
-#! gap> MinimalPolynomial(PrimA{[1..1]}{[1..1]});
-#! x_1-Z(5)^0
-#! gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
-#! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
-#! @EndExampleSession
-DeclareGlobalFunction("PrimaryDecomp");
-
-DeclareGlobalFunction("JordanNormalformIrred");
-
-#! @Arguments A
-#! @Description
-#!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
-#!  normal form of <A>A</A>. The algorithm first computes a primary decomposition
-#!  of <A>A</A> following a modified version of Steel's algorithm and then 
-#!  computes a cyclic decomposition of the primary components. Finally it computes 
-#!  Jordan block form for each of the cyclic components. It works for matrices 
-#!  over finite fields. 
-#! 
-#! @BeginExampleSession
-#! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
-#! >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
-#! >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
-#! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
-#! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
-#! >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
-#! gap> B := JordanNormalform(A);;
-#! gap> Display(A^Inverse(B[1]));
-#! 3 . . . . .
-#! . 1 . . . .
-#! . . . 1 . .
-#! . . 2 . . .
-#! . . . . . 1
-#! . . . . 3 4
-#! @EndExampleSession
-DeclareGlobalFunction("JordanNormalform");
 
 #! @Section Further documentation
 #! The above functions, as well as a number of further auxiliary functions, 
