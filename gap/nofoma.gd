@@ -33,7 +33,7 @@
 #!
 
 
-DeclareInfoClass("Infonofoma"); 
+DeclareInfoClass("Infonofoma");
 
 #! @Chapter Normal forms of matrices
 #! @Section The Frobenius normal form
@@ -266,15 +266,15 @@ DeclareGlobalFunction("PrimaryDecomp");
 #! @Chapter Auxiliary functions
 
 #! @Arguments a,b
-#! @Description 
+#! @Description
 #! Computes a divisor <M>a_1</M> of the polynomial <A>a</A> and a
 #! divisor <M>b_1</M> of the polynomial <A>b</A> such that <M>a_1</M> and <M>b_1</M> are coprime
 #! and the lcm of <A>a</A>, <A>b</A> is <M>a_1</M>*<M>b_1</M>.  This is based on Lemma 5 in <Cite Key ="Bon14"/>.
 #! (see also Lemma 4.3 in <Cite Key ="Gec20"/>).
 #!
-#! (Note that it does not use the prime factorisation of polynomials but 
+#! (Note that it does not use the prime factorisation of polynomials but
 #! only gcd computations.)
-#! 
+#!
 #! @BeginExampleSession
 #! gap> x:=X(Rationals);;
 #! gap> a:=x^2*(x-1)^3*(x-2)*(x-3);
@@ -282,14 +282,14 @@ DeclareGlobalFunction("PrimaryDecomp");
 #! gap> b:=x^2*(x-1)^2*(x-2)^4*(x-4);
 #! x_1^9-14*x_1^8+81*x_1^7-252*x_1^6+456*x_1^5-480*x_1^4+272*x_1^3-64*x_1^2
 #! gap> GcdCoprimeSplit(a,b);
-#! [ x_1^5-4*x_1^4+5*x_1^3-2*x_1^2, x_1^4-6*x_1^3+12*x_1^2-10*x_1+3,               
+#! [ x_1^5-4*x_1^4+5*x_1^3-2*x_1^2, x_1^4-6*x_1^3+12*x_1^2-10*x_1+3, 
 #!   x_1^7-12*x_1^6+56*x_1^5-128*x_1^4+144*x_1^3-64*x_1^2 ]
 #! @EndExampleSession
 DeclareGlobalFunction("GcdCoprimeSplit");
 
 #! @Arguments A,pol,v
 #! @Description
-#! Returns  the row vector  obtained  by multiplying 
+#! Returns  the row vector  obtained  by multiplying
 #! the row vector <A>v</A> with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial.
 #!
 #! @BeginExampleSession
@@ -310,10 +310,10 @@ DeclareGlobalFunction("PolynomialToMat");
 #! @Arguments A,v1,v2,pol1,pol2
 #! @Description
 #!  Returns,  given  a matrix  <A>A</A>,  vectors <A>v1</A>,
-#!  <A>v2</A> with minimal polynomials <A>pol1</A>, <A>pol2</A>,  a new pair [<M>v</M>,<M>pol</M>],  
+#!  <A>v2</A> with minimal polynomials <A>pol1</A>, <A>pol2</A>,  a new pair [<M>v</M>,<M>pol</M>],
 #!  where <M>v</M> has minimal polynomial <M>pol</M>, and <M>pol</M> is the least common
-#!  multiple of <A>pol1</A> and <A>pol2</A>.  
-#!  This crucially relies on  'GcdCoprimeSplit' to avoid  factorisation of 
+#!  multiple of <A>pol1</A> and <A>pol2</A>.
+#!  This crucially relies on  'GcdCoprimeSplit' to avoid  factorisation of
 #!  polynomials.
 DeclareGlobalFunction("LcmMaximalVectorMat");
 
@@ -321,37 +321,37 @@ DeclareGlobalFunction("SpinMatVector1");
 
 #! @Arguments A,v
 #! @Description
-#!  Computes  the  smallest subspace containing the vector  
-#!  <A>v</A> that is invariant under the matrix <A>A</A>. The  output is a 
-#!  quadruple, with 
-#!  * 1st component = basis of that subspace in row echelon form; 
-#!  * 2nd component = matrix  with  rows <A>v</A>, <A>v.A</A>, <A>v.A^2</A>, 
-#!     ..., <A>v.A^{{d-1}}</A> (where <M>d</M> is the degree of the local 
-#!     minimal polynomial of <A>v</A>); 
-#!  * 3rd component = the coefficients <M>a_0</M>, <M>a_1</M>, ..., 
-#!     <M>a_d</M> of the local minimal polynomial; and 
+#!  Computes  the  smallest subspace containing the vector
+#!  <A>v</A> that is invariant under the matrix <A>A</A>. The  output is a
+#!  quadruple, with
+#!  * 1st component = basis of that subspace in row echelon form;
+#!  * 2nd component = matrix  with  rows <A>v</A>, <A>v.A</A>, <A>v.A^2</A>,
+#!     ..., <A>v.A^{{d-1}}</A> (where <M>d</M> is the degree of the local
+#!     minimal polynomial of <A>v</A>);
+#!  * 3rd component = the coefficients <M>a_0</M>, <M>a_1</M>, ...,
+#!     <M>a_d</M> of the local minimal polynomial; and
 #!  * 4th component = the positions of the pivots of the first component.
-#! 
+#!
 #! @BeginExampleSession
 #! gap> A:=[ [   5,   2,  -4,   2 ],
 #! >         [  -1,   0,   2,  -1 ],
 #! >         [  -1,  -1,   3,  -1 ],
 #! >         [ -13,  -7,  14,  -6 ] ];;
 #! gap> SpinMatVector(A,[1,0,0,0]);
-#! [ [ [ 1, 0, 0, 0 ], [ 0, 1, -2, 1 ] ], 
-#!   [ [ 1, 0, 0, 0 ], [ 5, 2, -4, 2 ] ], 
-#!   [ -1, 0, 1 ],             
-#!   [ 1, 2 ] ]                
+#! [ [ [ 1, 0, 0, 0 ], [ 0, 1, -2, 1 ] ],
+#!   [ [ 1, 0, 0, 0 ], [ 5, 2, -4, 2 ] ],
+#!   [ -1, 0, 1 ],
+#!   [ 1, 2 ] ]
 #! gap> SpinMatVector(A,[0,1,0,0]);
-#! [ [ [ 0, 1, 0, 0 ], [ 1, 0, -2, 1 ], [ 0, 0, 1, -1/2 ] ], 
-#!   [ [ 0, 1, 0, 0 ], [ -1, 0, 2, -1 ], [ 6, 3, -4, 2 ] ], 
-#!   [ 1, -1, -1, 1 ],         
-#!   [ 2, 1, 3 ] ]             
+#! [ [ [ 0, 1, 0, 0 ], [ 1, 0, -2, 1 ], [ 0, 0, 1, -1/2 ] ],
+#!   [ [ 0, 1, 0, 0 ], [ -1, 0, 2, -1 ], [ 6, 3, -4, 2 ] ],
+#!   [ 1, -1, -1, 1 ],
+#!   [ 2, 1, 3 ] ]
 #! gap> SpinMatVector(A,[1,1,0,0]);
-#! [ [ [ 1, 1, 0, 0 ], [ 0, 1, 1, -1/2 ] ], 
-#!   [ [ 1, 1, 0, 0 ], [ 4, 2, -2, 1 ] ], 
-#!   [ 1, -2, 1 ],             
-#!   [ 1, 2 ] ]                
+#! [ [ [ 1, 1, 0, 0 ], [ 0, 1, 1, -1/2 ] ],
+#!   [ [ 1, 1, 0, 0 ], [ 4, 2, -2, 1 ] ],
+#!   [ 1, -2, 1 ],
+#!   [ 1, 2 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("SpinMatVector");
 
@@ -374,25 +374,25 @@ DeclareGlobalFunction("SpinMatVector");
 #!   [ [ 1, 0, 0, 0 ], [ 0, 1, 0, 1 ], [ 1, 1, 2, 1 ], [ 0, 0, 0, 1 ] ],
 #!   [ 1, 4, 5 ] ]
 #! gap> PrintArray(sp[2]*A*sp[2]^-1);
-#! [ [    0,    1,    0,    0 ],  
-#!   [    0,    0,    1,    0 ],    
-#!   [    0,    3,    1,    0 ],    
+#! [ [    0,    1,    0,    0 ],
+#!   [    0,    0,    1,    0 ],
+#!   [    0,    3,    1,    0 ],
 #!   [  1/2,  1/2,  1/2,    0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("CyclicChainMat");
 
 #! @Arguments A
 #! @Description
-#!  Returns the minimal polynomial and a maximal vector 
-#!  of the matrix <A>A</A>, that is, a vector whose local minimal polynomial 
-#!  is that of <A>A</A>. This is done by repeatedly spinning up vectors until 
-#!  a maximal one is found. The exact algorithm is a combination of 
-#!  * the minimal polynomial algorithm by Neunhoeffer-Praeger; see <Cite Key ="Neu08"/>; and  
-#!  * the method described by Bongartz 
-#!      (see <Cite Key ="Bon14"/>) for computing 
+#!  Returns the minimal polynomial and a maximal vector
+#!  of the matrix <A>A</A>, that is, a vector whose local minimal polynomial
+#!  is that of <A>A</A>. This is done by repeatedly spinning up vectors until
+#!  a maximal one is found. The exact algorithm is a combination of
+#!  * the minimal polynomial algorithm by Neunhoeffer-Praeger; see <Cite Key ="Neu08"/>; and
+#!  * the method described by Bongartz
+#!      (see <Cite Key ="Bon14"/>) for computing
 #!      maximal vectors.
 #!
-#!  See also the article by Geck at <Cite Key ="Gec20"/>. 
+#!  See also the article by Geck at <Cite Key ="Gec20"/>.
 #!
 #! @BeginExampleSession
 #! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
@@ -404,11 +404,11 @@ DeclareGlobalFunction("CyclicChainMat");
 #! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
 #! gap> MaximalVectorMat(A);
 #! [ [ 1, -2, 1, 1, 0, 0, 1 ], x_1^4-7*x_1^3+17*x_1^2-17*x_1+6 ]
-#! gap> v:=last[1];;               
-#! gap> SpinMatVector(A,v)[3];         
-#! [ 6, -17, 17, -7, 1 ]                    
+#! gap> v:=last[1];;
+#! gap> SpinMatVector(A,v)[3];
+#! [ 6, -17, 17, -7, 1 ]
 #! @EndExampleSession
-#! In the following example, <M>M_2</M> is the (challenging) test matrix 
+#! In the following example, <M>M_2</M> is the (challenging) test matrix
 #! from the paper by Neunhoeffer-Praeger:
 #!
 #! @BeginLogSession
@@ -419,23 +419,23 @@ DeclareGlobalFunction("CyclicChainMat");
 #! gap> MaximalVectorMat(M2);;time;
 #! #I Degree of minimal polynomial is 2097
 #! 6725
-#! gap> MinimalPolynomial(M2);;time;       
+#! gap> MinimalPolynomial(M2);;time;
 #! 13415
-#! gap> LoadPackage("cvec");               
-#! gap> MinimalPolynomial(CMat(M2));;time;   
+#! gap> LoadPackage("cvec");
+#! gap> MinimalPolynomial(CMat(M2));;time;
 #! 9721
 #! @EndLogSession
 DeclareGlobalFunction("MaximalVectorMat");
 
 #! @Arguments T,d
 #! @Description
-#! Modifies an already given  complementary subspace 
-#! to the  complementary subspace defined by  Jacob;  concretely, this is 
-#! realized by assuming that  <A>T</A>  is a matrix in block triangular shape, 
-#! where the upper left diagonal block is a companion matrix (as returned 
-#! by 'RatFormStep1'; the variable <A>d</A> gives the size of that block.  
-#! (If <A>T</A> gives a  maximal cyclic subspace,  then  Jacob's complement is  
-#! also  <A>T</A>-invariant;  but even if not,  it appears  to be  very useful 
+#! Modifies an already given  complementary subspace
+#! to the  complementary subspace defined by  Jacob;  concretely, this is
+#! realized by assuming that  <A>T</A>  is a matrix in block triangular shape,
+#! where the upper left diagonal block is a companion matrix (as returned
+#! by 'RatFormStep1'; the variable <A>d</A> gives the size of that block.
+#! (If <A>T</A> gives a  maximal cyclic subspace,  then  Jacob's complement is
+#! also  <A>T</A>-invariant;  but even if not,  it appears  to be  very useful
 #! because it produces many zeroes.)
 DeclareGlobalFunction("JacobMatComplement");
 
@@ -455,10 +455,10 @@ DeclareGlobalFunction("JacobMatComplement");
 #! >         [ 0, 1, 0, 1 ],
 #! >         [ 1, 1, 1, 1 ] ];;
 #! gap> PrintArray(RatFormStep1(A,v)[1]);
-#! [ [  0,  1,  0,  0 ],    
-#!   [  0,  0,  1,  0 ],    
-#!   [  0,  3,  1,  0 ],    
-#!   [  1,  0,  0,  0 ] ] 
+#! [ [  0,  1,  0,  0 ],
+#!   [  0,  0,  1,  0 ],
+#!   [  0,  3,  1,  0 ],
+#!   [  1,  0,  0,  0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("RatFormStep1");
 DeclareGlobalFunction("RatFormStep1J");
@@ -466,9 +466,9 @@ DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
 
 #! @Section Further documentation
-#! The above functions, as well as a number of further auxiliary functions, 
-#! are all contained and defined in the file 'gap/nofoma.gi'; 
-#! in that file, you can also find further inline documentation for the 
+#! The above functions, as well as a number of further auxiliary functions,
+#! are all contained and defined in the file 'gap/nofoma.gi';
+#! in that file, you can also find further inline documentation for the
 #! auxiliary functions.
 
 

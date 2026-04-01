@@ -1,11 +1,11 @@
 gap> START_TEST("JordanNormalform");
 
 ##These test the cyclic decomposition
-gap> A := [ [ Z(5), Z(5)^3, Z(5), 0*Z(5), Z(5)^3, Z(5)^3 ], 
->   [ Z(5)^0, 0*Z(5), Z(5)^2, 0*Z(5), Z(5)^0, Z(5)^0 ], 
->   [ Z(5)^3, Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^3 ], 
->   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5) ], 
->   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5), Z(5)^3 ], 
+gap> A := [ [ Z(5), Z(5)^3, Z(5), 0*Z(5), Z(5)^3, Z(5)^3 ],
+>   [ Z(5)^0, 0*Z(5), Z(5)^2, 0*Z(5), Z(5)^0, Z(5)^0 ],
+>   [ Z(5)^3, Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^3 ],
+>   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5) ],
+>   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5), Z(5)^3 ],
 >   [ Z(5)^0, Z(5)^0, Z(5)^2, 0*Z(5), Z(5)^0, 0*Z(5) ] ];;
 gap> Aconj := A^PseudoRandom(GL(6,5));;
 gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
@@ -214,6 +214,11 @@ gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
 gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
 true
 
+## Regression test for issue #70
+gap> A := [ [ 0*Z(3), Z(3)^0, 0*Z(3) ], [ Z(3)^0, 0*Z(3), 0*Z(3) ],
+>   [ 0*Z(3), 0*Z(3), Z(3)^0 ] ];;
+gap> for i in [1..100] do JordanNormalform(A);; od;
+
 ##A few randomised tests 
 gap> A := RandomInvertibleMat(50,GF(5));;
 gap> Aconj := A^RandomInvertibleMat(50,GF(5));;
@@ -238,12 +243,11 @@ gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
 gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
 true
 
+## Scalar matrices must still produce an invertible change of basis, see issue #72
+gap> Reset(GlobalMersenneTwister,3);;
+gap> A := Z(5)^0 * IdentityMat(3,GF(5));;
+gap> DeterminantMat(JordanNormalform(A)[1]) = 0*Z(5);
+false
+
 ## Stop test
 gap> STOP_TEST("JordanNormalform");
-
-
-
-
-
-
-
