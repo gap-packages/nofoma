@@ -93,7 +93,7 @@ gap> PrintArray(RatFormStep1(A,v)[1]);
   [  0,  3,  1,  0 ],
   [  1,  0,  0,  0 ] ]
 
-# doc/_Chapter_The_nofoma_package.xml:322-348
+# doc/_Chapter_The_nofoma_package.xml:315-341
 gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
 >         [  0,  4,  0,  0,  0,  1,  0 ],
 >         [  0,  1,  1,  0,  0,  1,  1 ],
@@ -120,7 +120,7 @@ gap> PrintArray(f[2]*A*f[2]^-1);
   [   0,   0,   0,   0,  -2,   3,   0 ],
   [   0,   0,   0,   0,   0,   0,   1 ] ]
 
-# doc/_Chapter_The_nofoma_package.xml:362-380
+# doc/_Chapter_The_nofoma_package.xml:355-373
 gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
 >         [  0,  4,  0,  0,  0,  1,  0 ],
 >         [  0,  1,  1,  0,  0,  1,  1 ],
@@ -139,7 +139,7 @@ gap> Rat2 := A^Inverse(FrobeniusNormalForm(A)[2]);;
 gap> Rat1 = Rat2;
 true
 
-# doc/_Chapter_The_nofoma_package.xml:393-403
+# doc/_Chapter_The_nofoma_package.xml:386-396
 gap> A := [ [ 2,  2, 0, 1, 0,  2, 1 ],
 >           [ 0,  4, 0, 0, 0,  1, 0 ],
 >           [ 0,  1, 1, 0, 0,  1, 1 ],
@@ -150,7 +150,7 @@ gap> A := [ [ 2,  2, 0, 1, 0,  2, 1 ],
 gap> InvariantFactorsMat(A);
 [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
 
-# doc/_Chapter_The_nofoma_package.xml:422-445
+# doc/_Chapter_The_nofoma_package.xml:415-438
 gap> A:=[ [  6, -2,  6,  1,  1 ],
 >         [  1, -1,  2,  1, -2 ],
 >         [ -2,  0, -1,  0, -1 ],
@@ -174,7 +174,7 @@ gap> Factors(last);
 gap> MinimalPolynomial(jc[2]);
 x_1^2
 
-# doc/_Chapter_The_nofoma_package.xml:470-486
+# doc/_Chapter_The_nofoma_package.xml:463-479
 gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ],
 >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],
 >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
@@ -191,7 +191,7 @@ x_1-Z(5)^0
 gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
 x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 
-# doc/_Chapter_The_nofoma_package.xml:501-516
+# doc/_Chapter_The_nofoma_package.xml:494-509
 gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ],
 >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ],
 >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ],
