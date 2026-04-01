@@ -358,7 +358,7 @@ end);
 
 InstallGlobalFunction(CreateNormalForm,function(plist)
   local A,l,r,i;
-  if not IsList(plist) then
+  if not IsList(plist) then 
     plist := List(plist,List);
   fi;
   r:=Length(plist);
