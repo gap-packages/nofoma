@@ -289,8 +289,9 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 
 #! @Arguments A,pol,v
 #! @Description
-#! Returns  the row vector  obtained  by multiplying
-#! the row vector <A>v</A> with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial.
+#! Returns the row vector obtained  by multiplying the row vector <A>v</A>
+#! with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial. The actual
+#! computation is more efficient than this naive approach.
 #!
 #! @BeginExampleSession
 #! gap> A:=[ [ 0, 1, 0, 1 ],
@@ -299,7 +300,7 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 #! >         [ 1, 1, 1, 1 ] ];;
 #! gap> x:=X(Rationals);;
 #! gap> pol:=x^6-6*x^5+12*x^4-10*x^3+3*x^2;;
-#! gap> v:=[ 1, 1, 1, 1];;
+#! gap> v:=[ 1, 1, 1, 1 ];;
 #! gap> PolynomialToMatVec(A,pol,v);
 #! [ 8, -16, 8, -16 ]
 #! @EndExampleSession

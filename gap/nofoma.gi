@@ -41,8 +41,10 @@ InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   fi;
 end);
 
-# Applies polynomial pol to A and then to v.
-# For details about this function, see nofoma.gd.
+# Compute pol(A)*v, but more efficiently: the naive approach would compute
+# first the matrix pol(A) and thus matrix powers A, A^2, A^3, etc. which is
+# very expensive. The code here avoids this by computing a  linear combination
+# of v, A*v, A*(A*v), ...,
 InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   local n,v1,i,coeffs;
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
