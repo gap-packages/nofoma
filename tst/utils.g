@@ -7,7 +7,7 @@ CheckFrobForm := function(A,F)
     Error("base change not ok!");
   fi;
   for i in [1..Length(F[1])-1] do
-    if QuotientRemainder(F[1][i],F[1][i+1])[2]<>0*F[1][i] then
+    if EuclideanRemainder(F[1][i],F[1][i+1])<>0*F[1][i] then
       Error("divisibility not ok!");
     fi;
   od;
@@ -38,6 +38,23 @@ end;
 nfmCheckPrimaryDecomp := function(F, n)
   local A,Prim,B,dim,k,minpolfacs,sub;
   A := Matrix(F,RandomInvertibleMat(n,F));
+  Prim := PrimaryDecomp(A);
+  B := A^Inverse(Prim[1]);
+  minpolfacs := Factors(MinimalPolynomial(F,A));
+  k := 1;
+  for dim in Prim[2] do
+    sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
+    k := k+dim;
+    if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then
+      return false;
+    fi;
+  od;
+  return true;
+end;
+
+nfmCheckPrimaryDecompNonCyclic := function(F, n)
+  local A,Prim,B,dim,k,minpolfacs,sub;
+  A := Matrix(F,nfmGenerateNonCyclicMatrix(F,n));
   Prim := PrimaryDecomp(A);
   B := A^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(F,A));
