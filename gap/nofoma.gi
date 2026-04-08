@@ -358,25 +358,6 @@ BindGlobal("nfmCompanionMat1", function(f)
   return mat;
 end);
 
-InstallGlobalFunction(CreateNormalForm,function(plist)
-  local A,l,r,i;
-  if not IsList(plist) then 
-    plist := List(plist,List);
-  fi;
-  r:=Length(plist);
-  l:=[1];
-  for i in [1..r] do
-    l[i+1]:=l[i]+Degree(plist[i]);
-  od;
-  A:=NullMat(l[r+1]-1,l[r+1]-1,CoefficientsOfUnivariatePolynomial(plist[1])[1]);
-  for i in [1..r] do
-    A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
-              nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(plist[i]));
-  od;
-  return A;
-end);
-
-
 # Returns rational canonical form of mat,
 # invertible matrix P such that PAP^(-1) is in rational canonical form,
 # and list of pivot indices.
