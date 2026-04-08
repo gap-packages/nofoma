@@ -287,8 +287,6 @@ DeclareGlobalFunction("PolynomialToMat");
 #!  polynomials.
 DeclareGlobalFunction("LcmMaximalVectorMat");
 
-DeclareGlobalFunction("SpinMatVector1");
-
 #! @Arguments A,v
 #! @Description
 #!  Computes  the  smallest subspace containing the vector

@@ -107,51 +107,41 @@ end);
 
 # SpinMatVector1 does not compute the minimal polynomial, only the subspace;
 # here, the last four arguments can be empty lists.
-InstallGlobalFunction(SpinMatVector1,function(A,v,orbit1,orbit,piv,spiv)
-  local d,i,j,v1,nv,nv1,coeff;
+BindGlobal("SpinMatVector1",function(A,v,orbit1,orbit,pivot)
+  local i,j,nv,coeff;
   A := List(A, List);
   v := List(v);
   i:=PositionNonZero(v);
   if i>Length(v) then
     Error("# zero vector");
   fi;
-  Add(piv,i);
-  AddSet(spiv,i);
-  Add(orbit,v);
-  v1:=ShallowCopy(v);
-  MultVector(v1,Inverse(v[i]));
-  Add(orbit1,v1);
-  d:=Length(orbit1);
-  while true do
-    nv1:=Last(orbit)*A;
-    nv:=ShallowCopy(nv1);
-    for j in [1..d] do
-      coeff:=-nv[piv[j]];
+  nv:=ShallowCopy(v);
+  while i <= Length(nv) do
+    Add(pivot,i);
+    if not IsOne(nv[i]) then
+      MultVector(nv,Inverse(nv[i]));
+    fi;
+    Add(orbit1,nv);
+    Add(orbit,v);
+
+    v:=v*A;
+    nv:=ShallowCopy(v);
+    for j in [1..Length(orbit1)] do
+      coeff:=-nv[pivot[j]];
       if not IsZero(coeff) then
         AddRowVector(nv,orbit1[j],coeff);
       fi;
     od;
     i:=PositionNonZero(nv);
-    if i>Length(nv) then
-      break;
-    fi;
-    Add(piv,i);
-    AddSet(spiv,i);
-    if not IsOne(nv[i]) then
-      MultVector(nv,Inverse(nv[i]));
-    fi;
-    Add(orbit1,nv);
-    Add(orbit,nv1);
-    d:=d+1;
   od;
   ConvertToMatrixRepNC(orbit);
   ConvertToMatrixRepNC(orbit1);
-  return [orbit1,orbit,nv1,piv,spiv];
+  return [orbit1,orbit,v,pivot];
 end);
 
 InstallGlobalFunction(SpinMatVector,function(mat,vec)
   local sp,minpol;
-  sp:=SpinMatVector1(mat,vec,[],[],[],[]);
+  sp:=SpinMatVector1(mat,vec,[],[],[]);
   minpol:=-SolutionMat(sp[2],sp[3]);
   Add(minpol,minpol[1]^0);
   return [sp[1],sp[2],minpol,sp[4]];
@@ -169,14 +159,14 @@ InstallGlobalFunction(CyclicChainMat,function(mat)
   if IsLowerTriangularMat(A) then
     return [idm,idm,[1..NrRows(A)+1],[1..NrRows(A)]];
   fi;
-  sp:=SpinMatVector1(A,idm[1],[],[],[],[]);
+  sp:=SpinMatVector1(A,idm[1],[],[],[]);
   svec:=[1,Length(sp[1])+1];
   j:=1;
   while Length(sp[1])<NrRows(A) do
-    while j in sp[5] do
+    while j in Set(sp[4]) do
       j:=j+1;
     od;
-    sp:=SpinMatVector1(A,idm[j],sp[1],sp[2],sp[4],sp[5]);
+    sp:=SpinMatVector1(A,idm[j],sp[1],sp[2],sp[4]);
     Add(svec,Length(sp[1])+1);
   od;
   return [sp[1],sp[2],svec];
@@ -314,10 +304,10 @@ end);
 InstallGlobalFunction(RatFormStep1,function(A,v)
   local A1,sp,t,i,d,idm,minp;
   idm:=OneMutable(A);
-  sp:=SpinMatVector1(A,v,[],[],[],[]);
+  sp:=SpinMatVector1(A,v,[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[4])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
@@ -328,10 +318,10 @@ end);
 InstallGlobalFunction(RatFormStep1J,function(A,v)
   local A1,sp,t,i,j,d,idm,minp;
   idm:=OneMutable(A);
-  sp:=SpinMatVector1(A,v,[],[],[],[]);
+  sp:=SpinMatVector1(A,v,[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[4])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
@@ -688,24 +678,23 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
                 gens[i] := toAdd;
             fi;
         od;
-        v :=PolynomialToMatVec(A,p,v);
+        v := PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then
             facs := factoriseByKnownFactors(minpolfacs,m);
             for i in [1..Size(facs)] do
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,Quotient(m,qi),v);
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
-                Add(gens,wspan);
+                wspan := SpinMatVector1(A,w,[],[],[])[2];
+                Add(gens, wspan);
                 Add(gs, facs[i][1]);
             od;
         fi;
         # put everything into a single matrix
         COB := ZeroMatrix(F,n,n);
         k := 0;
-        for i in [1..Size(gens)] do
-            L_i := gens[i];
-            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
+        for L_i in gens do
+            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)], [1..n], [1..n]);
             k := k+NrRows(L_i);
         od;
         COB := nfmRemoveZeroRows(COB);
@@ -799,20 +788,19 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
                 gens[i] := toAdd;
             fi;
         od;
-        v :=PolynomialToMatVec(A,p,v);
+        v := PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then
-            facs := Factors(m);
-            facs := Collected(facs);
+            facs := Collected(Factors(m));
             for i in [1..Size(facs)] do
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,Quotient(m,qi),v);
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
+                wspan := SpinMatVector1(A,w,[],[],[])[2];
                 Add(gens, wspan);
                 Add(gs, facs[i][1]);
             od;
         fi;
-        # all into one matrix
+        # put everything into a single matrix
         COB := ZeroMatrix(F,n,n);
         k := 0;
         for L_i in gens do
