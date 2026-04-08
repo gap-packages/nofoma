@@ -58,10 +58,6 @@ DeclareInfoClass("Infonofoma");
 #!  * 2nd component = base change matrix <M>P</M>; and 
 #!  * 3rd component = indices where the various blocks in the normal form 
 #!       begin.
-#!  You can also use  'CreateNormalForm( f[1] );' to produce the Frobenius
-#!  normal form. (This function just builds the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices corresponding to the 
-#!  various invariant factors of <A>A</A>.) 
 #! 
 #! @BeginExampleSession
 #! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
@@ -91,35 +87,6 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("FrobeniusNormalForm");
-
-#! @Arguments facs
-#! @Description
-#!  Returns the Frobenius normal form of a matrix with invariant factors 
-#!  <A>facs</A>. It works by building the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices according to the invariant
-#!  factors. 
-#!  To compute the invariant factors of a matrix, see ?InvariantFactorsMat.
-#!
-#! @BeginExampleSession
-#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
-#! >         [  0,  4,  0,  0,  0,  1,  0 ],
-#! >         [  0,  1,  1,  0,  0,  1,  1 ],
-#! >         [  0, -1,  0,  1,  0, -1,  0 ],
-#! >         [  0, -7,  0,  0,  1, -5,  0 ],
-#! >         [  0, -2,  0,  0,  0,  1,  0 ],
-#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
-#! gap> facs := InvariantFactorsMat(A);
-#! [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
-#! gap> Rat1 := CreateNormalForm(facs);
-#! [ [ 0, 1, 0, 0, 0, 0, 0 ], [ 0, 0, 1, 0, 0, 0, 0 ], 
-#! [ 0, 0, 0, 1, 0, 0, 0 ], [ -6, 17, -17, 7, 0, 0, 0 ], 
-#! [ 0, 0, 0, 0, 0, 1, 0 ], [ 0, 0, 0, 0, -2, 3, 0 ], 
-#! [ 0, 0, 0, 0, 0, 0, 1 ] ]
-#! gap> Rat2 := A^Inverse(FrobeniusNormalForm(A)[2]);;
-#! gap> Rat1 = Rat2;
-#! true
-#! @EndExampleSession
-DeclareGlobalFunction("CreateNormalForm");
 
 #! @Arguments A
 #! @Description
