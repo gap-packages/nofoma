@@ -21,3 +21,5 @@ doc/*.txt
 doc/_*.xml
 doc/nofoma.xml
 doc/title.xml
+
+tst/nofoma*.tst
