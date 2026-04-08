@@ -182,7 +182,9 @@ DeclareGlobalFunction("JordanNormalform");
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 
 
-#! @Chapter Matrix decompositions
+#! @Chapter Other functionality
+
+#! @Section Matrix decompositions
 
 #! @Arguments A,f
 #! @Description
@@ -263,7 +265,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
-#! @Chapter Auxiliary functions
+#! @Section Auxiliary functions
 
 #! @Arguments a,b
 #! @Description
@@ -465,11 +467,3 @@ DeclareGlobalFunction("RatFormStep1");
 DeclareGlobalFunction("RatFormStep1J");
 
 DeclareGlobalFunction("SquareFreePol");
-
-#! @Section Further documentation
-#! The above functions, as well as a number of further auxiliary functions,
-#! are all contained and defined in the file 'gap/nofoma.gi';
-#! in that file, you can also find further inline documentation for the
-#! auxiliary functions.
-
-
