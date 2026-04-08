@@ -108,7 +108,7 @@ end);
 # SpinMatVector1 does not compute the minimal polynomial, only the subspace;
 # here, the last four arguments can be empty lists.
 InstallGlobalFunction(SpinMatVector1,function(A,v,orbit1,orbit,piv,spiv)
-  local d,i,j,v1,nv,nv1,coeff,cont;
+  local d,i,j,v1,nv,nv1,coeff;
   A := List(A, List);
   v := List(v);
   i:=PositionNonZero(v);
@@ -122,9 +122,8 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,orbit1,orbit,piv,spiv)
   MultVector(v1,Inverse(v[i]));
   Add(orbit1,v1);
   d:=Length(orbit1);
-  cont:=true;
-  while cont do
-    nv1:=orbit[Length(orbit)]*A;
+  while true do
+    nv1:=Last(orbit)*A;
     nv:=ShallowCopy(nv1);
     for j in [1..d] do
       coeff:=-nv[piv[j]];
@@ -134,19 +133,16 @@ InstallGlobalFunction(SpinMatVector1,function(A,v,orbit1,orbit,piv,spiv)
     od;
     i:=PositionNonZero(nv);
     if i>Length(nv) then
-      cont:=false;
-    else
-      Add(piv,i);
-      AddSet(spiv,i);
-      if IsOne(nv[i]) then
-        Add(orbit1,nv);
-      else
-        MultVector(nv,Inverse(nv[i]));
-        Add(orbit1,nv);
-      fi;
-      Add(orbit,nv1);
-      d:=d+1;
+      break;
     fi;
+    Add(piv,i);
+    AddSet(spiv,i);
+    if not IsOne(nv[i]) then
+      MultVector(nv,Inverse(nv[i]));
+    fi;
+    Add(orbit1,nv);
+    Add(orbit,nv1);
+    d:=d+1;
   od;
   ConvertToMatrixRepNC(orbit);
   ConvertToMatrixRepNC(orbit1);
@@ -779,7 +775,7 @@ end);
 #along with dimensions of primary subspaces
 InstallGlobalFunction(PrimaryDecomp, function(A)
     local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
-    COB,pot,gs,f2,dims,toAdd,combined,dim,minpol;
+    COB,pot,gs,f2,dims,toAdd,dim,minpol;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -831,16 +827,15 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,Quotient(m,qi),v);
                 wspan := SpinMatVector1(A,w,[],[],[],[])[2];
-                Add(gens,wspan);
+                Add(gens, wspan);
                 Add(gs, facs[i][1]);
             od;
         fi;
-        #alles in eine matrix
+        # all into one matrix
         COB := ZeroMatrix(F,n,n);
         k := 0;
-        for i in [1..Size(gens)] do
-            L_i := gens[i];
-            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
+        for L_i in gens do
+            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)], [1..n], [1..n]);
             k := k+NrRows(L_i);
         od;
         COB := nfmRemoveZeroRows(COB);
@@ -850,17 +845,12 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
             v := nfmFindVectorNotInSubspaceNC(COB);
         fi;
     od;
-    #sorted blocks and count dims
+    #sort blocks and count dims
     COB := ZeroMatrix(F,n,n);
-    combined := [];
-    for i in [1..Size(gs)] do
-      Add(combined, [gens[i],gs[i]]);
-    od;
-    Sort(combined, function(v,w) return v[2] < w[2]; end);
+    SortParallel(gs, gens);
     k := 0;
     dims := [];
-    for i in [1..Size(gs)] do
-      L_i := combined[i][1];
+    for L_i in gens do
       dim := NrRows(L_i);
       Add(dims, dim);
       CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
