@@ -500,10 +500,9 @@ end);
 
 BindGlobal("nfmGenerateNonZeroVector", function(F, d)
     local vec;
-    vec := ZeroVector(F,d);
-    while IsZero(vec) do
+    repeat
         vec := nfmGenerateRandomVector(F,d);
-    od;
+    until not IsZero(vec);
     return vec;
 end);
 
@@ -977,7 +976,7 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     F := DefaultFieldOfMatrix(A); # get underlying field
     blockdim := Degree(minpol);
     if blockdim = n then
-      return[nfmFindCyclicVectorNC(A), [minpol]];
+      return [nfmFindCyclicVectorNC(A), [minpol]];
     fi;
     v := nfmGenerateNonZeroVector(F,n);
     spun := nfmSpinUntil(v, A, blockdim);
