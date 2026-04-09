@@ -16,7 +16,6 @@
 
 #! @Chapter The nofoma package
 #! @ChapterLabel The nofoma package
-#! @Section Maximal vectors and normal forms
 #! Let <M>K</M> be a field and <M>A</M> be an <M>n\times n</M>-matrix over 
 #! <M>K</M>. This package provides functions for computing both the Frobenius normal form 
 #! and the Jordan normal form of <M>A</M>. 
@@ -89,6 +88,55 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   1,   0 ],
 #!   [   0,   0,   0,   0,  -2,   3,   0 ],
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
+#! @EndExampleSession
+#! Note that this function is significantly more efficient
+#! than the existing 'RationalCanonicalFormTransform'.
+#! However, the two functions yield slightly different results. While the blocks
+#! in 'RationalCanonicalFormTransform' are the companion matrices of the 
+#! invariant factors following the convention of matrix operation from the
+#! left, the blocks in 'FrobeniusNormalform' correspond to matrix operation
+#! from the right, as is convention in GAP. 
+#! 
+#! Additionally, the 'RationalCanonicalFormTransform' sorts 
+#! the invariant factors in ascending order, whereas the 
+#! 'FrobeniusNormalForm' sorts them in 
+#! descending order. Consequently, the outputs of the two functions 
+#! agree up to a permutation of blocks and transposition.
+#! @BeginExampleSession
+#! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
+#! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
+#! >         [  1,  5,  0, -6, 12, -2,  0,-12, -4,  2],
+#! >         [  0,  0,  0,  2,  0,  0,  0,  7,  0,  0],
+#! >         [  0,  2, -3, -7,  8, -1,  0, -7, -3,  2],
+#! >         [ -5, -4, -6, 18,-30,  2, -2, 35,  5, -1],
+#! >         [ -1, -6,  6, 20,-28,  3,  0, 24, 10, -6],
+#! >         [  0,  0,  0, -1,  0,  0,  0, -3,  0,  0],
+#! >         [  0,  0, -1, -2, -2,  0, -1, -7,  0,  0],
+#! >         [  0, -8,  9, 21,-36,  4, -2, 12, 12, -8]];;
+#! gap> t:=RationalCanonicalFormTransform(aa);;
+#! gap> Display(aa^t);
+#! [ [   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 ],
+#!   [   1,   0,   0,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   1,   0,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   1,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   1,   0,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   0,   1,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   1,   0,  -1 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   1,  -1 ] ]
+#! gap> res:=FrobeniusNormalForm(aa);;
+#! gap> Display(aa^(res[2]^-1));
+#! [ [   0,   1,   0,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   1,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   1,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   1,   0,   0,   0,   0 ],
+#!   [   1,   1,   1,   0,  -1,  -1,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   1,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   1,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("FrobeniusNormalForm");
 
@@ -177,13 +225,13 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! . . . . 3 4
 #! @EndExampleSession
 DeclareGlobalFunction("JordanNormalform");
-
 #! This function computes the Jordan normal form of <M>A</M> 
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 
 
 #! @Chapter Matrix decompositions
 
+#! @Section The Jordan-Chevalley decomposition
 #! @Arguments A,f
 #! @Description
 #!  Returns the unique pair of matrices <M>D</M>, 
@@ -234,6 +282,7 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #!  then applies 'JordanChevalleyDecMat' to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
+#! @Section The primary decomposition
 #! @Arguments A
 #! @Description
 #!  Returns a list containing two elements. The first element is
@@ -264,6 +313,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 DeclareGlobalFunction("PrimaryDecomp");
 
 #! @Chapter Auxiliary functions
+#! @Section Vectors and matrices and their associated polynomials
 
 #! @Arguments a,b
 #! @Description
@@ -461,11 +511,10 @@ DeclareGlobalFunction("JacobMatComplement");
 #!   [  1,  0,  0,  0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("RatFormStep1");
-DeclareGlobalFunction("RatFormStep1J");
 
+DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
 
-#! @Section Further documentation
 #! The above functions, as well as a number of further auxiliary functions,
 #! are all contained and defined in the file 'gap/nofoma.gi';
 #! in that file, you can also find further inline documentation for the
