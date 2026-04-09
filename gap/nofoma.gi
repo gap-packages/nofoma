@@ -507,6 +507,8 @@ BindGlobal("nfmGenerateNonZeroVector", function(F, d)
     return vec;
 end);
 
+# TODO: this doesn't consistently generate non cyclic matrices, since glueing
+# cyclic matrices together may result in a cyclic matrix again
 BindGlobal("nfmGenerateNonCyclicMatrix", function(F,n) #Field F, dimension n
     local dim, A, num, subA, scr;
     A := ZeroMatrix(F,n,n);
