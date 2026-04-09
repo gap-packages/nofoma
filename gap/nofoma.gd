@@ -47,7 +47,7 @@ DeclareInfoClass("Infonofoma");
 #! @Arguments A
 #! @Description
 #!  Returns the invariant factors of a matrix <A>A</A>
-#!  and an invertible matrix <M>P</M> such that <M>PAP^{{-1}}</M> is the 
+#!  and an invertible matrix <M>P</M> such that <M>PAP^{-1}</M> is the 
 #!  Frobenius normal form of <A>A</A>. The algorithm first computes a maximal 
 #!  vector and an <A>A</A>-invariant complement following Jacob's construction
 #!  (as described in matrix language in <Cite Key ="Gec20"/>); then the 
@@ -238,9 +238,9 @@ DeclareGlobalFunction("JordanNormalform");
 #! gap> MinimalPolynomial(jc[2]);
 #! x_1^2                     
 #! @EndExampleSession
-#!  If the input matrix is very large, then 'JordanChevalleyDecMatF(<A>A</A>);' 
+#!  If the input matrix is very large, then <Ref Func="JordanChevalleyDecMatF"/>
 #!  may be more efficient; this function first computes the Frobenius normal 
-#!  form of <A>A</A> and then applies 'JordanChevalleyDecMat' to each diagonal 
+#!  form of <A>A</A> and then applies <C>JordanChevalleyDecMat</C> to each diagonal 
 #!  block. (The result will be the same as that of 
 #!  'JordanChevalleyDecMat(<A>A</A>);)'
 DeclareGlobalFunction("JordanChevalleyDecMat");
@@ -248,7 +248,7 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #! @Arguments A
 #! @Description
 #!  First computes the Frobenius normal form and
-#!  then applies 'JordanChevalleyDecMat' to each diagonal block.
+#!  then applies <Ref Func="JordanChevalleyDecMat"/> to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
 #! @Section The primary decomposition
@@ -288,8 +288,8 @@ DeclareGlobalFunction("PrimaryDecomp");
 #! @Description
 #! Computes a divisor <M>a_1</M> of the polynomial <A>a</A> and a
 #! divisor <M>b_1</M> of the polynomial <A>b</A> such that <M>a_1</M> and <M>b_1</M> are coprime
-#! and the lcm of <A>a</A>, <A>b</A> is <M>a_1</M>*<M>b_1</M>.  This is based on Lemma 5 in <Cite Key ="Bon14"/>.
-#! (see also Lemma 4.3 in <Cite Key ="Gec20"/>).
+#! and the lcm of <A>a</A>, <A>b</A> is <M>a_1*b_1</M>.  This is based on Lemma 5 in <Cite Key ="Bon14"/>.
+#! (See also Lemma 4.3 in <Cite Key ="Gec20"/>).
 #!
 #! (Note that it does not use the prime factorisation of polynomials but
 #! only gcd computations.)
@@ -333,7 +333,7 @@ DeclareGlobalFunction("PolynomialToMat");
 #!  <A>v2</A> with minimal polynomials <A>pol1</A>, <A>pol2</A>,  a new pair [<M>v</M>,<M>pol</M>],
 #!  where <M>v</M> has minimal polynomial <M>pol</M>, and <M>pol</M> is the least common
 #!  multiple of <A>pol1</A> and <A>pol2</A>.
-#!  This crucially relies on  'GcdCoprimeSplit' to avoid  factorisation of
+#!  This crucially relies on <Ref Func="GcdCoprimeSplit"/> to avoid  factorisation of
 #!  polynomials.
 DeclareGlobalFunction("LcmMaximalVectorMat");
 
@@ -343,8 +343,8 @@ DeclareGlobalFunction("LcmMaximalVectorMat");
 #!  <A>v</A> that is invariant under the matrix <A>A</A>. The  output is a
 #!  quadruple, with
 #!  * 1st component = basis of that subspace in row echelon form;
-#!  * 2nd component = matrix  with  rows <A>v</A>, <A>v.A</A>, <A>v.A^2</A>,
-#!     ..., <A>v.A^{{d-1}}</A> (where <M>d</M> is the degree of the local
+#!  * 2nd component = matrix  with  rows <M><A>v</A>, <A>v</A>.<A>A</A>, <A>v</A>.<A>A</A>^2,
+#!     ..., <A>v</A>.<A>A</A>^{{d-1}}</M> (where <M>d</M> is the degree of the local
 #!     minimal polynomial of <A>v</A>);
 #!  * 3rd component = the coefficients <M>a_0</M>, <M>a_1</M>, ...,
 #!     <M>a_d</M> of the local minimal polynomial; and
@@ -377,7 +377,7 @@ DeclareGlobalFunction("SpinMatVector");
 #! @Description
 #!  Repeatedly computes the smallest invariant subspaces containing different vectors
 #!  to compute a chain of cyclic subspaces. The output is a triple
-#!  <C>[B,C,svec]</C>  where  <M>C</M> is such that  <M>C</M><A>A</A><M>C^-1</M>  has a block
+#!  <C>[B,C,svec]</C>  where  <M>C</M> is such that  <M>C<A>A</A>C^{-1}</M>  has a block
 #!  triangular shape with companion matrices along the diagonal), <M>B</M> is the
 #!  row echelon form of C and svec is the list of indices where the blocks
 #!  begin.
@@ -451,7 +451,7 @@ DeclareGlobalFunction("MaximalVectorMat");
 #! to the  complementary subspace defined by  Jacob;  concretely, this is
 #! realized by assuming that  <A>T</A>  is a matrix in block triangular shape,
 #! where the upper left diagonal block is a companion matrix (as returned
-#! by 'RatFormStep1'; the variable <A>d</A> gives the size of that block.
+#! by <Ref Func="RatFormStep1"/>; the variable <A>d</A> gives the size of that block.
 #! (If <A>T</A> gives a  maximal cyclic subspace,  then  Jacob's complement is
 #! also  <A>T</A>-invariant;  but even if not,  it appears  to be  very useful
 #! because it produces many zeroes.)
