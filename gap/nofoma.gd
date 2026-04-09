@@ -86,16 +86,16 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
 #! Note that this function is significantly more efficient
-#! than the existing 'RationalCanonicalFormTransform'.
+#! than the existing 'RationalCanonicalFormTransform'. 
 #! However, the two functions yield slightly different results. While the blocks
 #! in 'RationalCanonicalFormTransform' are the companion matrices of the 
 #! invariant factors following the convention of matrix operation from the
-#! left, the blocks in 'FrobeniusNormalform' correspond to matrix operation
+#! left, the blocks in <Ref Func="FrobeniusNormalForm"/> correspond to matrix operation
 #! from the right, as is convention in GAP. 
 #! 
-#! Additionally, the 'RationalCanonicalFormTransform' sorts 
+#! Additionally, 'RationalCanonicalFormTransform' sorts 
 #! the invariant factors in ascending order, whereas the 
-#! 'FrobeniusNormalForm' sorts them in 
+#! <Ref Func="FrobeniusNormalForm"/> sorts them in 
 #! descending order. Consequently, the outputs of the two functions 
 #! agree up to a permutation of blocks and transposition.
 #! @BeginExampleSession
