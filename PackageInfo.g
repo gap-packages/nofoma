@@ -61,9 +61,10 @@ ArchiveFormats := ".tar.gz .tar.bz2",
 Status := "dev",
 
 AbstractHTML   :=
-  "This package computes maximal vectors, the Frobenius normal form and\
+  "This package computes the Frobenius normal form and\
   the Jordan-Chevalley decomposition of a (square) matrix over any field\
-  that is available in GAP.",
+  that is available in GAP. It also computes the Jordan normal form 
+  of matrices over finite fields.",
 
 BannerString := Concatenation(
 "──────────────────────────────────────────────────────────────────────────\n",
