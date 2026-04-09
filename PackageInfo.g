@@ -30,7 +30,7 @@ Persons := [
     FirstNames := "Alia",
     LastName := "Bonnet",
     Email := "alia.bonnet@rwth.aachen.de",
-    IsAuthor := false,
+    IsAuthor := true,
     IsMaintainer := true,
     Place := "Aachen",
     Institution := "RWTH Aachen"
@@ -61,16 +61,17 @@ ArchiveFormats := ".tar.gz .tar.bz2",
 Status := "dev",
 
 AbstractHTML   :=
-  "This package computes maximal vectors, the Frobenius normal form and\
+  "This package computes the Frobenius normal form and\
   the Jordan-Chevalley decomposition of a (square) matrix over any field\
-  that is available in GAP.",
+  that is available in GAP. It also computes the Jordan normal form\
+  of matrices over finite fields.",
 
 BannerString := Concatenation(
 "──────────────────────────────────────────────────────────────────────────\n",
 "Loading  nofoma ", ~.Version, " (Normal forms of matrices), \n",
 "by Meinolf Geck (https://pnp.mathematik.uni-stuttgart.de/idsr/idsr1/geckmf/)\n",
 "Help about the main functions in this package is obtained by typing:\n",
-"    ?MaximalVectorMat     ?FrobeniusNormalForm     ?JordanChevalleyDecMat\n",
+"    ?FrobeniusNormalForm     ?JordanNormalform     ?JordanChevalleyDecMat\n",
 "(or type:    ?nofoma: The nofoma package)\n",
 "──────────────────────────────────────────────────────────────────────────\n"),
 
