@@ -1,7 +1,7 @@
 .PHONY: run doc html clean check
 
 GAP ?= gap
-GAP_ARGS = -q --quitonbreak --packagedirs "$(abspath .);"
+GAP_ARGS = -q --quitonbreak --packagedirs $(abspath .)
 
 # run GAP and load the package
 run:

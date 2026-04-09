@@ -16,7 +16,6 @@
 
 #! @Chapter The nofoma package
 #! @ChapterLabel The nofoma package
-#! @Section Maximal vectors and normal forms
 #! Let <M>K</M> be a field and <M>A</M> be an <M>n\times n</M>-matrix over 
 #! <M>K</M>. This package provides functions for computing both the Frobenius normal form 
 #! and the Jordan normal form of <M>A</M>. 
@@ -48,7 +47,7 @@ DeclareInfoClass("Infonofoma");
 #! @Arguments A
 #! @Description
 #!  Returns the invariant factors of a matrix <A>A</A>
-#!  and an invertible matrix <M>P</M> such that <M>PAP^{{-1}}</M> is the 
+#!  and an invertible matrix <M>P</M> such that <M>PAP^{-1}</M> is the 
 #!  Frobenius normal form of <A>A</A>. The algorithm first computes a maximal 
 #!  vector and an <A>A</A>-invariant complement following Jacob's construction
 #!  (as described in matrix language in <Cite Key ="Gec20"/>); then the 
@@ -58,10 +57,6 @@ DeclareInfoClass("Infonofoma");
 #!  * 2nd component = base change matrix <M>P</M>; and 
 #!  * 3rd component = indices where the various blocks in the normal form 
 #!       begin.
-#!  You can also use  'CreateNormalForm( f[1] );' to produce the Frobenius
-#!  normal form. (This function just builds the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices corresponding to the 
-#!  various invariant factors of <A>A</A>.) 
 #! 
 #! @BeginExampleSession
 #! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
@@ -90,36 +85,56 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,  -2,   3,   0 ],
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
-DeclareGlobalFunction("FrobeniusNormalForm");
-
-#! @Arguments facs
-#! @Description
-#!  Returns the Frobenius normal form of a matrix with invariant factors 
-#!  <A>facs</A>. It works by building the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices according to the invariant
-#!  factors. 
-#!  To compute the invariant factors of a matrix, see ?InvariantFactorsMat.
-#!
+#! Note that this function is significantly more efficient
+#! than the existing 'RationalCanonicalFormTransform'.
+#! However, the two functions yield slightly different results. While the blocks
+#! in 'RationalCanonicalFormTransform' are the companion matrices of the 
+#! invariant factors following the convention of matrix operation from the
+#! left, the blocks in 'FrobeniusNormalform' correspond to matrix operation
+#! from the right, as is convention in GAP. 
+#! 
+#! Additionally, the 'RationalCanonicalFormTransform' sorts 
+#! the invariant factors in ascending order, whereas the 
+#! 'FrobeniusNormalForm' sorts them in 
+#! descending order. Consequently, the outputs of the two functions 
+#! agree up to a permutation of blocks and transposition.
 #! @BeginExampleSession
-#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
-#! >         [  0,  4,  0,  0,  0,  1,  0 ],
-#! >         [  0,  1,  1,  0,  0,  1,  1 ],
-#! >         [  0, -1,  0,  1,  0, -1,  0 ],
-#! >         [  0, -7,  0,  0,  1, -5,  0 ],
-#! >         [  0, -2,  0,  0,  0,  1,  0 ],
-#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
-#! gap> facs := InvariantFactorsMat(A);
-#! [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
-#! gap> Rat1 := CreateNormalForm(facs);
-#! [ [ 0, 1, 0, 0, 0, 0, 0 ], [ 0, 0, 1, 0, 0, 0, 0 ], 
-#! [ 0, 0, 0, 1, 0, 0, 0 ], [ -6, 17, -17, 7, 0, 0, 0 ], 
-#! [ 0, 0, 0, 0, 0, 1, 0 ], [ 0, 0, 0, 0, -2, 3, 0 ], 
-#! [ 0, 0, 0, 0, 0, 0, 1 ] ]
-#! gap> Rat2 := A^Inverse(FrobeniusNormalForm(A)[2]);;
-#! gap> Rat1 = Rat2;
-#! true
+#! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
+#! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
+#! >         [  1,  5,  0, -6, 12, -2,  0,-12, -4,  2],
+#! >         [  0,  0,  0,  2,  0,  0,  0,  7,  0,  0],
+#! >         [  0,  2, -3, -7,  8, -1,  0, -7, -3,  2],
+#! >         [ -5, -4, -6, 18,-30,  2, -2, 35,  5, -1],
+#! >         [ -1, -6,  6, 20,-28,  3,  0, 24, 10, -6],
+#! >         [  0,  0,  0, -1,  0,  0,  0, -3,  0,  0],
+#! >         [  0,  0, -1, -2, -2,  0, -1, -7,  0,  0],
+#! >         [  0, -8,  9, 21,-36,  4, -2, 12, 12, -8]];;
+#! gap> t:=RationalCanonicalFormTransform(aa);;
+#! gap> Display(aa^t);
+#! [ [   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 ],
+#!   [   1,   0,   0,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   1,   0,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   1,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   1,   0,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   0,   1,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   1,   0,  -1 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   1,  -1 ] ]
+#! gap> res:=FrobeniusNormalForm(aa);;
+#! gap> Display(aa^(res[2]^-1));
+#! [ [   0,   1,   0,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   1,   0,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   1,   0,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   1,   0,   0,   0,   0 ],
+#!   [   1,   1,   1,   0,  -1,  -1,   0,   0,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   1,   0,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   1,   0 ],
+#!   [   0,   0,   0,   0,   0,   0,   0,   0,   0,   1 ],
+#!   [   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 ] ]
 #! @EndExampleSession
-DeclareGlobalFunction("CreateNormalForm");
+DeclareGlobalFunction("FrobeniusNormalForm");
 
 #! @Arguments A
 #! @Description
@@ -177,13 +192,15 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! . . . . 3 4
 #! @EndExampleSession
 DeclareGlobalFunction("JordanNormalform");
-
 #! This function computes the Jordan normal form of <M>A</M> 
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 
 
-#! @Chapter Matrix decompositions
+#! @Chapter Other functionality
 
+#! @Section Matrix decompositions
+
+#! @Section The Jordan-Chevalley decomposition
 #! @Arguments A,f
 #! @Description
 #!  Returns the unique pair of matrices <M>D</M>, 
@@ -221,9 +238,9 @@ DeclareGlobalFunction("JordanNormalform");
 #! gap> MinimalPolynomial(jc[2]);
 #! x_1^2                     
 #! @EndExampleSession
-#!  If the input matrix is very large, then 'JordanChevalleyDecMatF(<A>A</A>);' 
+#!  If the input matrix is very large, then <Ref Func="JordanChevalleyDecMatF"/>
 #!  may be more efficient; this function first computes the Frobenius normal 
-#!  form of <A>A</A> and then applies 'JordanChevalleyDecMat' to each diagonal 
+#!  form of <A>A</A> and then applies <C>JordanChevalleyDecMat</C> to each diagonal 
 #!  block. (The result will be the same as that of 
 #!  'JordanChevalleyDecMat(<A>A</A>);)'
 DeclareGlobalFunction("JordanChevalleyDecMat");
@@ -231,9 +248,10 @@ DeclareGlobalFunction("JordanChevalleyDecMat");
 #! @Arguments A
 #! @Description
 #!  First computes the Frobenius normal form and
-#!  then applies 'JordanChevalleyDecMat' to each diagonal block.
+#!  then applies <Ref Func="JordanChevalleyDecMat"/> to each diagonal block.
 DeclareGlobalFunction("JordanChevalleyDecMatF");
 
+#! @Section The primary decomposition
 #! @Arguments A
 #! @Description
 #!  Returns a list containing two elements. The first element is
@@ -264,13 +282,14 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 DeclareGlobalFunction("PrimaryDecomp");
 
 #! @Chapter Auxiliary functions
+#! @Section Vectors and matrices and their associated polynomials
 
 #! @Arguments a,b
 #! @Description
 #! Computes a divisor <M>a_1</M> of the polynomial <A>a</A> and a
 #! divisor <M>b_1</M> of the polynomial <A>b</A> such that <M>a_1</M> and <M>b_1</M> are coprime
-#! and the lcm of <A>a</A>, <A>b</A> is <M>a_1</M>*<M>b_1</M>.  This is based on Lemma 5 in <Cite Key ="Bon14"/>.
-#! (see also Lemma 4.3 in <Cite Key ="Gec20"/>).
+#! and the lcm of <A>a</A>, <A>b</A> is <M>a_1*b_1</M>.  This is based on Lemma 5 in <Cite Key ="Bon14"/>.
+#! (See also Lemma 4.3 in <Cite Key ="Gec20"/>).
 #!
 #! (Note that it does not use the prime factorisation of polynomials but
 #! only gcd computations.)
@@ -289,8 +308,9 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 
 #! @Arguments A,pol,v
 #! @Description
-#! Returns  the row vector  obtained  by multiplying
-#! the row vector <A>v</A> with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial.
+#! Returns the row vector obtained  by multiplying the row vector <A>v</A>
+#! with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial. The actual
+#! computation is more efficient than this naive approach.
 #!
 #! @BeginExampleSession
 #! gap> A:=[ [ 0, 1, 0, 1 ],
@@ -299,7 +319,7 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 #! >         [ 1, 1, 1, 1 ] ];;
 #! gap> x:=X(Rationals);;
 #! gap> pol:=x^6-6*x^5+12*x^4-10*x^3+3*x^2;;
-#! gap> v:=[ 1, 1, 1, 1];;
+#! gap> v:=[ 1, 1, 1, 1 ];;
 #! gap> PolynomialToMatVec(A,pol,v);
 #! [ 8, -16, 8, -16 ]
 #! @EndExampleSession
@@ -313,11 +333,9 @@ DeclareGlobalFunction("PolynomialToMat");
 #!  <A>v2</A> with minimal polynomials <A>pol1</A>, <A>pol2</A>,  a new pair [<M>v</M>,<M>pol</M>],
 #!  where <M>v</M> has minimal polynomial <M>pol</M>, and <M>pol</M> is the least common
 #!  multiple of <A>pol1</A> and <A>pol2</A>.
-#!  This crucially relies on  'GcdCoprimeSplit' to avoid  factorisation of
+#!  This crucially relies on <Ref Func="GcdCoprimeSplit"/> to avoid  factorisation of
 #!  polynomials.
 DeclareGlobalFunction("LcmMaximalVectorMat");
-
-DeclareGlobalFunction("SpinMatVector1");
 
 #! @Arguments A,v
 #! @Description
@@ -325,8 +343,8 @@ DeclareGlobalFunction("SpinMatVector1");
 #!  <A>v</A> that is invariant under the matrix <A>A</A>. The  output is a
 #!  quadruple, with
 #!  * 1st component = basis of that subspace in row echelon form;
-#!  * 2nd component = matrix  with  rows <A>v</A>, <A>v.A</A>, <A>v.A^2</A>,
-#!     ..., <A>v.A^{{d-1}}</A> (where <M>d</M> is the degree of the local
+#!  * 2nd component = matrix  with  rows <M><A>v</A>, <A>v</A>.<A>A</A>, <A>v</A>.<A>A</A>^2,
+#!     ..., <A>v</A>.<A>A</A>^{{d-1}}</M> (where <M>d</M> is the degree of the local
 #!     minimal polynomial of <A>v</A>);
 #!  * 3rd component = the coefficients <M>a_0</M>, <M>a_1</M>, ...,
 #!     <M>a_d</M> of the local minimal polynomial; and
@@ -359,7 +377,7 @@ DeclareGlobalFunction("SpinMatVector");
 #! @Description
 #!  Repeatedly computes the smallest invariant subspaces containing different vectors
 #!  to compute a chain of cyclic subspaces. The output is a triple
-#!  <C>[B,C,svec]</C>  where  <M>C</M> is such that  <M>C</M><A>A</A><M>C^-1</M>  has a block
+#!  <C>[B,C,svec]</C>  where  <M>C</M> is such that  <M>C<A>A</A>C^{-1}</M>  has a block
 #!  triangular shape with companion matrices along the diagonal), <M>B</M> is the
 #!  row echelon form of C and svec is the list of indices where the blocks
 #!  begin.
@@ -433,7 +451,7 @@ DeclareGlobalFunction("MaximalVectorMat");
 #! to the  complementary subspace defined by  Jacob;  concretely, this is
 #! realized by assuming that  <A>T</A>  is a matrix in block triangular shape,
 #! where the upper left diagonal block is a companion matrix (as returned
-#! by 'RatFormStep1'; the variable <A>d</A> gives the size of that block.
+#! by <Ref Func="RatFormStep1"/>; the variable <A>d</A> gives the size of that block.
 #! (If <A>T</A> gives a  maximal cyclic subspace,  then  Jacob's complement is
 #! also  <A>T</A>-invariant;  but even if not,  it appears  to be  very useful
 #! because it produces many zeroes.)
@@ -461,14 +479,11 @@ DeclareGlobalFunction("JacobMatComplement");
 #!   [  1,  0,  0,  0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("RatFormStep1");
-DeclareGlobalFunction("RatFormStep1J");
 
+DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
 
-#! @Section Further documentation
 #! The above functions, as well as a number of further auxiliary functions,
 #! are all contained and defined in the file 'gap/nofoma.gi';
 #! in that file, you can also find further inline documentation for the
 #! auxiliary functions.
-
-
