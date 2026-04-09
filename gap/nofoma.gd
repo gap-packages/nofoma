@@ -57,10 +57,6 @@ DeclareInfoClass("Infonofoma");
 #!  * 2nd component = base change matrix <M>P</M>; and 
 #!  * 3rd component = indices where the various blocks in the normal form 
 #!       begin.
-#!  You can also use  'CreateNormalForm( f[1] );' to produce the Frobenius
-#!  normal form. (This function just builds the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices corresponding to the 
-#!  various invariant factors of <A>A</A>.) 
 #! 
 #! @BeginExampleSession
 #! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
@@ -140,35 +136,6 @@ DeclareInfoClass("Infonofoma");
 #! @EndExampleSession
 DeclareGlobalFunction("FrobeniusNormalForm");
 
-#! @Arguments facs
-#! @Description
-#!  Returns the Frobenius normal form of a matrix with invariant factors 
-#!  <A>facs</A>. It works by building the block diagonal matrix with 
-#!  diagonal blocks given by the companion matrices according to the invariant
-#!  factors. 
-#!  To compute the invariant factors of a matrix, see ?InvariantFactorsMat.
-#!
-#! @BeginExampleSession
-#! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
-#! >         [  0,  4,  0,  0,  0,  1,  0 ],
-#! >         [  0,  1,  1,  0,  0,  1,  1 ],
-#! >         [  0, -1,  0,  1,  0, -1,  0 ],
-#! >         [  0, -7,  0,  0,  1, -5,  0 ],
-#! >         [  0, -2,  0,  0,  0,  1,  0 ],
-#! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
-#! gap> facs := InvariantFactorsMat(A);
-#! [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ]
-#! gap> Rat1 := CreateNormalForm(facs);
-#! [ [ 0, 1, 0, 0, 0, 0, 0 ], [ 0, 0, 1, 0, 0, 0, 0 ], 
-#! [ 0, 0, 0, 1, 0, 0, 0 ], [ -6, 17, -17, 7, 0, 0, 0 ], 
-#! [ 0, 0, 0, 0, 0, 1, 0 ], [ 0, 0, 0, 0, -2, 3, 0 ], 
-#! [ 0, 0, 0, 0, 0, 0, 1 ] ]
-#! gap> Rat2 := A^Inverse(FrobeniusNormalForm(A)[2]);;
-#! gap> Rat1 = Rat2;
-#! true
-#! @EndExampleSession
-DeclareGlobalFunction("CreateNormalForm");
-
 #! @Arguments A
 #! @Description
 #!  Returns the invariant factors of the matrix <A>A</A>,
@@ -229,7 +196,9 @@ DeclareGlobalFunction("JordanNormalform");
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 
 
-#! @Chapter Matrix decompositions
+#! @Chapter Other functionality
+
+#! @Section Matrix decompositions
 
 #! @Section The Jordan-Chevalley decomposition
 #! @Arguments A,f
@@ -312,8 +281,12 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
+<<<<<<< HEAD
 #! @Chapter Auxiliary functions
 #! @Section Vectors and matrices and their associated polynomials
+=======
+#! @Section Auxiliary functions
+>>>>>>> 3a1fda4cae3cd58fd9fe02e50b55a37ef2aafaa7
 
 #! @Arguments a,b
 #! @Description
@@ -339,8 +312,9 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 
 #! @Arguments A,pol,v
 #! @Description
-#! Returns  the row vector  obtained  by multiplying
-#! the row vector <A>v</A> with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial.
+#! Returns the row vector obtained  by multiplying the row vector <A>v</A>
+#! with the matrix <A>pol</A>(<A>A</A>), where p is a polynomial. The actual
+#! computation is more efficient than this naive approach.
 #!
 #! @BeginExampleSession
 #! gap> A:=[ [ 0, 1, 0, 1 ],
@@ -349,7 +323,7 @@ DeclareGlobalFunction("GcdCoprimeSplit");
 #! >         [ 1, 1, 1, 1 ] ];;
 #! gap> x:=X(Rationals);;
 #! gap> pol:=x^6-6*x^5+12*x^4-10*x^3+3*x^2;;
-#! gap> v:=[ 1, 1, 1, 1];;
+#! gap> v:=[ 1, 1, 1, 1 ];;
 #! gap> PolynomialToMatVec(A,pol,v);
 #! [ 8, -16, 8, -16 ]
 #! @EndExampleSession
@@ -366,8 +340,6 @@ DeclareGlobalFunction("PolynomialToMat");
 #!  This crucially relies on  'GcdCoprimeSplit' to avoid  factorisation of
 #!  polynomials.
 DeclareGlobalFunction("LcmMaximalVectorMat");
-
-DeclareGlobalFunction("SpinMatVector1");
 
 #! @Arguments A,v
 #! @Description
@@ -514,6 +486,7 @@ DeclareGlobalFunction("RatFormStep1");
 
 DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
+<<<<<<< HEAD
 
 #! The above functions, as well as a number of further auxiliary functions,
 #! are all contained and defined in the file 'gap/nofoma.gi';
@@ -521,3 +494,5 @@ DeclareGlobalFunction("SquareFreePol");
 #! auxiliary functions.
 
 
+=======
+>>>>>>> 3a1fda4cae3cd58fd9fe02e50b55a37ef2aafaa7

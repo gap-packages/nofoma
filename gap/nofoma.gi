@@ -41,8 +41,10 @@ InstallGlobalFunction(GcdCoprimeSplit,function(a,b)
   fi;
 end);
 
-# Applies polynomial pol to A and then to v.
-# For details about this function, see nofoma.gd.
+# Compute pol(A)*v, but more efficiently: the naive approach would compute
+# first the matrix pol(A) and thus matrix powers A, A^2, A^3, etc. which is
+# very expensive. The code here avoids this by computing a  linear combination
+# of v, A*v, A*(A*v), ...,
 InstallGlobalFunction(PolynomialToMatVec,function(A,pol,v)
   local n,v1,i,coeffs;
   coeffs := CoefficientsOfUnivariatePolynomial(pol);
@@ -105,55 +107,41 @@ end);
 
 # SpinMatVector1 does not compute the minimal polynomial, only the subspace;
 # here, the last four arguments can be empty lists.
-InstallGlobalFunction(SpinMatVector1,function(A,v,orbit1,orbit,piv,spiv)
-  local d,i,j,v1,nv,nv1,coeff,cont;
+BindGlobal("SpinMatVector1",function(A,v,orbit1,orbit,pivot)
+  local i,j,nv,coeff;
   A := List(A, List);
   v := List(v);
   i:=PositionNonZero(v);
   if i>Length(v) then
     Error("# zero vector");
   fi;
-  Add(piv,i);
-  AddSet(spiv,i);
-  Add(orbit,v);
-  v1:=ShallowCopy(v);
-  MultVector(v1,Inverse(v[i]));
-  Add(orbit1,v1);
-  d:=Length(orbit1);
-  cont:=true;
-  while cont do
-    nv1:=orbit[Length(orbit)]*A;
-    nv:=ShallowCopy(nv1);
-    for j in [1..d] do
-      coeff:=-nv[piv[j]];
+  nv:=ShallowCopy(v);
+  while i <= Length(nv) do
+    Add(pivot,i);
+    if not IsOne(nv[i]) then
+      MultVector(nv,Inverse(nv[i]));
+    fi;
+    Add(orbit1,nv);
+    Add(orbit,v);
+
+    v:=v*A;
+    nv:=ShallowCopy(v);
+    for j in [1..Length(orbit1)] do
+      coeff:=-nv[pivot[j]];
       if not IsZero(coeff) then
         AddRowVector(nv,orbit1[j],coeff);
       fi;
     od;
     i:=PositionNonZero(nv);
-    if i>Length(nv) then
-      cont:=false;
-    else
-      Add(piv,i);
-      AddSet(spiv,i);
-      if IsOne(nv[i]) then
-        Add(orbit1,nv);
-      else
-        MultVector(nv,Inverse(nv[i]));
-        Add(orbit1,nv);
-      fi;
-      Add(orbit,nv1);
-      d:=d+1;
-    fi;
   od;
   ConvertToMatrixRepNC(orbit);
   ConvertToMatrixRepNC(orbit1);
-  return [orbit1,orbit,nv1,piv,spiv];
+  return [orbit1,orbit,v,pivot];
 end);
 
 InstallGlobalFunction(SpinMatVector,function(mat,vec)
   local sp,minpol;
-  sp:=SpinMatVector1(mat,vec,[],[],[],[]);
+  sp:=SpinMatVector1(mat,vec,[],[],[]);
   minpol:=-SolutionMat(sp[2],sp[3]);
   Add(minpol,minpol[1]^0);
   return [sp[1],sp[2],minpol,sp[4]];
@@ -171,14 +159,14 @@ InstallGlobalFunction(CyclicChainMat,function(mat)
   if IsLowerTriangularMat(A) then
     return [idm,idm,[1..NrRows(A)+1],[1..NrRows(A)]];
   fi;
-  sp:=SpinMatVector1(A,idm[1],[],[],[],[]);
+  sp:=SpinMatVector1(A,idm[1],[],[],[]);
   svec:=[1,Length(sp[1])+1];
   j:=1;
   while Length(sp[1])<NrRows(A) do
-    while j in sp[5] do
+    while j in Set(sp[4]) do
       j:=j+1;
     od;
-    sp:=SpinMatVector1(A,idm[j],sp[1],sp[2],sp[4],sp[5]);
+    sp:=SpinMatVector1(A,idm[j],sp[1],sp[2],sp[4]);
     Add(svec,Length(sp[1])+1);
   od;
   return [sp[1],sp[2],svec];
@@ -316,10 +304,10 @@ end);
 InstallGlobalFunction(RatFormStep1,function(A,v)
   local A1,sp,t,i,d,idm,minp;
   idm:=OneMutable(A);
-  sp:=SpinMatVector1(A,v,[],[],[],[]);
+  sp:=SpinMatVector1(A,v,[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[4])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
@@ -330,10 +318,10 @@ end);
 InstallGlobalFunction(RatFormStep1J,function(A,v)
   local A1,sp,t,i,j,d,idm,minp;
   idm:=OneMutable(A);
-  sp:=SpinMatVector1(A,v,[],[],[],[]);
+  sp:=SpinMatVector1(A,v,[],[],[]);
   t:=sp[2];
   d:=Length(t);
-  Append(t,idm{Difference([1..NrRows(A)],sp[5])});
+  Append(t,idm{Difference([1..NrRows(A)],sp[4])});
   ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
   minp:=-ShallowCopy(A1[d]{[1..d]});
@@ -355,25 +343,6 @@ BindGlobal("nfmCompanionMat1", function(f)
   mat[n,n]:=-f[n];
   return mat;
 end);
-
-InstallGlobalFunction(CreateNormalForm,function(plist)
-  local A,l,r,i;
-  if not IsList(plist) then 
-    plist := List(plist,List);
-  fi;
-  r:=Length(plist);
-  l:=[1];
-  for i in [1..r] do
-    l[i+1]:=l[i]+Degree(plist[i]);
-  od;
-  A:=NullMat(l[r+1]-1,l[r+1]-1,CoefficientsOfUnivariatePolynomial(plist[1])[1]);
-  for i in [1..r] do
-    A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
-              nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(plist[i]));
-  od;
-  return A;
-end);
-
 
 # Returns rational canonical form of mat,
 # invertible matrix P such that PAP^(-1) is in rational canonical form,
@@ -711,24 +680,23 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
                 gens[i] := toAdd;
             fi;
         od;
-        v :=PolynomialToMatVec(A,p,v);
+        v := PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then
             facs := factoriseByKnownFactors(minpolfacs,m);
             for i in [1..Size(facs)] do
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,Quotient(m,qi),v);
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
-                Add(gens,wspan);
+                wspan := SpinMatVector1(A,w,[],[],[])[2];
+                Add(gens, wspan);
                 Add(gs, facs[i][1]);
             od;
         fi;
         # put everything into a single matrix
         COB := ZeroMatrix(F,n,n);
         k := 0;
-        for i in [1..Size(gens)] do
-            L_i := gens[i];
-            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
+        for L_i in gens do
+            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)], [1..n], [1..n]);
             k := k+NrRows(L_i);
         od;
         COB := nfmRemoveZeroRows(COB);
@@ -779,7 +747,7 @@ end);
 #along with dimensions of primary subspaces
 InstallGlobalFunction(PrimaryDecomp, function(A)
     local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
-    COB,pot,gs,f2,dims,toAdd,combined,dim,minpol;
+    COB,pot,gs,f2,dims,toAdd,dim,minpol;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
@@ -822,25 +790,23 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
                 gens[i] := toAdd;
             fi;
         od;
-        v :=PolynomialToMatVec(A,p,v);
+        v := PolynomialToMatVec(A,p,v);
         m := Quotient(m,p);
         if not IsOne(m) then
-            facs := Factors(m);
-            facs := Collected(facs);
+            facs := Collected(Factors(m));
             for i in [1..Size(facs)] do
                 qi := (facs[i][1])^(facs[i][2]);
                 w := PolynomialToMatVec(A,Quotient(m,qi),v);
-                wspan := SpinMatVector1(A,w,[],[],[],[])[2];
-                Add(gens,wspan);
+                wspan := SpinMatVector1(A,w,[],[],[])[2];
+                Add(gens, wspan);
                 Add(gs, facs[i][1]);
             od;
         fi;
-        #alles in eine matrix
+        # put everything into a single matrix
         COB := ZeroMatrix(F,n,n);
         k := 0;
-        for i in [1..Size(gens)] do
-            L_i := gens[i];
-            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)],[1..n], [1..n]);
+        for L_i in gens do
+            CopySubMatrix(L_i, COB, [1..NrRows(L_i)], [k+1..k+NrRows(L_i)], [1..n], [1..n]);
             k := k+NrRows(L_i);
         od;
         COB := nfmRemoveZeroRows(COB);
@@ -850,17 +816,12 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
             v := nfmFindVectorNotInSubspaceNC(COB);
         fi;
     od;
-    #sorted blocks and count dims
+    #sort blocks and count dims
     COB := ZeroMatrix(F,n,n);
-    combined := [];
-    for i in [1..Size(gs)] do
-      Add(combined, [gens[i],gs[i]]);
-    od;
-    Sort(combined, function(v,w) return v[2] < w[2]; end);
+    SortParallel(gs, gens);
     k := 0;
     dims := [];
-    for i in [1..Size(gs)] do
-      L_i := combined[i][1];
+    for L_i in gens do
       dim := NrRows(L_i);
       Add(dims, dim);
       CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);

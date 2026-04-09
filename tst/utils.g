@@ -1,3 +1,23 @@
+# Returns the Frobenius normal form of a matrix with invariant factors
+# <A>facs</A>. It works by building the block diagonal matrix with
+# diagonal blocks given by the companion matrices according to the invariant
+# factors.
+CreateNormalForm := function(facs)
+  local A,l,r,i;
+  r:=Length(facs);
+  l:=[1];
+  for i in [1..r] do
+    l[i+1]:=l[i]+Degree(facs[i]);
+  od;
+  A:=NullMat(l[r+1]-1,l[r+1]-1,CoefficientsOfUnivariatePolynomial(facs[1])[1]);
+  for i in [1..r] do
+    A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
+              nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(facs[i]));
+  od;
+  return A;
+end;
+
+
 # F=output of FrobeniusNormalForm
 CheckFrobForm := function(A,F)
   local P,i,nf;
