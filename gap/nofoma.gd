@@ -281,12 +281,8 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! @EndExampleSession
 DeclareGlobalFunction("PrimaryDecomp");
 
-<<<<<<< HEAD
 #! @Chapter Auxiliary functions
 #! @Section Vectors and matrices and their associated polynomials
-=======
-#! @Section Auxiliary functions
->>>>>>> 3a1fda4cae3cd58fd9fe02e50b55a37ef2aafaa7
 
 #! @Arguments a,b
 #! @Description
@@ -486,13 +482,8 @@ DeclareGlobalFunction("RatFormStep1");
 
 DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
-<<<<<<< HEAD
 
 #! The above functions, as well as a number of further auxiliary functions,
 #! are all contained and defined in the file 'gap/nofoma.gi';
 #! in that file, you can also find further inline documentation for the
 #! auxiliary functions.
-
-
-=======
->>>>>>> 3a1fda4cae3cd58fd9fe02e50b55a37ef2aafaa7
