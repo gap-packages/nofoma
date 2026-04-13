@@ -26,8 +26,8 @@
 #! @Section Installation of the &nofoma; package
 #!
 #! To install this package first unpack it inside some &GAP; root directory
-#! in the subdirectory `pkg` (see the section 'Installing a &GAP; Package' of
-#! the &GAP; reference manual). Then &nofoma; can already be loaded and used
+#! in the subdirectory `pkg` (see <Ref Sect="Installing a GAP Package" BookName="ref"/>).
+#! Then &nofoma; can already be loaded and used
 #! (just type `LoadPackage("nofoma");`).
 #!
 
@@ -37,7 +37,7 @@ DeclareInfoClass("Infonofoma");
 #! @Chapter Normal forms of matrices
 #! @Section The Frobenius normal form
 #! Given a field <M>K</M> and an <M>n\times n</M>-matrix <M>A</M> 
-#! over <M>K</M>, the Frobenius normal form of <M>A</M> is a block diagonal
+#! over <M>K</M>, the <E>Frobenius normal form</E> of <M>A</M> is a block diagonal
 #! matrix, where the diagonal blocks are companion matrices 
 #! corresponding to the invariant factors of <M>A</M>. It reflects the minimal
 #! decomposition of the vector space <M>K^n</M> into cyclic subspaces 
@@ -86,14 +86,14 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
 #! Note that this function is significantly more efficient
-#! than the existing 'RationalCanonicalFormTransform'. 
+#! than GAP's built-in <Ref Func="RationalCanonicalFormTransform" BookName="Ref"/>.
 #! However, the two functions yield slightly different results. While the blocks
-#! in 'RationalCanonicalFormTransform' are the companion matrices of the 
+#! in <C>RationalCanonicalFormTransform</C> are the companion matrices of the
 #! invariant factors following the convention of matrix operation from the
 #! left, the blocks in <Ref Func="FrobeniusNormalForm"/> correspond to matrix operation
 #! from the right, as is convention in GAP. 
 #! 
-#! Additionally, 'RationalCanonicalFormTransform' sorts 
+#! Additionally, <C>RationalCanonicalFormTransform</C> sorts
 #! the invariant factors in ascending order, whereas the 
 #! <Ref Func="FrobeniusNormalForm"/> sorts them in 
 #! descending order. Consequently, the outputs of the two functions 
