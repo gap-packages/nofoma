@@ -482,8 +482,3 @@ DeclareGlobalFunction("RatFormStep1");
 
 DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
-
-#! The above functions, as well as a number of further auxiliary functions,
-#! are all contained and defined in the file 'gap/nofoma.gi';
-#! in that file, you can also find further inline documentation for the
-#! auxiliary functions.
