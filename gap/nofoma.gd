@@ -85,13 +85,43 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,  -2,   3,   0 ],
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
-#! Note that this function is significantly more efficient
-#! than the existing 'RationalCanonicalFormTransform'. 
-#! However, the two functions yield slightly different results. While the blocks
-#! in 'RationalCanonicalFormTransform' are the companion matrices of the 
-#! invariant factors following the convention of matrix operation from the
-#! left, the blocks in <Ref Func="FrobeniusNormalForm"/> correspond to matrix operation
-#! from the right, as is convention in GAP. 
+#! Note that the Frobenius normal form is unique up to the choice of the companion matrices
+#! and the permutation of the blocks corresponding to the invariant factors. 
+#! So while this function is significantly more efficient than the existing 'RationalCanonicalFormTransform',
+#! the two functions yield slightly different results. 
+#! In 'RationalCanonicalFormTransform', the companion matrices are consistent with the output of 'CompanionMat'. 
+#! However, given an <M>n\times n</M> cyclic matrix <M>A</M>, along with a corresponding cyclic vector <M>v</M>, 
+#! one can compute a change of basis matrix from A to a companion matrix of its minimal polynomial by computing 
+#! <M>v</M> multiplied with powers of <M>A</M> (i.e., <M>v</M>, <M>vA</M>, ...., <M>vA^(n-1)</M>). This approach
+#! follows GAP’s convention of right multiplication and yields a companion matrix in the form used by <Ref Func="FrobeniusNormalForm"/>.
+#! To transform one into the other, one can simply transpose the companion matrix.
+#! @BeginExampleSession
+#! gap> x:=RandomInvertibleMat(10, GF(5));;
+#! gap> T:=RationalCanonicalFormTransform(x);;
+#! gap> S:=TransposedMat(FrobeniusNormalForm(TransposedMat(x))[2]);;
+#! gap> Display(x^T);
+#! . . . . . . . . . 4
+#! 1 . . . . . . . . .
+#!  . 1 . . . . . . . 2
+#!  . . 1 . . . . . . .
+#!  . . . 1 . . . . . 2
+#!  . . . . 1 . . . . 3
+#!  . . . . . 1 . . . 2
+#!  . . . . . . 1 . . 1
+#!  . . . . . . . 1 . 2
+#!  . . . . . . . . 1 3
+#!gap> Display(x^S);
+#!  . . . . . . . . . 4
+#!  1 . . . . . . . . .
+#!  . 1 . . . . . . . 2
+#!  . . 1 . . . . . . .
+#!  . . . 1 . . . . . 2
+#!  . . . . 1 . . . . 3
+#!  . . . . . 1 . . . 2
+#!  . . . . . . 1 . . 1
+#!  . . . . . . . 1 . 2
+#!  . . . . . . . . 1 3
+#! @EndExampleSession
 #! 
 #! Additionally, 'RationalCanonicalFormTransform' sorts 
 #! the invariant factors in ascending order, whereas the 
