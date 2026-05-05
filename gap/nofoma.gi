@@ -382,9 +382,9 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   fi;
 end);
 
-InstallGlobalFunction(FrobeniusNormalFormDescending, function(mat)
+InstallGlobalFunction(FrobeniusNormalFormLikeRCFT, function(mat)
   local frob, blocks, n, Perm, Trans, ind, d, i, l;
-  frob := FrobeniusNormalForm(mat);
+  frob := FrobeniusNormalForm(TransposedMat(mat));
   blocks := frob[3];
   n := NrRows(mat);
   if Length(blocks) = 1 then
@@ -399,7 +399,7 @@ InstallGlobalFunction(FrobeniusNormalFormDescending, function(mat)
   od;
   l := n - d;
   CopySubMatrix(IdentityMatrix(l, mat), Perm, [1..l], [Last(blocks)..n], [1..l], [1..n-Last(blocks)+1]);
-  return [Reversed(frob[1]), TransposedMat(Perm)*frob[2], Reversed(frob[3])];
+  return [Reversed(frob[1]), TransposedMat(TransposedMat(Perm)*frob[2]), Reversed(frob[3])];
 end);
 
 # Returns the invariant factors of mat (i.e. the minimal polynomials of the

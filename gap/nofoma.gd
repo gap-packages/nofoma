@@ -97,31 +97,25 @@ DeclareInfoClass("Infonofoma");
 #! Furthermore 'RationalCanonicalFormTransform' sorts the invariant factors in ascending order, while <Ref Func="FrobeniusNormalForm"/>
 #! sorts them in descending order. 
 #! @BeginExampleSession
-#! gap> x:=RandomInvertibleMat(10, GF(5));;
-#! gap> T:=RationalCanonicalFormTransform(x);;
-#! gap> S:=TransposedMat(FrobeniusNormalForm(TransposedMat(x))[2]);;
-#! gap> Display(x^T);
-#!  . . . . . . . . . 4
-#!  1 . . . . . . . . .
-#!  . 1 . . . . . . . 2
-#!  . . 1 . . . . . . .
-#!  . . . 1 . . . . . 2
-#!  . . . . 1 . . . . 3
-#!  . . . . . 1 . . . 2
-#!  . . . . . . 1 . . 1
-#!  . . . . . . . 1 . 2
-#!  . . . . . . . . 1 3
-#! gap> Display(x^S);
-#!  . . . . . . . . . 4
-#!  1 . . . . . . . . .
-#!  . 1 . . . . . . . 2
-#!  . . 1 . . . . . . .
-#!  . . . 1 . . . . . 2
-#!  . . . . 1 . . . . 3
-#!  . . . . . 1 . . . 2
-#!  . . . . . . 1 . . 1
-#!  . . . . . . . 1 . 2
-#!  . . . . . . . . 1 3
+#! gap> A := [ [ 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^0, Z(5)^3 ], 
+#! >   [ Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^2 ], 
+#! >   [ Z(5), Z(5), 0*Z(5), Z(5)^0, Z(5)^3 ], 
+#! >   [ 0*Z(5), Z(5), Z(5)^2, Z(5)^2, Z(5) ], 
+#! >   [ Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^3, Z(5)^0 ] ];;
+#! gap> T:=RationalCanonicalFormTransform(A);;
+#! gap> S:=TransposedMat(FrobeniusNormalForm(TransposedMat(A))[2]);;
+#! gap> Display(A^T);
+#!  . . . . 3
+#!  1 . . . 2
+#!  . 1 . . 3
+#!  . . 1 . 4
+#!  . . . 1 .
+#! gap> Display(A^S);
+#!  . . . . 3
+#!  1 . . . 2
+#!  . 1 . . 3
+#!  . . 1 . 4
+#!  . . . 1 .
 #! @EndExampleSession
 #! 
 #! Additionally, 'RationalCanonicalFormTransform' sorts 
@@ -170,22 +164,36 @@ DeclareGlobalFunction("FrobeniusNormalForm");
 
 #! @Arguments A
 #! @Description
-#! This function returns the same result as <Ref Func="FrobeniusNormalForm"/>, except that it 
-#! sorts the invariant factors of <M>A</M> in descending order, just as in 'RationalCanonicalFormTransform'. 
-#! Thus to get a drop in replacement for RationalCanonicalFormTransform, one just has to invert the conjugating 
-#! matrix produced by <Ref Func="FrobeniusNormalForm"/> and transpose the transformed matrix. 
+#! This function returns the same result as <Ref Func="FrobeniusNormalForm"/>, except that the invariant factors 
+#! are sorted in descending order and the companion matrices on the diagonal are transposed. Furthermore, if <M>P</M> is the 
+#! computed base change matrix, the Frobenius normal form is obtained by <M>P^{-1}AP</M> (instead of <M>PAP^{-1}</M>).
+#! This means that <M>P</M> can be used as a direct drop-in replacement for RationalCanonicalFormTransform. 
+#!
+#! Note that this function works by calling <Ref Func="FrobeniusNormalForm"/> and then modifying the computed 
+#! transformation matrix and is thus potentially less efficient than using
+#! the original function. 
 #! @BeginExampleSession
-#! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
-#! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
-#! >         [  1,  5,  0, -6, 12, -2,  0,-12, -4,  2],
-#! >         [  0,  0,  0,  2,  0,  0,  0,  7,  0,  0],
-#! >         [  0,  2, -3, -7,  8, -1,  0, -7, -3,  2],
-#! >         [ -5, -4, -6, 18,-30,  2, -2, 35,  5, -1],
-#! >         [ -1, -6,  6, 20,-28,  3,  0, 24, 10, -6],
-#! >         [  0,  0,  0, -1,  0,  0,  0, -3,  0,  0],
-#! >         [  0,  0, -1, -2, -2,  0, -1, -7,  0,  0],
-#! >         [  0, -8,  9, 21,-36,  4, -2, 12, 12, -8]];;
-#! gap> frob := FrobeniusNormalFormDescending(A)[2];;
+#! gap> A := [ [ 0*Z(5), Z(5)^2, Z(5)^2, 0*Z(5), Z(5)^3, Z(5)^3, 0*Z(5), Z(5)^3, 
+#! >       0*Z(5), Z(5) ], 
+#! >   [ Z(5)^0, Z(5)^0, Z(5)^0, Z(5), Z(5)^3, Z(5), Z(5)^3, 0*Z(5), Z(5), 
+#! >       0*Z(5) ], 
+#! >   [ Z(5), 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^0, 
+#! >       Z(5), Z(5)^2 ], 
+#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 
+#! >       0*Z(5), 0*Z(5) ], 
+#! >   [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^0, Z(5)^3, 0*Z(5), Z(5)^0, 
+#! >       Z(5)^2, Z(5)^2 ], 
+#! >   [ 0*Z(5), Z(5), Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), 
+#! >       0*Z(5), Z(5)^3 ], 
+#! >   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^3, 
+#!>       0*Z(5), Z(5)^3 ], 
+#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 
+#! >       0*Z(5), 0*Z(5) ], 
+#! >   [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^0, 
+#! >       0*Z(5), 0*Z(5) ], 
+#! >   [ 0*Z(5), Z(5)^2, Z(5)^3, Z(5), Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^2, 
+#! >       Z(5)^2, Z(5)^2 ] ];;
+#! gap> frob := FrobeniusNormalFormLikeRCFT(A)[2];;
 #! gap> rat := RationalCanonicalFormTransform(A);;
 #! gap> Display(A^rat);
 #!  . . . 1 . . . . . .
@@ -198,7 +206,7 @@ DeclareGlobalFunction("FrobeniusNormalForm");
 #!  . . . . . . 1 . . .
 #!  . . . . . . . 1 . 1
 #!  . . . . . . . . 1 3
-#! gap> Display(TransposedMat(A^Inverse(frob)));
+#! gap> Display(A^frob);
 #!  . . . 1 . . . . . .
 #!  1 . . . . . . . . .
 #!  . 1 . . . . . . . .
@@ -210,7 +218,7 @@ DeclareGlobalFunction("FrobeniusNormalForm");
 #!  . . . . . . . 1 . 1
 #!  . . . . . . . . 1 3
 #! @EndExampleSession
-DeclareGlobalFunction("FrobeniusNormalFormDescending");
+DeclareGlobalFunction("FrobeniusNormalFormLikeRCFT");
 
 #! @Arguments A
 #! @Description
