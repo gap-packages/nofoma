@@ -26,8 +26,8 @@
 #! @Section Installation of the &nofoma; package
 #!
 #! To install this package first unpack it inside some &GAP; root directory
-#! in the subdirectory `pkg` (see the section 'Installing a &GAP; Package' of
-#! the &GAP; reference manual). Then &nofoma; can already be loaded and used
+#! in the subdirectory `pkg` (see <Ref Sect="Installing a GAP Package" BookName="ref"/>).
+#! Then &nofoma; can already be loaded and used
 #! (just type `LoadPackage("nofoma");`).
 #!
 
@@ -37,7 +37,7 @@ DeclareInfoClass("Infonofoma");
 #! @Chapter Normal forms of matrices
 #! @Section The Frobenius normal form
 #! Given a field <M>K</M> and an <M>n\times n</M>-matrix <M>A</M> 
-#! over <M>K</M>, the Frobenius normal form of <M>A</M> is a block diagonal
+#! over <M>K</M>, the <E>Frobenius normal form</E> of <M>A</M> is a block diagonal
 #! matrix, where the diagonal blocks are companion matrices 
 #! corresponding to the invariant factors of <M>A</M>. It reflects the minimal
 #! decomposition of the vector space <M>K^n</M> into cyclic subspaces 
@@ -118,7 +118,7 @@ DeclareInfoClass("Infonofoma");
 #!  . . . 1 .
 #! @EndExampleSession
 #! 
-#! Additionally, 'RationalCanonicalFormTransform' sorts 
+#! Additionally, <C>RationalCanonicalFormTransform</C> sorts
 #! the invariant factors in ascending order, whereas the 
 #! <Ref Func="FrobeniusNormalForm"/> sorts them in 
 #! descending order. Consequently, the outputs of the two functions 
@@ -566,8 +566,3 @@ DeclareGlobalFunction("RatFormStep1");
 
 DeclareGlobalFunction("RatFormStep1J");
 DeclareGlobalFunction("SquareFreePol");
-
-#! The above functions, as well as a number of further auxiliary functions,
-#! are all contained and defined in the file 'gap/nofoma.gi';
-#! in that file, you can also find further inline documentation for the
-#! auxiliary functions.
