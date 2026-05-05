@@ -123,7 +123,7 @@ DeclareInfoClass("Infonofoma");
 #! <Ref Func="FrobeniusNormalForm"/> sorts them in 
 #! descending order. Consequently, the outputs of the two functions 
 #! agree up to a permutation of blocks and transposition.
-#! To get a drop in replacement for 'RationalCanonicalFormTransform', see <Ref Func="FrobeniusNormalFormDescending"/>.
+#! To get a drop in replacement for 'RationalCanonicalFormTransform', see <Ref Func="FrobeniusNormalFormLikeRCFT"/>.
 #! @BeginExampleSession
 #! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
 #! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
