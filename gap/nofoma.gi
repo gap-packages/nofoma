@@ -382,9 +382,28 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
   fi;
 end);
 
+InstallGlobalFunction(FrobeniusNormalFormDescending, function(mat)
+  local frob, blocks, n, Perm, Trans, ind, d, i, l;
+  frob := FrobeniusNormalForm(mat);
+  blocks := frob[3];
+  n := NrRows(mat);
+  if Length(blocks) = 1 then
+    return frob;
+  fi;
+  Perm := ZeroMatrix(n, n, mat);
+  for i in [1..Length(blocks)-1] do
+    ind := blocks[i];
+    d   := blocks[i+1] - 1;
+    l   := d - ind + 1;
+    CopySubMatrix(IdentityMatrix(l, mat), Perm, [1..l], [ind..d], [1..l], [n-d+1..n-ind+1]);
+  od;
+  l := n - d;
+  CopySubMatrix(IdentityMatrix(l, mat), Perm, [1..l], [Last(blocks)..n], [1..l], [1..n-Last(blocks)+1]);
+  return [Reversed(frob[1]), TransposedMat(Perm)*frob[2], Reversed(frob[3])];
+end);
+
 # Returns the invariant factors of mat (i.e. the minimal polynomials of the
 # diagonal blocks in the rational canonical form of mat).
-# For details about this function, see nofoma.gd.
 InstallGlobalFunction(InvariantFactorsMat,function(mat)
   local A,A1,i,d,np,k,f,n,p;
   k:=DefaultFieldOfMatrix(mat);

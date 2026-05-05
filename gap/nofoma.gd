@@ -94,14 +94,15 @@ DeclareInfoClass("Infonofoma");
 #! one can compute a change of basis matrix from A to a companion matrix of its minimal polynomial by computing 
 #! <M>v</M> multiplied with powers of <M>A</M> (i.e., <M>v</M>, <M>vA</M>, ...., <M>vA^(n-1)</M>). This approach
 #! follows GAP’s convention of right multiplication and yields a companion matrix in the form used by <Ref Func="FrobeniusNormalForm"/>.
-#! To transform one into the other, one can simply transpose the companion matrix.
+#! Furthermore 'RationalCanonicalFormTransform' sorts the invariant factors in ascending order, while <Ref Func="FrobeniusNormalForm"/>
+#! sorts them in descending order. 
 #! @BeginExampleSession
 #! gap> x:=RandomInvertibleMat(10, GF(5));;
 #! gap> T:=RationalCanonicalFormTransform(x);;
 #! gap> S:=TransposedMat(FrobeniusNormalForm(TransposedMat(x))[2]);;
 #! gap> Display(x^T);
-#! . . . . . . . . . 4
-#! 1 . . . . . . . . .
+#!  . . . . . . . . . 4
+#!  1 . . . . . . . . .
 #!  . 1 . . . . . . . 2
 #!  . . 1 . . . . . . .
 #!  . . . 1 . . . . . 2
@@ -110,7 +111,7 @@ DeclareInfoClass("Infonofoma");
 #!  . . . . . . 1 . . 1
 #!  . . . . . . . 1 . 2
 #!  . . . . . . . . 1 3
-#!gap> Display(x^S);
+#! gap> Display(x^S);
 #!  . . . . . . . . . 4
 #!  1 . . . . . . . . .
 #!  . 1 . . . . . . . 2
@@ -128,6 +129,7 @@ DeclareInfoClass("Infonofoma");
 #! <Ref Func="FrobeniusNormalForm"/> sorts them in 
 #! descending order. Consequently, the outputs of the two functions 
 #! agree up to a permutation of blocks and transposition.
+#! To get a drop in replacement for 'RationalCanonicalFormTransform', see <Ref Func="FrobeniusNormalFormDescending"/>.
 #! @BeginExampleSession
 #! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
 #! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
@@ -165,6 +167,50 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("FrobeniusNormalForm");
+
+#! @Arguments A
+#! @Description
+#! This function returns the same result as <Ref Func="FrobeniusNormalForm"/>, except that it 
+#! sorts the invariant factors of <M>A</M> in descending order, just as in 'RationalCanonicalFormTransform'. 
+#! Thus to get a drop in replacement for RationalCanonicalFormTransform, one just has to invert the conjugating 
+#! matrix produced by <Ref Func="FrobeniusNormalForm"/> and transpose the transformed matrix. 
+#! @BeginExampleSession
+#! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
+#! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
+#! >         [  1,  5,  0, -6, 12, -2,  0,-12, -4,  2],
+#! >         [  0,  0,  0,  2,  0,  0,  0,  7,  0,  0],
+#! >         [  0,  2, -3, -7,  8, -1,  0, -7, -3,  2],
+#! >         [ -5, -4, -6, 18,-30,  2, -2, 35,  5, -1],
+#! >         [ -1, -6,  6, 20,-28,  3,  0, 24, 10, -6],
+#! >         [  0,  0,  0, -1,  0,  0,  0, -3,  0,  0],
+#! >         [  0,  0, -1, -2, -2,  0, -1, -7,  0,  0],
+#! >         [  0, -8,  9, 21,-36,  4, -2, 12, 12, -8]];;
+#! gap> frob := FrobeniusNormalFormDescending(A)[2];;
+#! gap> rat := RationalCanonicalFormTransform(A);;
+#! gap> Display(A^rat);
+#!  . . . 1 . . . . . .
+#!  1 . . . . . . . . .
+#!  . 1 . . . . . . . .
+#!  . . 1 . . . . . . .
+#!  . . . . . . . . . 4
+#!  . . . . 1 . . . . 2
+#!  . . . . . 1 . . . 1
+#!  . . . . . . 1 . . .
+#!  . . . . . . . 1 . 1
+#!  . . . . . . . . 1 3
+#! gap> Display(TransposedMat(A^Inverse(frob)));
+#!  . . . 1 . . . . . .
+#!  1 . . . . . . . . .
+#!  . 1 . . . . . . . .
+#!  . . 1 . . . . . . .
+#!  . . . . . . . . . 4
+#!  . . . . 1 . . . . 2
+#!  . . . . . 1 . . . 1
+#!  . . . . . . 1 . . .
+#!  . . . . . . . 1 . 1
+#!  . . . . . . . . 1 3
+#! @EndExampleSession
+DeclareGlobalFunction("FrobeniusNormalFormDescending");
 
 #! @Arguments A
 #! @Description
