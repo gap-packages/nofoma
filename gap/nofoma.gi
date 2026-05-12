@@ -109,8 +109,14 @@ end);
 # here, the last four arguments can be empty lists.
 BindGlobal("SpinMatVector1",function(A,v,orbit1,orbit,pivot)
   local i,j,nv,coeff;
-  A := List(A, List);
-  v := List(v);
+
+  #v := CompatibleVector(v, A);  # needs <https://github.com/gap-system/gap/issues/6302>
+  nv := CompatibleVector(A);
+  for i in [1..NrRows(A)] do
+    nv[i] := v[i];
+  od;
+  v := nv;
+
   i:=PositionNonZero(v);
   if i>Length(v) then
     Error("# zero vector");
@@ -134,8 +140,6 @@ BindGlobal("SpinMatVector1",function(A,v,orbit1,orbit,pivot)
     od;
     i:=PositionNonZero(nv);
   od;
-  ConvertToMatrixRepNC(orbit);
-  ConvertToMatrixRepNC(orbit1);
   return [orbit1,orbit,v,pivot];
 end);
 
@@ -152,9 +156,8 @@ end);
 # row echelon form of C and svec is the list of indices where the blocks
 # begin.
 # For details about this function, see nofoma.gd.
-InstallGlobalFunction(CyclicChainMat,function(mat)
-  local A,v,chain,j,idm,sp,svec,l;
-  A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
+InstallGlobalFunction(CyclicChainMat,function(A)
+  local v,chain,j,idm,sp,svec,l;
   idm:=OneMutable(A);
   if IsLowerTriangularMat(A) then
     return [idm,idm,[1..NrRows(A)+1],[1..NrRows(A)]];
@@ -181,7 +184,7 @@ BindGlobal("nfmRelMinPols",function(M,svec)
   one:=OneOfBaseDomain(M);
   rpol:=[];
   for i in [1..Length(svec)-1] do
-    l:=ShallowCopy(-M[svec[i+1]-1]{[svec[i]..svec[i+1]-1]});
+    l:=List(-M[svec[i+1]-1]{[svec[i]..svec[i+1]-1]});
     Add(l,one);
     Add(rpol,nfmPolCoeffs(l));
   od;
@@ -217,20 +220,19 @@ end);
 
 # Returns vector that has the same minimal polynomial as mat.
 # For details about this function, see nofoma.gd.
-InstallGlobalFunction(MaximalVectorMat,function(mat)
-  local A,M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm,x;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
+InstallGlobalFunction(MaximalVectorMat,function(A)
+  local M,k,idm,sp,l,np,i,v1,z,one,f,rpols,svec,lm,x;
+  k:=DefaultFieldOfMatrix(A);
   one:=One(k);
-  idm:=OneMutable(A);
+  idm:=RowsOfMatrix(OneMutable(A));
   x:=Indeterminate(k);
   if IsDiagonalMat(A) then       # first deal with diagonal matrix
     if ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
       v1:=idm[1];
       np:=x-A[1,1];
     else
-      v1:=ListWithIdenticalEntries(NrRows(A),one);
-      ConvertToVectorRepNC(v1,k);
+      v1:=CompatibleVector(A);
+      for i in [1..Length(v1)] do v1[i] := one; od;
       l:=Set([1..NrRows(A)],i->A[i,i]);
       np:=Product(l, a -> x-a);
     fi;
@@ -238,6 +240,7 @@ InstallGlobalFunction(MaximalVectorMat,function(mat)
     return [v1,np];
   fi;
   sp:=CyclicChainMat(A);         # general case: transform to cyclic chain
+  sp[2] := Matrix(sp[2], A);
   M:=sp[2]*A*sp[2]^-1;
   svec:=sp[3];
   rpols:=nfmRelMinPols(M,svec);
@@ -272,7 +275,6 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
   for i in [2..d] do
     Add(F,F[i-1]*tT);
   od;
-  ConvertToMatrixRepNC(F);
   #TriangulizeMat(F);
   for i in [1..d] do
     ii:=d+1-i;
@@ -287,17 +289,14 @@ InstallGlobalFunction(JacobMatComplement,function(T,d)
       base[i,j]:=-F[d+1-j][i];
     od;
   od;
-  ConvertToMatrixRepNC(base);
   return base;
 end);
 
 BindGlobal("BuildBlockDiagonalMat1",function(d,B)
-  local new,n,k;
-  k:=DefaultFieldOfMatrix(B);
+  local new,n;
   n:=d+NrRows(B);
-  new:=IdentityMat(n,k);
-  new{[d+1..n]}{[d+1..n]}:=B;
-  ConvertToMatrixRepNC(new);
+  new:=IdentityMatrix(n,B);
+  CopySubMatrix(B, new, [1..NrRows(B)], [d+1..n], [1..NrCols(B)], [d+1..n]);
   return new;
 end);
 
@@ -305,12 +304,11 @@ InstallGlobalFunction(RatFormStep1,function(A,v)
   local A1,sp,t,i,d,idm,minp;
   idm:=OneMutable(A);
   sp:=SpinMatVector1(A,v,[],[],[]);
-  t:=sp[2];
-  d:=Length(t);
+  t:=Matrix(sp[2],A);
+  d:=NrRows(t);
   Append(t,idm{Difference([1..NrRows(A)],sp[4])});
-  ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
-  minp:=-ShallowCopy(A1[d]{[1..d]});
+  minp:=-List(A1[d]{[1..d]});
   Add(minp,minp[1]^0);
   return [A1,t,minp];
 end);
@@ -319,25 +317,25 @@ InstallGlobalFunction(RatFormStep1J,function(A,v)
   local A1,sp,t,i,j,d,idm,minp;
   idm:=OneMutable(A);
   sp:=SpinMatVector1(A,v,[],[],[]);
-  t:=sp[2];
-  d:=Length(t);
+  t:=Matrix(sp[2],A);
+  d:=NrRows(t);
   Append(t,idm{Difference([1..NrRows(A)],sp[4])});
-  ConvertToMatrixRepNC(t);
   A1:=t*A*t^(-1);
-  minp:=-ShallowCopy(A1[d]{[1..d]});
+  minp:=-List(A1[d]{[1..d]});
   Add(minp,minp[1]^0);
   j:=JacobMatComplement(A1,Length(minp)-1);
   #return [j*A1*j^-1,j*t,minp];
-  return [A1{[d+1..NrRows(A1)]}{[d+1..NrRows(A1)]},j*t,minp];
+  return [ExtractSubMatrix(A1, [d+1..NrRows(A1)], [d+1..NrRows(A1)]),j*t,minp];
 end);
 
 #TODO: replace by CompanionMat
-BindGlobal("nfmCompanionMat1", function(f)
-  local n,i,mat;
+BindGlobal("nfmCompanionMat1", function(k,f)
+  local n,i,one,mat;
   n:=Length(f)-1;
-  mat:=(0*f[1])*IdentityMat(n);
+  one:=f[1]^0;
+  mat:=ZeroMatrix(k,n,n);
   for i in [1..n-1] do
-    mat[i,i+1]:=f[1]^0;
+    mat[i,i+1]:=one;
     mat[n,i]:=-f[i];
   od;
   mat[n,n]:=-f[n];
@@ -348,13 +346,8 @@ end);
 # invertible matrix P such that PAP^(-1) is in rational canonical form,
 # and list of pivot indices.
 # For details about this function, see nofoma.gd.
-InstallGlobalFunction(FrobeniusNormalForm,function(mat)
-  local A,P,invf,i,k,mv,step1,rest,d,piv;
-  k:=DefaultFieldOfMatrix(mat);
-  if not IsList(mat) then #if matrix is not a list of list, it needs to be converted
-    mat := List(mat,List);
-  fi;
-  A:=ImmutableMatrix(k,mat);
+InstallGlobalFunction(FrobeniusNormalForm,function(A)
+  local P,invf,i,mv,step1,rest,d,piv;
   if IsDiagonalMat(A) and ForAll([2..NrRows(A)],i->A[i,i]=A[1,1]) then
     mv:=nfmPolCoeffs([-A[1,1],A[1,1]^0]);
     return [ListWithIdenticalEntries(NrRows(A),mv),A^0,[1..NrRows(A)]];
@@ -367,7 +360,7 @@ InstallGlobalFunction(FrobeniusNormalForm,function(mat)
     for i in [2..d] do
       Add(step1,step1[i-1]*A);
     od;
-    ConvertToMatrixRepNC(step1);
+    step1 := Matrix(step1, A);
     return [invf,step1,[1]];
   else
     step1:=RatFormStep1J(A,mv[1]);       # compute Jacob complement
@@ -385,10 +378,8 @@ end);
 # Returns the invariant factors of mat (i.e. the minimal polynomials of the
 # diagonal blocks in the rational canonical form of mat).
 # For details about this function, see nofoma.gd.
-InstallGlobalFunction(InvariantFactorsMat,function(mat)
-  local A,A1,i,d,np,k,f,n,p;
-  k:=DefaultFieldOfMatrix(mat);
-  A:=ImmutableMatrix(k,mat);
+InstallGlobalFunction(InvariantFactorsMat,function(A)
+  local A1,i,d,np,f,n,p;
   n:=NrRows(A);
   np:=MaximalVectorMat(A);
 
@@ -400,7 +391,7 @@ InstallGlobalFunction(InvariantFactorsMat,function(mat)
     return ListWithIdenticalEntries(n,np[2]);
   else
     A1:=RatFormStep1(A,np[1])[1];
-    Append(f,InvariantFactorsMat(A1{[d+1..n]}{[d+1..n]}));
+    Append(f,InvariantFactorsMat(ExtractSubMatrix(A1, [d+1..n], [d+1..n])));
     return f;
   fi;
 end);
@@ -445,9 +436,8 @@ end);
 # Returns [D,N] such that D is diagonalisable over some extension field
 # and N is a nilpotent matrix such that mat = D + N and DN=ND.
 # For details about this function, see nofoma.gd.
-InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
-  local A,Ak,k0,gg,g,tg;
-  A:=ImmutableMatrix(DefaultFieldOfMatrix(mat),mat);
+InstallGlobalFunction(JordanChevalleyDecMat,function(A,f)
+  local Ak,k0,gg,g,tg;
   gg:=SquareFreePol(DefaultField(CoefficientsOfUnivariatePolynomial(f)),f);
   g:=gg[1];
   tg:=GcdRepresentation(Derivative(gg[1]),gg[1])[1];
@@ -462,16 +452,19 @@ InstallGlobalFunction(JordanChevalleyDecMat,function(mat,f)
 end);
 
 InstallGlobalFunction(JordanChevalleyDecMatF,function(mat)
-  local f,jc,p,N,D;
+  local k,f,jc,p,N,D,src_range,dst_range;
+  k:=DefaultFieldOfMatrix(mat);
   f:=FrobeniusNormalForm(mat);
   Info(Infonofoma,2,"Frobenius normal form complete\n");
   Add(f[3],NrRows(mat)+1);
-  jc:=List(f[1],p->JordanChevalleyDecMat(nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(p)),p));
+  jc:=List(f[1],p->JordanChevalleyDecMat(nfmCompanionMat1(k,CoefficientsOfUnivariatePolynomial(p)),p));
   N:=0*f[2];
   D:=0*f[2];
   for p in [1..Length(f[1])] do
-    D{[f[3][p]..f[3][p+1]-1]}{[f[3][p]..f[3][p+1]-1]}:=jc[p][1];
-    N{[f[3][p]..f[3][p+1]-1]}{[f[3][p]..f[3][p+1]-1]}:=jc[p][2];
+    src_range := [1..f[3][p+1]-f[3][p]];
+    dst_range := [f[3][p]..f[3][p+1]-1];
+    CopySubMatrix( jc[p][1], D, src_range, dst_range, src_range, dst_range );
+    CopySubMatrix( jc[p][2], N, src_range, dst_range, src_range, dst_range );
   od;
   return [f[2]^-1*D*f[2],f[2]^-1*N*f[2]];
 end);
@@ -489,19 +482,19 @@ BindGlobal("nfmConvertVecToRowMat", function(vec)
 end);
 
 #Avoids creating the vector space
-BindGlobal("nfmGenerateRandomVector", function(F, d) #Field d, length d
-    local vec, i;
-    vec := ZeroVector(F,d);
-    for i in [1..d] do
-        vec[i] := PseudoRandom(F);
-    od;
-    return vec;
+BindGlobal("nfmGenerateRandomVector", function(d, A) #length d, fitting matrix A
+    local bd;
+    if IsPlistRep(A) then
+      bd:=BaseDomain(A);
+      return List([1..d], i -> Random(bd));
+    fi;
+    return Randomize(ZeroVector(d, A));
 end);
 
-BindGlobal("nfmGenerateNonZeroVector", function(F, d)
+BindGlobal("nfmGenerateNonZeroVector", function(d, A)
     local vec;
     repeat
-        vec := nfmGenerateRandomVector(F,d);
+        vec := nfmGenerateRandomVector(d, A);
     until not IsZero(vec);
     return vec;
 end);
@@ -511,12 +504,12 @@ end);
 BindGlobal("nfmGenerateNonCyclicMatrix", function(F,n) #Field F, dimension n
     local dim, A, num, subA, scr;
     A := ZeroMatrix(F,n,n);
-    num := PseudoRandom([1..n-1]); #dont go until n because we dont want cyclic matrix
+    num := Random(1,n-1); #dont go until n because we dont want cyclic matrix
     subA := Matrix(F,RandomInvertibleMat(num,F));
     CopySubMatrix(subA, A, [1..num], [1..num], [1..num], [1..num]);
     dim := num;
     while not dim = n do
-        num := PseudoRandom([1..n-dim]);
+        num := Random(1,n-dim);
         subA := Matrix(F,RandomInvertibleMat(num,F));
         CopySubMatrix(subA, A, [1..num], [dim+1..dim+num], [1..num], [dim+1..dim+num]);
         dim := dim + num;
@@ -534,7 +527,7 @@ BindGlobal("nfmSpinUntil", function(vec, A, goal)
         return nfmConvertVecToRowMat(vec);
     fi;
     n := NrRows(A);
-    res := ZeroMatrix(F,goal, n);
+    res := ZeroMatrix(goal, n, A);
     CopySubMatrix(nfmConvertVecToRowMat(vec), res, [1..1], [1..1], [1..n], [1..n]);
     for i in [2..goal] do
         vec := vec * A;
@@ -551,11 +544,11 @@ BindGlobal("nfmFindVectorNotInSubspaceNC", function(gen) #assumes gen is already
     F := BaseDomain(gen);
     n := Length(gen[1]);
     if (r = n) then
-        return ZeroVector(F,n);
+        return ZeroVector(n,gen);
     fi;
-    zsf := ZeroMatrix(F,r+1,r+1);
+    zsf := ZeroMatrix(r+1,r+1,gen);
     CopySubMatrix(gen, zsf, [1..r], [1..r], [1..r], [1..r]);
-    w := ZeroVector(F,n);
+    w := ZeroVector(n,gen);
     for i in [1..n] do
         if IsZero(zsf[i,i]) then
             w[i] := One(F);
@@ -573,7 +566,7 @@ BindGlobal("nfmFindCyclicVectorNC", function(A) #Field F, Matrix A, n upper boun
     n := NrRows(A);
     F := BaseDomain(A);
     checked := []; #Avoid checking double
-    vec := nfmGenerateRandomVector(F,n);
+    vec := nfmGenerateRandomVector(n,A);
     for i in [1..40] do
         if not (vec in checked) then
             gens := nfmSpinUntil(vec, A, n); #potential basis
@@ -583,7 +576,7 @@ BindGlobal("nfmFindCyclicVectorNC", function(A) #Field F, Matrix A, n upper boun
                 Add(checked, vec);
             fi;
         fi;
-        vec := nfmGenerateRandomVector(F,n);
+        vec := nfmGenerateRandomVector(n,A);
     od;
     Info(Infonofoma,4,"Failed to find a cyclic vector!\n");
     return fail;
@@ -605,9 +598,9 @@ end);
 #Takes (v,vA,...v^n-1A) and polynomial as input
 BindGlobal("nfmPolyEvalFromSpan", function(span,pol)
     local coeffs, i, resu;
-    resu := ZeroVector(BaseDomain(span),NrCols(span));
     coeffs := CoefficientsOfUnivariatePolynomial(pol);
-    for i in [1..Size(coeffs)] do
+    resu := coeffs[1]*span[1];
+    for i in [2..Size(coeffs)] do
         resu := resu + coeffs[i]*span[i];
     od;
     return resu;
@@ -647,7 +640,7 @@ BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
-    v := nfmGenerateNonZeroVector(F,n);
+    v := nfmGenerateNonZeroVector(n,A);
     gens := []; #Li_s as in Steel paper will go in here (but without separate U)
     gs := []; #distinct factors of minimal polynomial
     dims := [];
@@ -750,8 +743,7 @@ InstallGlobalFunction(PrimaryDecomp, function(A)
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
-    v := nfmGenerateNonZeroVector(F,n);
-    A := Matrix(F,A);
+    v := nfmGenerateNonZeroVector(n,A);
     minpol := MinimalPolynomial(F,A);
     if Degree(minpol) = n then
       return nfmPrimaryDecompositionforJNFCyclic(A,minpol,Collected(Factors(minpol)));
@@ -888,10 +880,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     fi;
     Ainp := p(A); #TODO: evaluate this using frobform? or maybe polyevalfromspan
     ws := [];
-    w := ZeroVector(F,n);
-    while IsZero(w) do #make sure we aren't spinning zero vector
-        w := nfmGenerateRandomVector(F,n);
-    od;
+    w := nfmGenerateNonZeroVector(n,A);
     Add(ws,w);
     allspun := EcheloniseMat(nfmSpinUntil(w,A,n));
     while NrRows(allspun) < n do
@@ -901,7 +890,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
         Add(ws, w);
         allspun := EcheloniseMat(allspun);
     od;
-    minpolpowers := ZeroVector(F,NrRows(ws));
+    minpolpowers := [];
     for i in [1..NrRows(ws)] do
         minpolpowers[i] := GetMinPolPowerWithVec(m,ws[i],Ainp);#for all ws: v, r such that p^r(A)(v)=0 and p^(r-1)(A)(v)
     od;
@@ -910,18 +899,9 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
     conj := ZeroMutable(A);
     while not Sum(minpolpowers, v -> v[2]*d) = n do #generally bigger than n, working our way down
         SortBy(minpolpowers, v -> v[2]); #Sort ws by their A-length (ascending)
-        vecs := ZeroVector(F,Length(minpolpowers));
-        for i in [1..Length(minpolpowers)] do
-            vecs[i] := minpolpowers[i][3]; #p(A)^(r-1)(w)
-        od;
+        vecs := List([1..Length(minpolpowers)], i -> minpolpowers[i][3]); #p(A)^(r-1)(w)
         qis := FindLinearDependenceNC(vecs,A,d); #coefficients of qis as described in theorem
-        j := 0;
-        for i in [1..Length(qis)] do #find j as described in theorem (works because we sorted this list beforehand)
-            if not IsZero(qis[i]) then
-                j := i;
-                break;
-            fi;
-        od;
+        j := PositionNonZero(qis); #find j as described in theorem (works because we sorted this list beforehand)
         r := minpolpowers[j][2]; #r as described in theorem
         wstrich := ZeroVector(F,n);
         for i in [1..Length(qis)] do #calculate new reduced w_j
@@ -934,7 +914,7 @@ BindGlobal("CyclicDecompositionOfPrimarySubspace", function (A, p, m)
             fi;
         od;
         if IsZero(wstrich) then
-            Remove(minpolpowers,j); #if its zero vec we get no more information from it
+            Remove(minpolpowers,j); #if it is zero vec we get no more information from it
         else
             minpolpowers[j] := GetMinPolPowerWithVec(m,wstrich,Ainp);
         fi;
@@ -978,7 +958,7 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     if blockdim = n then
       return [nfmFindCyclicVectorNC(A), [minpol]];
     fi;
-    v := nfmGenerateNonZeroVector(F,n);
+    v := nfmGenerateNonZeroVector(n,A);
     spun := nfmSpinUntil(v, A, blockdim);
     COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
@@ -1003,7 +983,6 @@ InstallGlobalFunction(JordanNormalform, function(A)
     local n,F,pol,minpol,primary,primarydims,crhr,cyclicdims,elDivs,
     subsubCOB,COB,subA,cy,i,j,facOcc,subCOB,crcy,subsubA,prepreCOB,preCOB;
     F := DefaultFieldOfMatrix(A);
-    A := Matrix(F,A);
     n := NrRows(A);
     elDivs := [];
     if IsZero(A) then

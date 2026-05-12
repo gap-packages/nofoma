@@ -2,17 +2,17 @@
 # <A>facs</A>. It works by building the block diagonal matrix with
 # diagonal blocks given by the companion matrices according to the invariant
 # factors.
-CreateNormalForm := function(facs)
-  local A,l,r,i;
+CreateNormalForm := function(k, facs)
+  local A,l,r,i,B;
   r:=Length(facs);
   l:=[1];
   for i in [1..r] do
     l[i+1]:=l[i]+Degree(facs[i]);
   od;
-  A:=NullMat(l[r+1]-1,l[r+1]-1,CoefficientsOfUnivariatePolynomial(facs[1])[1]);
+  A:=ZeroMatrix(k, l[r+1]-1, l[r+1]-1);
   for i in [1..r] do
-    A{[l[i]..l[i+1]-1]}{[l[i]..l[i+1]-1]}:=
-              nfmCompanionMat1(CoefficientsOfUnivariatePolynomial(facs[i]));
+    B := nfmCompanionMat1(k,CoefficientsOfUnivariatePolynomial(facs[i]));
+    CopySubMatrix( B, A, [1..NrRows(B)], [l[i]..l[i+1]-1], [1..NrCols(B)], [l[i]..l[i+1]-1] );
   od;
   return A;
 end;
@@ -21,8 +21,10 @@ end;
 # F=output of FrobeniusNormalForm
 CheckFrobForm := function(A,F)
   local P,i,nf;
-  nf:=CreateNormalForm(F[1]);
+  nf:=CreateNormalForm(BaseDomain(A), F[1]);
   P:=F[2];
+  A := Matrix(A, P);
+  nf := Matrix(nf, P);
   if P*A*P^(-1)<>nf then
     Error("base change not ok!");
   fi;
@@ -87,4 +89,44 @@ nfmCheckPrimaryDecompNonCyclic := function(F, n)
     fi;
   od;
   return true;
+end;
+
+nfmMatrixFamily := function(A)
+  if IsGF2MatrixRep(A) then
+    return "gf2";
+  elif Is8BitMatrixRep(A) then
+    return "8bit";
+  elif IsMatrixObj(A) then
+    return "matobj";
+  elif IsMatrix(A) then
+    return "plain";
+  fi;
+  Error("unknown matrix family");
+end;
+
+nfmCheckInvariantFactorsForMatrix := function(A)
+  return InvariantFactorsMat(A) = FrobeniusNormalForm(A)[1];
+end;
+
+nfmCheckPrimaryDecompForMatrix := function(A)
+  local Prim,B,dim,k,minpolfacs,sub,AA;
+  Prim := PrimaryDecomp(A);
+  AA := Matrix(A, Prim[1]);
+  B := AA^Inverse(Prim[1]);
+  minpolfacs := Factors(MinimalPolynomial(AA));
+  k := 1;
+  for dim in Prim[2] do
+    sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
+    k := k+dim;
+    if not Factors(MinimalPolynomial(sub))[1] in minpolfacs then
+      return false;
+    fi;
+  od;
+  return true;
+end;
+
+nfmJordanNormalformFamilies := function(A)
+  local J;
+  J := JordanNormalform(A);
+  return [nfmMatrixFamily(A), nfmMatrixFamily(J[1])];
 end;
