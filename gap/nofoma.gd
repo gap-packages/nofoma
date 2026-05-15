@@ -85,19 +85,45 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,  -2,   3,   0 ],
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
-#! Note that this function is significantly more efficient
-#! than GAP's built-in <Ref Func="RationalCanonicalFormTransform" BookName="Ref"/>.
-#! However, the two functions yield slightly different results. While the blocks
-#! in <C>RationalCanonicalFormTransform</C> are the companion matrices of the
-#! invariant factors following the convention of matrix operation from the
-#! left, the blocks in <Ref Func="FrobeniusNormalForm"/> correspond to matrix operation
-#! from the right, as is convention in GAP. 
+#! Note that the Frobenius normal form is unique up to the choice of the companion matrices
+#! and the permutation of the blocks corresponding to the invariant factors. 
+#! So while this function is significantly more efficient than the existing 'RationalCanonicalFormTransform',
+#! the two functions yield slightly different results. 
+#! In 'RationalCanonicalFormTransform', the companion matrices are consistent with the output of 'CompanionMat'. 
+#! However, given an <M>n\times n</M> cyclic matrix <M>A</M>, along with a corresponding cyclic vector <M>v</M>, 
+#! one can compute a change of basis matrix from A to a companion matrix of its minimal polynomial by computing 
+#! <M>v</M> multiplied with powers of <M>A</M> (i.e., <M>v</M>, <M>vA</M>, ...., <M>vA^(n-1)</M>). This approach
+#! follows GAP’s convention of right multiplication and yields a companion matrix in the form used by <Ref Func="FrobeniusNormalForm"/>.
+#! Furthermore 'RationalCanonicalFormTransform' sorts the invariant factors in ascending order, while <Ref Func="FrobeniusNormalForm"/>
+#! sorts them in descending order. 
+#! @BeginExampleSession
+#! gap> A := [ [ 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^0, Z(5)^3 ], 
+#! >   [ Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^2 ], 
+#! >   [ Z(5), Z(5), 0*Z(5), Z(5)^0, Z(5)^3 ], 
+#! >   [ 0*Z(5), Z(5), Z(5)^2, Z(5)^2, Z(5) ], 
+#! >   [ Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^3, Z(5)^0 ] ];;
+#! gap> T:=RationalCanonicalFormTransform(A);;
+#! gap> S:=TransposedMat(FrobeniusNormalForm(TransposedMat(A))[2]);;
+#! gap> Display(A^T);
+#!  . . . . 3
+#!  1 . . . 2
+#!  . 1 . . 3
+#!  . . 1 . 4
+#!  . . . 1 .
+#! gap> Display(A^S);
+#!  . . . . 3
+#!  1 . . . 2
+#!  . 1 . . 3
+#!  . . 1 . 4
+#!  . . . 1 .
+#! @EndExampleSession
 #! 
 #! Additionally, <C>RationalCanonicalFormTransform</C> sorts
 #! the invariant factors in ascending order, whereas the 
 #! <Ref Func="FrobeniusNormalForm"/> sorts them in 
 #! descending order. Consequently, the outputs of the two functions 
 #! agree up to a permutation of blocks and transposition.
+#! To get a drop in replacement for 'RationalCanonicalFormTransform', see <Ref Func="FrobeniusNormalFormLikeRCFT"/>.
 #! @BeginExampleSession
 #! gap> aa:=[[  0, -8, 12, 40,-36,  4,  0, 59, 15, -9],
 #! >         [ -2, -2, -2,  6,-11,  1, -1, 10,  1,  0],
@@ -135,6 +161,64 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 ] ]
 #! @EndExampleSession
 DeclareGlobalFunction("FrobeniusNormalForm");
+
+#! @Arguments A
+#! @Description
+#! This function returns the same result as <Ref Func="FrobeniusNormalForm"/>, except that the invariant factors 
+#! are sorted in descending order and the companion matrices on the diagonal are transposed. Furthermore, if <M>P</M> is the 
+#! computed base change matrix, the Frobenius normal form is obtained by <M>P^{-1}AP</M> (instead of <M>PAP^{-1}</M>).
+#! This means that <M>P</M> can be used as a direct drop-in replacement for RationalCanonicalFormTransform. 
+#!
+#! Note that this function works by calling <Ref Func="FrobeniusNormalForm"/> and then modifying the computed 
+#! transformation matrix and is thus potentially less efficient than using
+#! the original function. 
+#! @BeginExampleSession
+#! gap> A := [ [ 0*Z(5), Z(5)^2, Z(5)^2, 0*Z(5), Z(5)^3, Z(5)^3, 0*Z(5), Z(5)^3, 
+#! >       0*Z(5), Z(5) ], 
+#! >   [ Z(5)^0, Z(5)^0, Z(5)^0, Z(5), Z(5)^3, Z(5), Z(5)^3, 0*Z(5), Z(5), 
+#! >       0*Z(5) ], 
+#! >   [ Z(5), 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^0, 
+#! >       Z(5), Z(5)^2 ], 
+#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 
+#! >       0*Z(5), 0*Z(5) ], 
+#! >   [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^0, Z(5)^3, 0*Z(5), Z(5)^0, 
+#! >       Z(5)^2, Z(5)^2 ], 
+#! >   [ 0*Z(5), Z(5), Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), 
+#! >       0*Z(5), Z(5)^3 ], 
+#! >   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^3, 
+#!>       0*Z(5), Z(5)^3 ], 
+#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 
+#! >       0*Z(5), 0*Z(5) ], 
+#! >   [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^0, 
+#! >       0*Z(5), 0*Z(5) ], 
+#! >   [ 0*Z(5), Z(5)^2, Z(5)^3, Z(5), Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^2, 
+#! >       Z(5)^2, Z(5)^2 ] ];;
+#! gap> frob := FrobeniusNormalFormLikeRCFT(A)[2];;
+#! gap> rat := RationalCanonicalFormTransform(A);;
+#! gap> Display(A^rat);
+#!  . . . 1 . . . . . .
+#!  1 . . . . . . . . .
+#!  . 1 . . . . . . . .
+#!  . . 1 . . . . . . .
+#!  . . . . . . . . . 4
+#!  . . . . 1 . . . . 2
+#!  . . . . . 1 . . . 1
+#!  . . . . . . 1 . . .
+#!  . . . . . . . 1 . 1
+#!  . . . . . . . . 1 3
+#! gap> Display(A^frob);
+#!  . . . 1 . . . . . .
+#!  1 . . . . . . . . .
+#!  . 1 . . . . . . . .
+#!  . . 1 . . . . . . .
+#!  . . . . . . . . . 4
+#!  . . . . 1 . . . . 2
+#!  . . . . . 1 . . . 1
+#!  . . . . . . 1 . . .
+#!  . . . . . . . 1 . 1
+#!  . . . . . . . . 1 3
+#! @EndExampleSession
+DeclareGlobalFunction("FrobeniusNormalFormLikeRCFT");
 
 #! @Arguments A
 #! @Description
