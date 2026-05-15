@@ -71,8 +71,7 @@ BannerString := Concatenation(
 "Loading  nofoma ", ~.Version, " (Normal forms of matrices), \n",
 "by Meinolf Geck (https://pnp.mathematik.uni-stuttgart.de/idsr/idsr1/geckmf/)\n",
 "Help about the main functions in this package is obtained by typing:\n",
-"    ?FrobeniusNormalForm     ?JordanNormalform     ?JordanChevalleyDecMat\n",
-"(or type:    ?nofoma: The nofoma package)\n",
+"    ?FrobeniusNormalForm     ?JordanNormalform     ?JordanChevalleyDecMat\n"
 "──────────────────────────────────────────────────────────────────────────\n"),
 
 PackageDoc := rec(
