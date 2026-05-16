@@ -342,7 +342,7 @@ BindGlobal("nfmCompanionMat1", function(k,f)
   return mat;
 end);
 
-# Returns rational canonical form of mat,
+# Returns invariant factors of mat in descending order,
 # invertible matrix P such that PAP^(-1) is in rational canonical form,
 # and list of pivot indices.
 # For details about this function, see nofoma.gd.
