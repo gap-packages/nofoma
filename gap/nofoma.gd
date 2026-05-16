@@ -246,7 +246,8 @@ DeclareGlobalFunction("InvariantFactorsMat");
 #! where the diagonal blocks are Jordan blocks corresponding to the 
 #! elementary divisors of <M>A</M>. It reflects the maximal decomposition of 
 #! the vector space <M>K^n</M> into cyclic subspaces under the action of
-#! <M>A</M>.
+#! <M>A</M>. For a more thorough definition of the Jordan normal form
+#! and details about the algorithms used, see <Cite Key ="Bon26"/>. 
 
 DeclareGlobalFunction("JordanNormalformIrred");
 
@@ -372,7 +373,7 @@ DeclareGlobalFunction("PrimaryDecomp");
 #! @Description
 #! Computes a divisor <M>a_1</M> of the polynomial <A>a</A> and a
 #! divisor <M>b_1</M> of the polynomial <A>b</A> such that <M>a_1</M> and <M>b_1</M> are coprime
-#! and the lcm of <A>a</A>, <A>b</A> is <M>a_1*b_1</M>.  This is based on Lemma 5 in <Cite Key ="Bon14"/>.
+#! and the lcm of <A>a</A>, <A>b</A> is <M>a_1*b_1</M>. This is based on Lemma 5 in <Cite Key ="Bon14"/>.
 #! (See also Lemma 4.3 in <Cite Key ="Gec20"/>).
 #!
 #! (Note that it does not use the prime factorisation of polynomials but
