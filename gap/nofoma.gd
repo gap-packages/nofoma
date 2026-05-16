@@ -249,16 +249,20 @@ DeclareGlobalFunction("InvariantFactorsMat");
 #! <M>A</M>. For a more thorough definition of the Jordan normal form
 #! and details about the algorithms used, see <Cite Key ="Bon26"/>. 
 
-DeclareGlobalFunction("JordanNormalformIrred");
+DeclareGlobalFunction("JordanNormalFormIrred");
 
 #! @Arguments A
 #! @Description
 #!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
-#!  normal form of <A>A</A>. The algorithm first computes a primary decomposition
+#!  normal form of <A>A</A> and a list of the elementary divisors of <A>A</A> in descending order.
+#!  The algorithm first computes a primary decomposition
 #!  of <A>A</A> following a modified version of Steel's algorithm and then 
 #!  computes a cyclic decomposition of the primary components. Finally it computes 
 #!  Jordan block form for each of the cyclic components. It works for matrices 
 #!  over finite fields. 
+#!
+#!  Since all of the blocks on the resulting transformed matrix are cyclic, one 
+#!  can retrieve their size by the degrees of the respective elementary divisor. 
 #! 
 #! @BeginExampleSession
 #! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
@@ -267,7 +271,7 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
 #! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
 #! >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
-#! gap> B := JordanNormalform(A);;
+#! gap> B := JordanNormalForm(A);;
 #! gap> Display(A^Inverse(B[1]));
 #! 3 . . . . .
 #! . 1 . . . .
@@ -276,7 +280,7 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! . . . . . 1
 #! . . . . 3 4
 #! @EndExampleSession
-DeclareGlobalFunction("JordanNormalform");
+DeclareGlobalFunction("JordanNormalForm");
 #! This function computes the Jordan normal form of <M>A</M> 
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 

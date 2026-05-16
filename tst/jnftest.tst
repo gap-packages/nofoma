@@ -8,7 +8,7 @@ gap> A := [ [ Z(5), Z(5)^3, Z(5), 0*Z(5), Z(5)^3, Z(5)^3 ],
 >   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5), Z(5)^3 ],
 >   [ Z(5)^0, Z(5)^0, Z(5)^2, 0*Z(5), Z(5)^0, 0*Z(5) ] ];;
 gap> Aconj := A^PseudoRandom(GL(6,5));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := [ [ Z(5)^2, Z(5)^0, Z(5)^0, Z(5), 0*Z(5), Z(5), Z(5)^2, Z(5), Z(5)^3, Z(5)^2,
 >       Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^3, 0*Z(5), Z(5), Z(5), 0*Z(5), Z(5)^3,
@@ -86,7 +86,7 @@ gap> A := [ [ Z(5)^2, Z(5)^0, Z(5)^0, Z(5), 0*Z(5), Z(5), Z(5)^2, Z(5), Z(5)^3, 
 >       Z(5)^0, Z(5)^3, Z(5)^2, 0*Z(5), Z(5), 0*Z(5), Z(5)^2, 0*Z(5), Z(5)^0,
 >       Z(5)^3, Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^3, Z(5)^0 ] ];;
 gap> Aconj := A^PseudoRandom(GL(25,25));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := [ [ Z(5)^3, Z(5^2)^5, Z(5^2)^7, Z(5^2)^15, Z(5^2)^17, Z(5^2)^5, Z(5^2)^10,
 >       Z(5^2), Z(5^2)^9, Z(5^2)^4, Z(5^2)^21, Z(5)^2, Z(5^2)^20, Z(5^2)^23,
@@ -189,65 +189,65 @@ gap> A := [ [ Z(5)^3, Z(5^2)^5, Z(5^2)^7, Z(5^2)^15, Z(5^2)^17, Z(5^2)^5, Z(5^2)
 >      0*Z(5), Z(5^2)^2, Z(5)^2, Z(5^2)^13, Z(5^2)^8, Z(5)^2, Z(5^2)^19,
 >       Z(5^2), Z(5^2), Z(5^2)^20, Z(5)^2, Z(5) ] ];;
 gap> Aconj := A^PseudoRandom(GL(25,5^2));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 
 ##Test a few non-cyclic matrices 
 gap> A := nfmGenerateNonCyclicMatrix(GF(5),50);;
 gap> Aconj := A^RandomInvertibleMat(50,GF(5));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := nfmGenerateNonCyclicMatrix(GF(25),25);;
 gap> Aconj := A^RandomInvertibleMat(25,GF(25));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := nfmGenerateNonCyclicMatrix(GF(7),150);;
 gap> Aconj := A^RandomInvertibleMat(150,GF(7));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := nfmGenerateNonCyclicMatrix(GF(5^5),20);;
 gap> Aconj := A^Matrix(GF(5^5),RandomInvertibleMat(20,GF(5^5)));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := nfmGenerateNonCyclicMatrix(GF(11^5),20);;
 gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 
 ## Regression test for issue #70
 gap> A := [ [ 0*Z(3), Z(3)^0, 0*Z(3) ], [ Z(3)^0, 0*Z(3), 0*Z(3) ],
 >   [ 0*Z(3), 0*Z(3), Z(3)^0 ] ];;
-gap> for i in [1..100] do JordanNormalform(A);; od;
+gap> for i in [1..100] do JordanNormalForm(A);; od;
 
 ##A few randomised tests 
 gap> A := RandomInvertibleMat(50,GF(5));;
 gap> Aconj := A^RandomInvertibleMat(50,GF(5));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := RandomInvertibleMat(25,GF(25));;
 gap> Aconj := A^RandomInvertibleMat(25,GF(25));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := RandomInvertibleMat(150,GF(7));;
 gap> Aconj := A^RandomInvertibleMat(150,GF(7));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := RandomInvertibleMat(20,GF(5^5));;
 gap> A := Matrix(GF(5^5),A);;
 gap> Aconj := A^Matrix(GF(5^5),RandomInvertibleMat(20,GF(5^5)));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 gap> A := RandomInvertibleMat(20,GF(11^5));;
 gap> A := Matrix(GF(11^5),A);;
 gap> Aconj := A^Matrix(GF(11^5),RandomInvertibleMat(20,GF(11^5)));;
-gap> A^Inverse(JordanNormalform(A)[1]) = Aconj^Inverse(JordanNormalform(Aconj)[1]);
+gap> A^Inverse(JordanNormalForm(A)[1]) = Aconj^Inverse(JordanNormalForm(Aconj)[1]);
 true
 
 ## Scalar matrices must still produce an invertible change of basis, see issue #72
 gap> Reset(GlobalMersenneTwister,3);;
 gap> A := Z(5)^0 * IdentityMat(3,GF(5));;
-gap> DeterminantMat(JordanNormalform(A)[1]) = 0*Z(5);
+gap> DeterminantMat(JordanNormalForm(A)[1]) = 0*Z(5);
 false
 
 ## Stop test
-gap> STOP_TEST("JordanNormalform");
+gap> STOP_TEST("JordanNormalForm");

@@ -342,7 +342,7 @@ BindGlobal("nfmCompanionMat1", function(k,f)
   return mat;
 end);
 
-# Returns rational canonical form of mat,
+# Returns invariant factors of mat in descending order,
 # invertible matrix P such that PAP^(-1) is in rational canonical form,
 # and list of pivot indices.
 # For details about this function, see nofoma.gd.
@@ -970,7 +970,7 @@ end);
 
 #Input: Matrix A with irreducible Minimal polynomial
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form
-InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
+InstallGlobalFunction(JordanNormalFormIrred, function(A,minpol)
     local F,n,cobrank,COB,blockdim,spun,v,w,elDivs;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A); # get underlying field
@@ -996,10 +996,9 @@ InstallGlobalFunction(JordanNormalformIrred, function(A,minpol)
     return [COB,elDivs];
 end);
 
-#TODO: CHANGE VARIABLE NAMES
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form
-InstallGlobalFunction(JordanNormalform, function(A)
+InstallGlobalFunction(JordanNormalForm, function(A)
     local n,F,pol,minpol,primary,primarydims,crhr,cyclicdims,elDivs,
     subsubCOB,COB,subA,cy,i,j,facOcc,subCOB,crcy,subsubA,prepreCOB,preCOB;
     F := DefaultFieldOfMatrix(A);
@@ -1011,7 +1010,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
     minpol := MinimalPolynomial(F,A);
     facOcc := Collected(Factors(minpol));  #factors of minimalpolynomial and their multiplicity
     if Size(facOcc) = 1 and facOcc[1][2] = 1 then
-        return JordanNormalformIrred(A,minpol);
+        return JordanNormalFormIrred(A,minpol);
     fi;
     if Degree(minpol) = n then
         primary := nfmPrimaryDecompositionforJNFCyclic(A, minpol, facOcc);
@@ -1027,13 +1026,14 @@ InstallGlobalFunction(JordanNormalform, function(A)
         if primarydims[i] = 1 then
             preCOB[crhr,crhr] := One(F);
             crhr := crhr + 1;
+            Add(elDivs, facOcc[i][1]);
             continue;
         fi;
         pol := facOcc[i][1];
         subA := ExtractSubMatrix(A,[crhr..crhr+primarydims[i]-1],[crhr..crhr+primarydims[i]-1]);
         if facOcc[i][2] = 1 then
-            cy := JordanNormalformIrred(subA,pol);
-            Concatenation(elDivs,cy[2]);
+            cy := JordanNormalFormIrred(subA,pol);
+            elDivs := Concatenation(elDivs,cy[2]);
             CopySubMatrix(cy[1], preCOB, [1..primarydims[i]], [crhr..crhr+primarydims[i]-1], [1..primarydims[i]], [crhr..crhr+primarydims[i]-1]);
             crhr := crhr + primarydims[i];
             continue;
@@ -1041,7 +1041,7 @@ InstallGlobalFunction(JordanNormalform, function(A)
         cy := CyclicDecompositionOfPrimarySubspace(subA, pol, facOcc[i][2]); #decompose primary spaces into cyclic ones
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled
-        subCOB := Matrix(F,subCOB); #TODO: Why doesn't this work in the cyclic decomp function?
+        subCOB := Matrix(F,subCOB); 
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
         crcy := 1; #current row (cyclic subspace)
         prepreCOB := ZeroMatrix(F,primarydims[i], primarydims[i]);
