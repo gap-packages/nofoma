@@ -127,6 +127,6 @@ end;
 
 nfmJordanNormalformFamilies := function(A)
   local J;
-  J := JordanNormalform(A);
+  J := JordanNormalForm(A);
   return [nfmMatrixFamily(A), nfmMatrixFamily(J[1])];
 end;

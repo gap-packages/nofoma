@@ -164,7 +164,7 @@ DeclareGlobalFunction("InvariantFactorsMat");
 #! the vector space <M>K^n</M> into cyclic subspaces under the action of
 #! <M>A</M>.
 
-DeclareGlobalFunction("JordanNormalformIrred");
+DeclareGlobalFunction("JordanNormalFormIrred");
 
 #! @Arguments A
 #! @Description
@@ -182,7 +182,7 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
 #! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
 #! >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
-#! gap> B := JordanNormalform(A);;
+#! gap> B := JordanNormalForm(A);;
 #! gap> Display(A^Inverse(B[1]));
 #! 3 . . . . .
 #! . 1 . . . .
@@ -191,7 +191,7 @@ DeclareGlobalFunction("JordanNormalformIrred");
 #! . . . . . 1
 #! . . . . 3 4
 #! @EndExampleSession
-DeclareGlobalFunction("JordanNormalform");
+DeclareGlobalFunction("JordanNormalForm");
 #! This function computes the Jordan normal form of <M>A</M> 
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 
