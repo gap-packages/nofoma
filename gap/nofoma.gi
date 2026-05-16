@@ -976,7 +976,6 @@ InstallGlobalFunction(JordanNormalFormIrred, function(A,minpol)
     return [COB,elDivs];
 end);
 
-#TODO: CHANGE VARIABLE NAMES
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form
 InstallGlobalFunction(JordanNormalForm, function(A)
@@ -1007,13 +1006,14 @@ InstallGlobalFunction(JordanNormalForm, function(A)
         if primarydims[i] = 1 then
             preCOB[crhr,crhr] := One(F);
             crhr := crhr + 1;
+            Add(elDivs, facOcc[i][1]);
             continue;
         fi;
         pol := facOcc[i][1];
         subA := ExtractSubMatrix(A,[crhr..crhr+primarydims[i]-1],[crhr..crhr+primarydims[i]-1]);
         if facOcc[i][2] = 1 then
             cy := JordanNormalFormIrred(subA,pol);
-            Concatenation(elDivs,cy[2]);
+            elDivs := Concatenation(elDivs,cy[2]);
             CopySubMatrix(cy[1], preCOB, [1..primarydims[i]], [crhr..crhr+primarydims[i]-1], [1..primarydims[i]], [crhr..crhr+primarydims[i]-1]);
             crhr := crhr + primarydims[i];
             continue;
@@ -1021,7 +1021,7 @@ InstallGlobalFunction(JordanNormalForm, function(A)
         cy := CyclicDecompositionOfPrimarySubspace(subA, pol, facOcc[i][2]); #decompose primary spaces into cyclic ones
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled
-        subCOB := Matrix(F,subCOB); #TODO: Why doesn't this work in the cyclic decomp function?
+        subCOB := Matrix(F,subCOB); 
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
         crcy := 1; #current row (cyclic subspace)
         prepreCOB := ZeroMatrix(F,primarydims[i], primarydims[i]);
