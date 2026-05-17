@@ -64,7 +64,7 @@ nfmCheckPrimaryDecomposition := function(F, n)
   B := A^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(F,A));
   k := 1;
-  for dim in Prim[2] do
+  for dim in Prim[3] do
     sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
     k := k+dim;
     if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then
@@ -81,7 +81,7 @@ nfmCheckPrimaryDecompositionNonCyclic := function(F, n)
   B := A^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(F,A));
   k := 1;
-  for dim in Prim[2] do
+  for dim in Prim[3] do
     sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
     k := k+dim;
     if not Factors(MinimalPolynomial(F,sub))[1] in minpolfacs then
@@ -115,7 +115,7 @@ nfmCheckPrimaryDecompositionForMatrix := function(A)
   B := AA^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(AA));
   k := 1;
-  for dim in Prim[2] do
+  for dim in Prim[3] do
     sub := ExtractSubMatrix(B,[k..k+dim-1],[k..k+dim-1]);
     k := k+dim;
     if not Factors(MinimalPolynomial(sub))[1] in minpolfacs then

@@ -654,7 +654,7 @@ end);
 #Takes matrix along with its minimal polynomial and its factorised version as input
 #Returns matrix B such that B*A*B^-1 is in primary decomp. form, dimensions of primary subspaces
 #and factors of minimal polynomial in correct order
-BindGlobal("nfmPrimaryDecompositionositionforJNF", function(A, minpol, minpolfacs)
+BindGlobal("nfmPrimaryDecompositionforJNF", function(A, minpol, minpolfacs)
     local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
     COB,pot,gs,f2,toAdd,pos,dims,dim;
     rank := 0;
@@ -734,22 +734,24 @@ end);
 
 #Primary Decomposition for cyclic matrices
 #Jordan normal form will call this function if a cyclic matrix is detected
-BindGlobal("nfmPrimaryDecompositionositionforJNFCyclic", function(A, minpol, minpolfacs)
+BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs)
     local vspan,n,w,mf,wspan,qi,k,COB,dims;
     n := NrRows(A);
     vspan := nfmFindCyclicVectorNC(A);
     dims := [];
     COB := ZeroMutable(A);
     k := 0;
+    elDivs := [];
     for mf in minpolfacs do
         qi := (mf[1])^(mf[2]);
+        Add(elDivs, qi);
         w := nfmPolyEvalFromSpan(vspan,Quotient(minpol,qi));
         wspan := nfmSpinUntil(w,A,Degree(mf[1])*mf[2]);
         CopySubMatrix(wspan, COB, [1..NrRows(wspan)], [k+1..k+NrRows(wspan)], [1..n], [1..n]);
         Add(dims, NrRows(wspan));
         k := k + NrRows(wspan);
     od;
-    return [COB, dims];
+    return [COB, elDivs, dims];
 end);
 
 #TODO: recognise cyclic matrices
@@ -759,14 +761,15 @@ end);
 #along with dimensions of primary subspaces
 InstallGlobalFunction(PrimaryDecomposition, function(A)
     local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
-    COB,pot,gs,f2,dims,toAdd,dim,minpol;
+    COB,pot,gs,f2,dims,toAdd,dim,minpol,collected;
     rank := 0;
     n := NrRows(A);
     F := DefaultFieldOfMatrix(A);
     v := nfmGenerateNonZeroVector(n,A);
     minpol := MinimalPolynomial(F,A);
+    collected := Collected(Factors(minpol));
     if Degree(minpol) = n then
-      return nfmPrimaryDecompositionositionforJNFCyclic(A,minpol,Collected(Factors(minpol)));
+      return nfmPrimaryDecompositionforJNFCyclic(A,minpol,collected);
     fi;
     if IsZero(A) then
       return IdentityMat(n,F);
@@ -838,7 +841,7 @@ InstallGlobalFunction(PrimaryDecomposition, function(A)
       CopySubMatrix(L_i, COB, [1..dim], [k+1..k+dim],[1..n], [1..n]);
       k := k + dim;
     od;
-    return [COB, dims];
+    return [COB, collected, dims];
 end);
 
 #Input: For matrix A with minimal polynomial p^m: m, vector v and p(A)
@@ -999,7 +1002,7 @@ end);
 #Input: Matrix A
 #Returns matrix B such that A^Inverse(B) is in Jordan normal form
 InstallGlobalFunction(JordanNormalForm, function(A)
-    local n,F,pol,minpol,primary,primarydims,crhr,cyclicdims,elDivs,
+    local n,F,pol,minpol,primary,primarydims,crhr,cyclicdims,elDivs,prim1,
     subsubCOB,COB,subA,cy,i,j,facOcc,subCOB,crcy,subsubA,prepreCOB,preCOB;
     F := DefaultFieldOfMatrix(A);
     n := NrRows(A);
@@ -1013,9 +1016,10 @@ InstallGlobalFunction(JordanNormalForm, function(A)
         return JordanNormalFormIrred(A,minpol);
     fi;
     if Degree(minpol) = n then
-        primary := nfmPrimaryDecompositionositionforJNFCyclic(A, minpol, facOcc);
+        prim1 := nfmPrimaryDecompositionforJNFCyclic(A, minpol, facOcc);
+        primary := [prim1[1],prim1[3]];
     else
-        primary := nfmPrimaryDecompositionositionforJNF(A, minpol, facOcc);
+        primary := nfmPrimaryDecompositionforJNF(A, minpol, facOcc);
     fi;
     primarydims := primary[2]; #dimensions of generalized eigenspaces
     COB := primary[1]; #Change of basis matrix, this will be the final COB from A to JNF
