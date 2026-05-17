@@ -735,7 +735,7 @@ end);
 #Primary Decomposition for cyclic matrices
 #Jordan normal form will call this function if a cyclic matrix is detected
 BindGlobal("nfmPrimaryDecompositionforJNFCyclic", function(A, minpol, minpolfacs)
-    local vspan,n,w,mf,wspan,qi,k,COB,dims;
+    local vspan,n,w,mf,wspan,qi,k,COB,dims,elDivs;
     n := NrRows(A);
     vspan := nfmFindCyclicVectorNC(A);
     dims := [];
