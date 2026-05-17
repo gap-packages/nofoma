@@ -358,7 +358,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
 #! >    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
 #! >    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
-#! gap> B := PrimaryDecomp(A);;
+#! gap> B := PrimaryDecomposition(A);;
 #! gap> Display(B[2]);
 #! [ 1, 4 ]
 #! gap> Factors(MinimalPolynomial(A));
@@ -369,7 +369,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
 #! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 #! @EndExampleSession
-DeclareGlobalFunction("PrimaryDecomp");
+DeclareGlobalFunction("PrimaryDecomposition");
 
 #! @Chapter Auxiliary functions
 #! @Section Vectors and matrices and their associated polynomials
