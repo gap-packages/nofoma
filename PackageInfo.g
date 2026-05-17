@@ -11,7 +11,7 @@ SetPackageInfo( rec(
 PackageName := "nofoma",
 Subtitle := "Normal forms of matrices",
 Version := "1.0",
-Date := "01/06/2022", # dd/mm/yyyy format
+Date := "17/05/2026", # dd/mm/yyyy format
 License := "GPL-2.0-or-later",
 
 Persons := [
@@ -119,7 +119,7 @@ AutoDoc := rec(
         ),
 
         Copyright := """
-            &copyright; 2022 by Meinolf Geck.
+            &copyright; 2026 by Meinolf Geck.
             The &nofoma; package is free software; you can redistribute it and/or
             modify it under the terms of the GNU General Public License as published
             by the Free Software Foundation; either version 2 of the License, or (at

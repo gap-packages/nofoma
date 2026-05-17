@@ -258,7 +258,8 @@ DeclareGlobalFunction("JordanNormalFormIrred");
 #!  The algorithm first computes a primary decomposition
 #!  of <A>A</A> following a modified version of Steel's algorithm and then 
 #!  computes a cyclic decomposition of the primary components. Finally it computes 
-#!  Jordan block form for each of the cyclic components. It works for matrices 
+#!  Jordan block form for each of the cyclic components. The blocks are ordered in the 
+#!  same order as in the list containing the elementary divisors. It works for matrices 
 #!  over finite fields. 
 #!
 #!  Since all of the blocks on the resulting transformed matrix are cyclic, one 
