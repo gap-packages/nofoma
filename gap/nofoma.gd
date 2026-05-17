@@ -344,13 +344,14 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! @Section The primary decomposition
 #! @Arguments A
 #! @Description
-#!  Returns a list containing two elements. The first element is
+#!  Returns a list containing three elements. The first element is
 #!  a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
 #!  primary form of <A>A</A>, i.e., a block diagonal matrix where the minimal polynomials
 #!  of the the diagonal blocks are precisely the powers of irreducible factors
-#!  of the minimal polynomial of <A>A</A>. The second element is the size of each 
-#!  block. 
-#!  This function uses a modified version of Steel's algorithm.
+#!  of the minimal polynomial of <A>A</A>, in descending order. The second element is a list containing
+#!  the collected irreducible factors of the minimal polynomial of <A>A</A>, in the same order. The
+#!  last element is a list containing the the size of each block. 
+#!  The exact algorithm used in this function is described in <Cite Key ="Bon26"/>
 #! 
 #! @BeginExampleSession
 #! gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
@@ -358,8 +359,8 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
 #! >    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
 #! >    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
-#! gap> B := PrimaryDecomp(A);;
-#! gap> Display(B[2]);
+#! gap> B := PrimaryDecomposition(A);;
+#! gap> Display(B[3]);
 #! [ 1, 4 ]
 #! gap> Factors(MinimalPolynomial(A));
 #! [ x_1-Z(5)^0, x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3 ]
@@ -369,7 +370,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
 #! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 #! @EndExampleSession
-DeclareGlobalFunction("PrimaryDecomp");
+DeclareGlobalFunction("PrimaryDecomposition");
 
 #! @Chapter Auxiliary functions
 #! @Section Vectors and matrices and their associated polynomials
