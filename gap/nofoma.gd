@@ -92,7 +92,7 @@ DeclareInfoClass("Infonofoma");
 #! In 'RationalCanonicalFormTransform', the companion matrices are consistent with the output of 'CompanionMat'. 
 #! However, given an <M>n\times n</M> cyclic matrix <M>A</M>, along with a corresponding cyclic vector <M>v</M>, 
 #! one can compute a change of basis matrix from A to a companion matrix of its minimal polynomial by computing 
-#! <M>v</M> multiplied with powers of <M>A</M> (i.e., <M>v</M>, <M>vA</M>, ...., <M>vA^(n-1)</M>). This approach
+#! <M>v</M> multiplied with powers of <M>A</M> (i.e., <M>v</M>, <M>vA</M>, ...., <M>vA^{n-1}</M>). This approach
 #! follows GAP’s convention of right multiplication and yields a companion matrix in the form used by <Ref Func="FrobeniusNormalForm"/>.
 #! Furthermore 'RationalCanonicalFormTransform' sorts the invariant factors in ascending order, while <Ref Func="FrobeniusNormalForm"/>
 #! sorts them in descending order. 
@@ -253,10 +253,14 @@ DeclareGlobalFunction("JordanNormalFormIrred");
 
 #! @Arguments A
 #! @Description
-#!  Returns a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
-#!  normal form of <A>A</A> and a list of the elementary divisors of <A>A</A> in descending order.
+#!  Returns a list containing two entries. The first is a base change matrix
+#!  <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
+#!  normal form of <A>A</A>, i.e. a block diagonal matrix where the diagonal blocks
+#!  are Jordan blocks corresponding to the elementary divisors of <A>A</A> in 
+#!  descending order. The second entry is a list of the elementary divisors of <A>A</A>, also
+#!  in descending order.
 #!  The algorithm first computes a primary decomposition
-#!  of <A>A</A> following a modified version of Steel's algorithm and then 
+#!  of <A>A</A> and then 
 #!  computes a cyclic decomposition of the primary components. Finally it computes 
 #!  Jordan block form for each of the cyclic components. The blocks are ordered in the 
 #!  same order as in the list containing the elementary divisors. It works for matrices 
@@ -281,10 +285,35 @@ DeclareGlobalFunction("JordanNormalFormIrred");
 #! . . . . . 1
 #! . . . . 3 4
 #! @EndExampleSession
-DeclareGlobalFunction("JordanNormalForm");
 #! This function computes the Jordan normal form of <M>A</M> 
 #! significantly faster if <M>A</M> is either cyclic or has irreducible 
 #! minimal polynomial. 
+#! @BeginExampleSession
+#! gap> B:= [ [ Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5) ], 
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3 ], 
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5) ] ];;
+#! gap> Factors(MinimalPolynomial(B));
+#! [ x_1^2+x_1+Z(5)^0 ]
+#! gap> Display(B^Inverse(JordanNormalForm(B)[1]));
+#! . 1 . . . . . . . .
+#! 4 4 . . . . . . . .
+#! . . . 1 . . . . . .
+#! . . 4 4 . . . . . .
+#! . . . . . 1 . . . .
+#! . . . . 4 4 . . . .
+#! . . . . . . . 1 . .
+#! . . . . . . 4 4 . .
+#! . . . . . . . . . 1
+#! . . . . . . . . 4 4
+#! @EndExampleSession
+DeclareGlobalFunction("JordanNormalForm");
 
 #! @Chapter Other functionality
 
