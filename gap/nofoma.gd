@@ -375,7 +375,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! @Description
 #!  Returns a list containing three elements. The first element is
 #!  a base change matrix <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is a
-#!  primary form of <A>A</A>, i.e., a block diagonal matrix where the minimal polynomials
+#!  primary form of the matrix <A>A</A>, i.e., a block diagonal matrix where the minimal polynomials
 #!  of the the diagonal blocks are precisely the powers of irreducible factors
 #!  of the minimal polynomial of <A>A</A>, in descending order. The second element is a list containing
 #!  the collected irreducible factors of the minimal polynomial of <A>A</A>, in the same order. The
@@ -399,7 +399,7 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #! gap> MinimalPolynomial(PrimA{[2..5]}{[2..5]});
 #! x_1^4-x_1^3+Z(5)^3*x_1+Z(5)^3
 #! @EndExampleSession
-DeclareGlobalFunction("PrimaryDecomposition");
+DeclareAttribute("PrimaryDecomposition", IsMatrixOrMatrixObj);
 
 #! @Chapter Auxiliary functions
 #! @Section Vectors and matrices and their associated polynomials
