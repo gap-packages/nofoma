@@ -759,7 +759,9 @@ end);
 #Standalone version
 #Returns matrix B such that B*A*B^-1 is in primary decomposition form
 #along with dimensions of primary subspaces
-InstallGlobalFunction(PrimaryDecomposition, function(A)
+InstallMethod(PrimaryDecomposition,
+    [ IsMatrixOrMatrixObj ],
+function(A)
     local rank,F,n,m,f,w,p,j,i,wspan,gens,facs,L_i,qi,k,v,
     COB,pot,gs,f2,dims,toAdd,dim,minpol,collected;
     rank := 0;
