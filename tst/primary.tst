@@ -1,18 +1,18 @@
-gap> START_TEST("PrimaryDecompositionMatosition");
+gap> START_TEST("PrimaryDecompositionosition");
 gap> ReadPackage("nofoma", "tst/utils.g");
 true
 
 ##Test Primary decomposition
-gap> nfmCheckPrimaryDecompositionMat(GF(5),50);
+gap> nfmCheckPrimaryDecomposition(GF(5),50);
 true
-gap> nfmCheckPrimaryDecompositionMat(GF(25),25);
+gap> nfmCheckPrimaryDecomposition(GF(25),25);
 true
-gap> nfmCheckPrimaryDecompositionMat(GF(7),150);
+gap> nfmCheckPrimaryDecomposition(GF(7),150);
 true
-gap> nfmCheckPrimaryDecompositionMatNonCyclic(GF(5),50);
+gap> nfmCheckPrimaryDecompositionNonCyclic(GF(5),50);
 true
-gap> nfmCheckPrimaryDecompositionMatNonCyclic(GF(5^5),10);
+gap> nfmCheckPrimaryDecompositionNonCyclic(GF(5^5),10);
 true
 
 ## Stop test
-gap> STOP_TEST("PrimaryDecompositionMatosition");
+gap> STOP_TEST("PrimaryDecompositionosition");
