@@ -57,10 +57,10 @@ end;
 #TODO: now that primdecomp has sorted blocks this can be tested more efficiently
 #check primary decomp function with field F and dimension n
 #checks if the submatrices have the correct minimal polynomials
-nfmCheckPrimaryDecomposition := function(F, n)
+nfmCheckPrimaryDecompositionMat := function(F, n)
   local A,Prim,B,dim,k,minpolfacs,sub;
   A := Matrix(F,RandomInvertibleMat(n,F));
-  Prim := PrimaryDecomposition(A);
+  Prim := PrimaryDecompositionMat(A);
   B := A^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(F,A));
   k := 1;
@@ -74,10 +74,10 @@ nfmCheckPrimaryDecomposition := function(F, n)
   return true;
 end;
 
-nfmCheckPrimaryDecompositionNonCyclic := function(F, n)
+nfmCheckPrimaryDecompositionMatNonCyclic := function(F, n)
   local A,Prim,B,dim,k,minpolfacs,sub;
   A := Matrix(F,nfmGenerateNonCyclicMatrix(F,n));
-  Prim := PrimaryDecomposition(A);
+  Prim := PrimaryDecompositionMat(A);
   B := A^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(F,A));
   k := 1;
@@ -108,9 +108,9 @@ nfmCheckInvariantFactorsForMatrix := function(A)
   return InvariantFactorsMat(A) = FrobeniusNormalForm(A)[1];
 end;
 
-nfmCheckPrimaryDecompositionForMatrix := function(A)
+nfmCheckPrimaryDecompositionMatForMatrix := function(A)
   local Prim,B,dim,k,minpolfacs,sub,AA;
-  Prim := PrimaryDecomposition(A);
+  Prim := PrimaryDecompositionMat(A);
   AA := Matrix(A, Prim[1]);
   B := AA^Inverse(Prim[1]);
   minpolfacs := Factors(MinimalPolynomial(AA));

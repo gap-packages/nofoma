@@ -58,19 +58,19 @@ gap> CheckJordanChev(bigm, JordanChevalleyDecMat(bigm, MinimalPolynomial(bigm)))
 [ Z(5)^0, x_1 ]
 
 ## Primary decomposition should work for all these matrix families
-gap> nfmCheckPrimaryDecompositionForMatrix(rat);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(rat);
 true
-gap> nfmCheckPrimaryDecompositionForMatrix(ratm);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(ratm);
 true
-gap> nfmCheckPrimaryDecompositionForMatrix(smallplain);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(smallplain);
 true
-gap> nfmCheckPrimaryDecompositionForMatrix(gf2);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(gf2);
 true
-gap> nfmCheckPrimaryDecompositionForMatrix(gf9);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(gf9);
 true
-gap> nfmCheckPrimaryDecompositionForMatrix(bigplain);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(bigplain);
 true
-gap> nfmCheckPrimaryDecompositionForMatrix(bigm);
+gap> nfmCheckPrimaryDecompositionMatForMatrix(bigm);
 true
 
 ## Jordan normal form should preserve the input matrix family
