@@ -15,7 +15,7 @@
 # with this program; if not, see <https://www.gnu.org/licenses/>.
 
 BindGlobal("nfmPolCoeffs", function(coeffs)
-  return UnivariatePolynomialByCoefficients(FamilyObj(coeffs[1]),coeffs,1);
+  return UnivariatePolynomialByCoefficients(FamilyObj(coeffs[1]),List(coeffs),1);
 end);
 
 # Computes divisor a_1 of the polynomial a and a divisor
