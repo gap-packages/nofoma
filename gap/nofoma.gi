@@ -376,13 +376,20 @@ InstallGlobalFunction(FrobeniusNormalForm,function(A)
 end);
 
 InstallGlobalFunction(FrobeniusNormalFormLikeRCFT, function(mat)
-  local frob, blocks, n, Perm, Trans, ind, d, i, l;
+  local frob, blocks, n, Perm, Trans, ind, d, i, l, newblocks, ends, sizes;
   frob := FrobeniusNormalForm(TransposedMat(mat));
   blocks := frob[3];
   n := NrRows(mat);
   if Length(blocks) = 1 then
-    return frob;
+    return [frob[1], TransposedMat(frob[2]), frob[3]];
   fi;
+  #reverse indices
+  ends     := Concatenation(List([2..Length(blocks)], i -> blocks[i]-1), [n]);
+  sizes    := Reversed(ends - blocks + 1);
+  newblocks := [1];
+  for i in [1..Length(sizes)-1] do
+    Add(newblocks, newblocks[i] + sizes[i]);
+  od;
   Perm := ZeroMatrix(n, n, mat);
   for i in [1..Length(blocks)-1] do
     ind := blocks[i];
@@ -392,7 +399,7 @@ InstallGlobalFunction(FrobeniusNormalFormLikeRCFT, function(mat)
   od;
   l := n - d;
   CopySubMatrix(IdentityMatrix(l, mat), Perm, [1..l], [Last(blocks)..n], [1..l], [1..n-Last(blocks)+1]);
-  return [Reversed(frob[1]), TransposedMat(TransposedMat(Perm)*frob[2]), Reversed(frob[3])];
+  return [Reversed(frob[1]), TransposedMat(TransposedMat(Perm)*frob[2]), newblocks];
 end);
 
 # Replace RationalCanonicalFormTransform

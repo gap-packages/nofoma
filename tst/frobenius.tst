@@ -44,9 +44,9 @@ true
 # Test RationalCanonicalFormTransform
 gap> CheckRCFT(bev);
 true 
-gap> CheckRCFT(steel)
+gap> CheckRCFT(steel);
 true
-gap> CheckRCFT(low)
+gap> CheckRCFT(low);
 true 
 
 #

@@ -38,11 +38,11 @@ end;
 
 CheckRCFT := function(A)
 local F,i,nf;
-nf:=FrobeniusNormalForm(A)[2];
+  nf:=A^(FrobeniusNormalFormLikeRCFT(A)[2]);
   F := RationalCanonicalFormTransform(A);
-  A := Matrix(A, P);
-  nf := Matrix(nf, P);
-  if F*A*F^(-1)<>nf then
+  A := Matrix(A, F);
+  nf := Matrix(nf, F);
+  if (A^F)<>nf then
     Error("base change not ok!");
   fi;
   return true;
