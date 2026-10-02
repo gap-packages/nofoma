@@ -395,6 +395,7 @@ InstallGlobalFunction(FrobeniusNormalFormLikeRCFT, function(mat)
   return [Reversed(frob[1]), TransposedMat(TransposedMat(Perm)*frob[2]), Reversed(frob[3])];
 end);
 
+# Replace RationalCanonicalFormTransform
 MakeReadWriteGlobal( "RationalCanonicalFormTransform" );
 UnbindGlobal("RationalCanonicalFormTransform");
 BindGlobal("RationalCanonicalFormTransform", function(mat)
