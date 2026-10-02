@@ -16,13 +16,13 @@
 
 #! @Chapter The nofoma package
 #! @ChapterLabel The nofoma package
-#! Let <M>K</M> be a field and <M>A</M> be an <M>n\times n</M>-matrix over 
-#! <M>K</M>. This package provides functions for computing both the Frobenius normal form 
-#! and the Jordan normal form of <M>A</M>. 
+#! Let <M>K</M> be a field and <M>A</M> be an <M>n\times n</M>-matrix over
+#! <M>K</M>. This package provides functions for computing both the Frobenius normal form
+#! and the Jordan normal form of <M>A</M>.
 #! Furthermore, it also includes a functions for
-#! the computation of a primary decomposition and the Jordan-Chevalley decomposition of 
-#! <M>A</M>. 
-#! 
+#! the computation of a primary decomposition and the Jordan-Chevalley decomposition of
+#! <M>A</M>.
+#!
 #! @Section Installation of the &nofoma; package
 #!
 #! To install this package first unpack it inside some &GAP; root directory
@@ -36,28 +36,28 @@ DeclareInfoClass("Infonofoma");
 
 #! @Chapter Normal forms of matrices
 #! @Section The Frobenius normal form
-#! Given a field <M>K</M> and an <M>n\times n</M>-matrix <M>A</M> 
+#! Given a field <M>K</M> and an <M>n\times n</M>-matrix <M>A</M>
 #! over <M>K</M>, the <E>Frobenius normal form</E> of <M>A</M> is a block diagonal
-#! matrix, where the diagonal blocks are companion matrices 
+#! matrix, where the diagonal blocks are companion matrices
 #! corresponding to the invariant factors of <M>A</M>. It reflects the minimal
-#! decomposition of the vector space <M>K^n</M> into cyclic subspaces 
+#! decomposition of the vector space <M>K^n</M> into cyclic subspaces
 #! under the action of <M>A</M>.
 #! The Frobenius normal form is also called the rational canonical form.
 
 #! @Arguments A
 #! @Description
 #!  Returns the invariant factors of a matrix <A>A</A>
-#!  and an invertible matrix <M>P</M> such that <M>PAP^{-1}</M> is the 
-#!  Frobenius normal form of <A>A</A>. The algorithm first computes a maximal 
+#!  and an invertible matrix <M>P</M> such that <M>PAP^{-1}</M> is the
+#!  Frobenius normal form of <A>A</A>. The algorithm first computes a maximal
 #!  vector and an <A>A</A>-invariant complement following Jacob's construction
-#!  (as described in matrix language in <Cite Key ="Gec20"/>); then the 
-#!  algorithm continues recursively. It works for matrices over any field 
+#!  (as described in matrix language in <Cite Key ="Gec20"/>); then the
+#!  algorithm continues recursively. It works for matrices over any field
 #!  that is available in &GAP;. The output is a triple with
-#!  * 1st component  = list of invariant factors; 
-#!  * 2nd component = base change matrix <M>P</M>; and 
-#!  * 3rd component = indices where the various blocks in the normal form 
+#!  * 1st component  = list of invariant factors;
+#!  * 2nd component = base change matrix <M>P</M>; and
+#!  * 3rd component = indices where the various blocks in the normal form
 #!       begin.
-#! 
+#!
 #! @BeginExampleSession
 #! gap> A:=[ [  2,  2,  0,  1,  0,  2,  1 ],
 #! >         [  0,  4,  0,  0,  0,  1,  0 ],
@@ -67,7 +67,7 @@ DeclareInfoClass("Infonofoma");
 #! >         [  0, -2,  0,  0,  0,  1,  0 ],
 #! >         [  0, -1,  0,  0,  0, -1,  1 ] ];;
 #! gap> f:=FrobeniusNormalForm(A);
-#! [ [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ], 
+#! [ [ x_1^4-7*x_1^3+17*x_1^2-17*x_1+6, x_1^2-3*x_1+2, x_1-1 ],
 #!   [ [    1,   -2,    1,    1,    0,    0,    1 ],
 #!     [    2,   -7,    1,    2,    0,   -1,    3 ],
 #!     [    4,  -26,    1,    4,    0,   -8,    6 ],
@@ -75,9 +75,9 @@ DeclareInfoClass("Infonofoma");
 #!     [ -1/2,   -2,    0,  1/2,    0,   -2, -3/2 ],
 #!     [   -1,   -4,    0,    0,    0,   -4,   -2 ],
 #!     [    0,  9/4,    0,   -3,    1,  5/4,  1/4 ] ],
-#!   [ 1, 5, 7 ]  ]                 
+#!   [ 1, 5, 7 ]  ]
 #! gap> PrintArray(f[2]*A*f[2]^-1);
-#! [ [   0,   1,   0,   0,   0,   0,   0 ], 
+#! [ [   0,   1,   0,   0,   0,   0,   0 ],
 #!   [   0,   0,   1,   0,   0,   0,   0 ],
 #!   [   0,   0,   0,   1,   0,   0,   0 ],
 #!   [  -6,  17, -17,   7,   0,   0,   0 ],
@@ -86,21 +86,21 @@ DeclareInfoClass("Infonofoma");
 #!   [   0,   0,   0,   0,   0,   0,   1 ] ]
 #! @EndExampleSession
 #! Note that the Frobenius normal form is unique up to the choice of the companion matrices
-#! and the permutation of the blocks corresponding to the invariant factors. 
+#! and the permutation of the blocks corresponding to the invariant factors.
 #! So while this function is significantly more efficient than the existing 'RationalCanonicalFormTransform',
-#! the two functions yield slightly different results. 
-#! In 'RationalCanonicalFormTransform', the companion matrices are consistent with the output of 'CompanionMat'. 
-#! However, given an <M>n\times n</M> cyclic matrix <M>A</M>, along with a corresponding cyclic vector <M>v</M>, 
-#! one can compute a change of basis matrix from A to a companion matrix of its minimal polynomial by computing 
+#! the two functions yield slightly different results.
+#! In 'RationalCanonicalFormTransform', the companion matrices are consistent with the output of 'CompanionMat'.
+#! However, given an <M>n\times n</M> cyclic matrix <M>A</M>, along with a corresponding cyclic vector <M>v</M>,
+#! one can compute a change of basis matrix from A to a companion matrix of its minimal polynomial by computing
 #! <M>v</M> multiplied with powers of <M>A</M> (i.e., <M>v</M>, <M>vA</M>, ...., <M>vA^{n-1}</M>). This approach
 #! follows GAP’s convention of right multiplication and yields a companion matrix in the form used by <Ref Func="FrobeniusNormalForm"/>.
 #! Furthermore 'RationalCanonicalFormTransform' sorts the invariant factors in ascending order, while <Ref Func="FrobeniusNormalForm"/>
-#! sorts them in descending order. 
+#! sorts them in descending order.
 #! @BeginExampleSession
-#! gap> A := [ [ 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^0, Z(5)^3 ], 
-#! >   [ Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^2 ], 
-#! >   [ Z(5), Z(5), 0*Z(5), Z(5)^0, Z(5)^3 ], 
-#! >   [ 0*Z(5), Z(5), Z(5)^2, Z(5)^2, Z(5) ], 
+#! gap> A := [ [ 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^0, Z(5)^3 ],
+#! >   [ Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^2 ],
+#! >   [ Z(5), Z(5), 0*Z(5), Z(5)^0, Z(5)^3 ],
+#! >   [ 0*Z(5), Z(5), Z(5)^2, Z(5)^2, Z(5) ],
 #! >   [ Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^3, Z(5)^0 ] ];;
 #! gap> T:=RationalCanonicalFormTransform(A);;
 #! gap> S:=TransposedMat(FrobeniusNormalForm(TransposedMat(A))[2]);;
@@ -117,11 +117,11 @@ DeclareInfoClass("Infonofoma");
 #!  . . 1 . 4
 #!  . . . 1 .
 #! @EndExampleSession
-#! 
+#!
 #! Additionally, <C>RationalCanonicalFormTransform</C> sorts
-#! the invariant factors in ascending order, whereas the 
-#! <Ref Func="FrobeniusNormalForm"/> sorts them in 
-#! descending order. Consequently, the outputs of the two functions 
+#! the invariant factors in ascending order, whereas the
+#! <Ref Func="FrobeniusNormalForm"/> sorts them in
+#! descending order. Consequently, the outputs of the two functions
 #! agree up to a permutation of blocks and transposition.
 #! To get a drop in replacement for 'RationalCanonicalFormTransform', see <Ref Func="FrobeniusNormalFormLikeRCFT"/>.
 #! @BeginExampleSession
@@ -164,34 +164,34 @@ DeclareGlobalFunction("FrobeniusNormalForm");
 
 #! @Arguments A
 #! @Description
-#! This function returns the same result as <Ref Func="FrobeniusNormalForm"/>, except that the invariant factors 
-#! are sorted in descending order and the companion matrices on the diagonal are transposed. Furthermore, if <M>P</M> is the 
+#! This function returns the same result as <Ref Func="FrobeniusNormalForm"/>, except that the invariant factors
+#! are sorted in descending order and the companion matrices on the diagonal are transposed. Furthermore, if <M>P</M> is the
 #! computed base change matrix, the Frobenius normal form is obtained by <M>P^{-1}AP</M> (instead of <M>PAP^{-1}</M>).
-#! This means that <M>P</M> can be used as a direct drop-in replacement for RationalCanonicalFormTransform. 
+#! This means that <M>P</M> can be used as a direct drop-in replacement for RationalCanonicalFormTransform.
 #!
-#! Note that this function works by calling <Ref Func="FrobeniusNormalForm"/> and then modifying the computed 
+#! Note that this function works by calling <Ref Func="FrobeniusNormalForm"/> and then modifying the computed
 #! transformation matrix and is thus potentially less efficient than using
-#! the original function. 
+#! the original function.
 #! @BeginExampleSession
-#! gap> A := [ [ 0*Z(5), Z(5)^2, Z(5)^2, 0*Z(5), Z(5)^3, Z(5)^3, 0*Z(5), Z(5)^3, 
-#! >       0*Z(5), Z(5) ], 
-#! >   [ Z(5)^0, Z(5)^0, Z(5)^0, Z(5), Z(5)^3, Z(5), Z(5)^3, 0*Z(5), Z(5), 
-#! >       0*Z(5) ], 
-#! >   [ Z(5), 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^0, 
-#! >       Z(5), Z(5)^2 ], 
-#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 
-#! >       0*Z(5), 0*Z(5) ], 
-#! >   [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^0, Z(5)^3, 0*Z(5), Z(5)^0, 
-#! >       Z(5)^2, Z(5)^2 ], 
-#! >   [ 0*Z(5), Z(5), Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), 
-#! >       0*Z(5), Z(5)^3 ], 
-#! >   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^3, 
-#!>       0*Z(5), Z(5)^3 ], 
-#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 
-#! >       0*Z(5), 0*Z(5) ], 
-#! >   [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^0, 
-#! >       0*Z(5), 0*Z(5) ], 
-#! >   [ 0*Z(5), Z(5)^2, Z(5)^3, Z(5), Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^2, 
+#! gap> A := [ [ 0*Z(5), Z(5)^2, Z(5)^2, 0*Z(5), Z(5)^3, Z(5)^3, 0*Z(5), Z(5)^3,
+#! >       0*Z(5), Z(5) ],
+#! >   [ Z(5)^0, Z(5)^0, Z(5)^0, Z(5), Z(5)^3, Z(5), Z(5)^3, 0*Z(5), Z(5),
+#! >       0*Z(5) ],
+#! >   [ Z(5), 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^0,
+#! >       Z(5), Z(5)^2 ],
+#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2,
+#! >       0*Z(5), 0*Z(5) ],
+#! >   [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^0, Z(5)^3, 0*Z(5), Z(5)^0,
+#! >       Z(5)^2, Z(5)^2 ],
+#! >   [ 0*Z(5), Z(5), Z(5)^3, Z(5)^0, 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5),
+#! >       0*Z(5), Z(5)^3 ],
+#! >   [ Z(5)^3, Z(5)^3, Z(5), 0*Z(5), Z(5)^2, Z(5)^0, 0*Z(5), Z(5)^3,
+#!>       0*Z(5), Z(5)^3 ],
+#! >   [ 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^2,
+#! >       0*Z(5), 0*Z(5) ],
+#! >   [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3, Z(5)^0,
+#! >       0*Z(5), 0*Z(5) ],
+#! >   [ 0*Z(5), Z(5)^2, Z(5)^3, Z(5), Z(5)^3, Z(5)^3, Z(5)^0, Z(5)^2,
 #! >       Z(5)^2, Z(5)^2 ] ];;
 #! gap> frob := FrobeniusNormalFormLikeRCFT(A)[2];;
 #! gap> rat := RationalCanonicalFormTransform(A);;
@@ -242,39 +242,39 @@ DeclareGlobalFunction("InvariantFactorsMat");
 
 #! @Section The Jordan normal form
 
-#! The Jordan normal form of a matrix <M>A</M> is a block diagonal matrix, 
-#! where the diagonal blocks are Jordan blocks corresponding to the 
-#! elementary divisors of <M>A</M>. It reflects the maximal decomposition of 
+#! The Jordan normal form of a matrix <M>A</M> is a block diagonal matrix,
+#! where the diagonal blocks are Jordan blocks corresponding to the
+#! elementary divisors of <M>A</M>. It reflects the maximal decomposition of
 #! the vector space <M>K^n</M> into cyclic subspaces under the action of
 #! <M>A</M>. For a more thorough definition of the Jordan normal form
-#! and details about the algorithms used, see <Cite Key ="Bon26"/>. 
+#! and details about the algorithms used, see <Cite Key ="Bon26"/>.
 
 DeclareGlobalFunction("JordanNormalFormIrred");
 
 #! @Arguments A
 #! @Description
 #!  Returns a list containing two entries. The first is a base change matrix
-#!  <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan 
+#!  <M>B</M> such that <M>B</M><A>A</A><M>B^{-1}</M> is the Jordan
 #!  normal form of <A>A</A>, i.e. a block diagonal matrix where the diagonal blocks
-#!  are Jordan blocks corresponding to the elementary divisors of <A>A</A> in 
+#!  are Jordan blocks corresponding to the elementary divisors of <A>A</A> in
 #!  descending order. The second entry is a list of the elementary divisors of <A>A</A>, also
 #!  in descending order.
 #!  The algorithm first computes a primary decomposition
-#!  of <A>A</A> and then 
-#!  computes a cyclic decomposition of the primary components. Finally it computes 
-#!  Jordan block form for each of the cyclic components. The blocks are ordered in the 
-#!  same order as in the list containing the elementary divisors. It works for matrices 
-#!  over finite fields. 
+#!  of <A>A</A> and then
+#!  computes a cyclic decomposition of the primary components. Finally it computes
+#!  Jordan block form for each of the cyclic components. The blocks are ordered in the
+#!  same order as in the list containing the elementary divisors. It works for matrices
+#!  over finite fields.
 #!
-#!  Since all of the blocks on the resulting transformed matrix are cyclic, one 
-#!  can retrieve their size by the degrees of the respective elementary divisor. 
-#! 
+#!  Since all of the blocks on the resulting transformed matrix are cyclic, one
+#!  can retrieve their size by the degrees of the respective elementary divisor.
+#!
 #! @BeginExampleSession
-#! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ], 
-#! >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ], 
-#! >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ], 
-#! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ], 
-#! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ], 
+#! gap> A := [ [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5)^3, Z(5)^3, Z(5)^0 ],
+#! >    [ 0*Z(5), Z(5)^2, Z(5)^2, Z(5)^0, Z(5)^3, Z(5)^3 ],
+#! >    [ Z(5)^0, Z(5)^0, Z(5)^3, Z(5)^2, Z(5)^0, Z(5) ],
+#! >    [ 0*Z(5), Z(5)^3, Z(5), Z(5), 0*Z(5), Z(5)^2 ],
+#! >    [ Z(5)^2, Z(5)^0, Z(5)^0, 0*Z(5), Z(5), Z(5) ],
 #! >    [ 0*Z(5), Z(5)^0, Z(5)^2, Z(5), Z(5), Z(5) ] ];;
 #! gap> B := JordanNormalForm(A);;
 #! gap> Display(A^Inverse(B[1]));
@@ -285,19 +285,19 @@ DeclareGlobalFunction("JordanNormalFormIrred");
 #! . . . . . 1
 #! . . . . 3 4
 #! @EndExampleSession
-#! This function computes the Jordan normal form of <M>A</M> 
-#! significantly faster if <M>A</M> is either cyclic or has irreducible 
-#! minimal polynomial. 
+#! This function computes the Jordan normal form of <M>A</M>
+#! significantly faster if <M>A</M> is either cyclic or has irreducible
+#! minimal polynomial.
 #! @BeginExampleSession
-#! gap> B:= [ [ Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5) ], 
-#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3 ], 
+#! gap> B:= [ [ Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3, 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5), 0*Z(5), 0*Z(5) ],
+#! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5), Z(5)^3 ],
 #! > [ 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), 0*Z(5), Z(5)^0, Z(5) ] ];;
 #! gap> Factors(MinimalPolynomial(B));
 #! [ x_1^2+x_1+Z(5)^0 ]
@@ -315,6 +315,22 @@ DeclareGlobalFunction("JordanNormalFormIrred");
 #! @EndExampleSession
 DeclareGlobalFunction("JordanNormalForm");
 
+#! @Section Replacement of a library function
+
+#! This package replaces the &GAP; library function
+#! <C>RationalCanonicalFormTransform</C> with its own implementation as soon as
+#! the package is loaded. After <C>LoadPackage("nofoma");</C>, every call to
+#! <C>RationalCanonicalFormTransform</C>, including calls made from the &GAP;
+#! library or from other packages, uses the method provided by
+#! <Package>nofoma</Package>.
+#! <P/>
+#! The replacement accepts the same arguments as the library function and
+#! returns the transformation matrix in the same convention. However, it is significantly
+#! more efficient.
+#! <P/>
+#! The replacement is global and stays in effect for the rest of the &GAP;
+#! session.
+
 #! @Chapter Other functionality
 
 #! @Section Matrix decompositions
@@ -322,15 +338,15 @@ DeclareGlobalFunction("JordanNormalForm");
 #! @Section The Jordan-Chevalley decomposition
 #! @Arguments A,f
 #! @Description
-#!  Returns the unique pair of matrices <M>D</M>, 
-#!  <M>N</M> such that the matrix <A>A</A> is written as <M>A=D+N</M>, where 
-#!  <M>N</M> is a nilpotent matrix and <M>D</M> is a matrix that is 
-#!  diagonalisable (over some extension field of the default field of 
-#!  <A>A</A>), such that <M>D.N=N.D</M>; the argument <A>f</A> is a 
-#!  polynomial such that <M>f(A)=0</M> (e.g., the minimal polynomial of 
-#!  <A>A</A>). This is called the Jordan-Chevalley decomposition of <A>A</A>; 
-#!  the algorithm is based on <Cite Key ="Gec22"/>. Note that this 
-#!  algorithm does not require the knowledge of the eigenvalues of <A>A</A>; 
+#!  Returns the unique pair of matrices <M>D</M>,
+#!  <M>N</M> such that the matrix <A>A</A> is written as <M>A=D+N</M>, where
+#!  <M>N</M> is a nilpotent matrix and <M>D</M> is a matrix that is
+#!  diagonalisable (over some extension field of the default field of
+#!  <A>A</A>), such that <M>D.N=N.D</M>; the argument <A>f</A> is a
+#!  polynomial such that <M>f(A)=0</M> (e.g., the minimal polynomial of
+#!  <A>A</A>). This is called the Jordan-Chevalley decomposition of <A>A</A>;
+#!  the algorithm is based on <Cite Key ="Gec22"/>. Note that this
+#!  algorithm does not require the knowledge of the eigenvalues of <A>A</A>;
 #!  it works over any perfect field that is available in &GAP;.
 #!
 #! @BeginExampleSession
@@ -340,27 +356,27 @@ DeclareGlobalFunction("JordanNormalForm");
 #! >         [ -1,  0, -2,  2, -1 ],
 #! >         [ -4,  4, -6, -2,  3 ] ];;
 #! gap> jc:=JordanChevalleyDecMat(A,MinimalPolynomial(A));
-#! [ [ [  4,  0,  4, -1,  1 ], 
-#!     [  1,  0,  1,  1, -1 ], 
-#!     [ -1, -1,  0,  1, -1 ], 
-#!     [  0,  0, -2,  3,  0 ], 
-#!     [ -3,  2, -4, -1,  2 ] ], 
-#!   [ [  2, -2,  2,  2,  0 ], 
-#!     [  0, -1,  1,  0, -1 ], 
-#!     [ -1,  1, -1, -1,  0 ], 
-#!     [ -1,  0,  0, -1, -1 ], 
+#! [ [ [  4,  0,  4, -1,  1 ],
+#!     [  1,  0,  1,  1, -1 ],
+#!     [ -1, -1,  0,  1, -1 ],
+#!     [  0,  0, -2,  3,  0 ],
+#!     [ -3,  2, -4, -1,  2 ] ],
+#!   [ [  2, -2,  2,  2,  0 ],
+#!     [  0, -1,  1,  0, -1 ],
+#!     [ -1,  1, -1, -1,  0 ],
+#!     [ -1,  0,  0, -1, -1 ],
 #!     [ -1,  2, -2, -1,  1 ] ] ]
 #! gap> MinimalPolynomial(jc[1]);
 #! x_1^3-5*x_1^2+9*x_1-5
 #! gap> Factors(last);
-#! [ x_1-1, x_1^2-4*x_1+5 ]  
+#! [ x_1-1, x_1^2-4*x_1+5 ]
 #! gap> MinimalPolynomial(jc[2]);
-#! x_1^2                     
+#! x_1^2
 #! @EndExampleSession
 #!  If the input matrix is very large, then <Ref Func="JordanChevalleyDecMatF"/>
-#!  may be more efficient; this function first computes the Frobenius normal 
-#!  form of <A>A</A> and then applies <C>JordanChevalleyDecMat</C> to each diagonal 
-#!  block. (The result will be the same as that of 
+#!  may be more efficient; this function first computes the Frobenius normal
+#!  form of <A>A</A> and then applies <C>JordanChevalleyDecMat</C> to each diagonal
+#!  block. (The result will be the same as that of
 #!  'JordanChevalleyDecMat(<A>A</A>);)'
 DeclareGlobalFunction("JordanChevalleyDecMat");
 
@@ -379,12 +395,12 @@ DeclareGlobalFunction("JordanChevalleyDecMatF");
 #!  of the the diagonal blocks are precisely the powers of irreducible factors
 #!  of the minimal polynomial of <A>A</A>, in descending order. The second element is a list containing
 #!  the collected irreducible factors of the minimal polynomial of <A>A</A>, in the same order. The
-#!  last element is a list containing the the size of each block. 
+#!  last element is a list containing the the size of each block.
 #!  The exact algorithm used in this function is described in <Cite Key ="Bon26"/>
-#! 
+#!
 #! @BeginExampleSession
-#! gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ], 
-#! >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],  
+#! gap> A := [ [ Z(5)^2, 0*Z(5), Z(5)^2, Z(5)^3, Z(5) ],
+#! >    [ 0*Z(5), 0*Z(5), Z(5)^3, Z(5), Z(5)^0 ],
 #! >    [ Z(5), Z(5)^0, 0*Z(5), Z(5)^0, 0*Z(5) ],
 #! >    [ Z(5)^0, Z(5)^0, Z(5)^0, 0*Z(5), Z(5)^3 ],
 #! >    [ Z(5), 0*Z(5), Z(5)^3, 0*Z(5), Z(5)^3 ] ];;
@@ -421,7 +437,7 @@ DeclareAttribute("PrimaryDecomposition", IsMatrixOrMatrixObj);
 #! gap> b:=x^2*(x-1)^2*(x-2)^4*(x-4);
 #! x_1^9-14*x_1^8+81*x_1^7-252*x_1^6+456*x_1^5-480*x_1^4+272*x_1^3-64*x_1^2
 #! gap> GcdCoprimeSplit(a,b);
-#! [ x_1^5-4*x_1^4+5*x_1^3-2*x_1^2, x_1^4-6*x_1^3+12*x_1^2-10*x_1+3, 
+#! [ x_1^5-4*x_1^4+5*x_1^3-2*x_1^2, x_1^4-6*x_1^3+12*x_1^2-10*x_1+3,
 #!   x_1^7-12*x_1^6+56*x_1^5-128*x_1^4+144*x_1^3-64*x_1^2 ]
 #! @EndExampleSession
 DeclareGlobalFunction("GcdCoprimeSplit");

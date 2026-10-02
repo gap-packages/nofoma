@@ -36,6 +36,18 @@ CheckFrobForm := function(A,F)
   return true;
 end;
 
+CheckRCFT := function(A)
+local F,i,nf;
+  nf:=A^(FrobeniusNormalFormLikeRCFT(A)[2]);
+  F := RationalCanonicalFormTransform(A);
+  A := Matrix(A, F);
+  nf := Matrix(nf, F);
+  if (A^F)<>nf then
+    Error("base change not ok!");
+  fi;
+  return true;
+end;
+
 CheckJordanChev := function(mat,jc)
   local m;
   m:=MinimalPolynomial(jc[1]);

@@ -376,13 +376,20 @@ InstallGlobalFunction(FrobeniusNormalForm,function(A)
 end);
 
 InstallGlobalFunction(FrobeniusNormalFormLikeRCFT, function(mat)
-  local frob, blocks, n, Perm, Trans, ind, d, i, l;
+  local frob, blocks, n, Perm, Trans, ind, d, i, l, newblocks, ends, sizes;
   frob := FrobeniusNormalForm(TransposedMat(mat));
   blocks := frob[3];
   n := NrRows(mat);
   if Length(blocks) = 1 then
-    return frob;
+    return [frob[1], TransposedMat(frob[2]), frob[3]];
   fi;
+  #reverse indices
+  ends     := Concatenation(List([2..Length(blocks)], i -> blocks[i]-1), [n]);
+  sizes    := Reversed(ends - blocks + 1);
+  newblocks := [1];
+  for i in [1..Length(sizes)-1] do
+    Add(newblocks, newblocks[i] + sizes[i]);
+  od;
   Perm := ZeroMatrix(n, n, mat);
   for i in [1..Length(blocks)-1] do
     ind := blocks[i];
@@ -392,7 +399,15 @@ InstallGlobalFunction(FrobeniusNormalFormLikeRCFT, function(mat)
   od;
   l := n - d;
   CopySubMatrix(IdentityMatrix(l, mat), Perm, [1..l], [Last(blocks)..n], [1..l], [1..n-Last(blocks)+1]);
-  return [Reversed(frob[1]), TransposedMat(TransposedMat(Perm)*frob[2]), Reversed(frob[3])];
+  return [Reversed(frob[1]), TransposedMat(TransposedMat(Perm)*frob[2]), newblocks];
+end);
+
+# Replace RationalCanonicalFormTransform
+MakeReadWriteGlobal( "RationalCanonicalFormTransform" );
+UnbindGlobal("RationalCanonicalFormTransform");
+BindGlobal("RationalCanonicalFormTransform", function(mat)
+  local none;
+    return FrobeniusNormalFormLikeRCFT(mat)[2];
 end);
 
 # Returns the invariant factors of mat (i.e. the minimal polynomials of the
@@ -988,8 +1003,8 @@ InstallGlobalFunction(JordanNormalFormIrred, function(A,minpol)
     COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
     cobrank := blockdim;
-    elDivs := [minpol];  
-    while not cobrank = n do 
+    elDivs := [minpol];
+    while not cobrank = n do
         w := nfmFindVectorNotInSubspaceNC(
             EcheloniseMat(COB{[1..cobrank]}{[1..n]})
         );
@@ -1047,7 +1062,7 @@ InstallGlobalFunction(JordanNormalForm, function(A)
         cy := CyclicDecompositionOfPrimarySubspace(subA, pol, facOcc[i][2]); #decompose primary spaces into cyclic ones
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled
-        subCOB := Matrix(F,subCOB); 
+        subCOB := Matrix(F,subCOB);
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
         crcy := 1; #current row (cyclic subspace)
         prepreCOB := ZeroMatrix(F,primarydims[i], primarydims[i]);
