@@ -41,6 +41,14 @@ true
 gap> CheckFrobForm(Z(29)*nfmmat1(steel), FrobeniusNormalForm(Z(29)*nfmmat1(steel)));
 true
 
+# Test RationalCanonicalFormTransform
+gap> CheckRCFT(bev);
+true 
+gap> CheckRCFT(steel)
+true
+gap> CheckRCFT(low)
+true 
+
 #
 gap> bigfield := RandomInvertibleMat(10,GF(5^5));; #check non-list matrices
 gap> bigfield := Matrix(GF(5^5), bigfield);;
