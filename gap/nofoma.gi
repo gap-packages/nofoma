@@ -988,8 +988,8 @@ InstallGlobalFunction(JordanNormalFormIrred, function(A,minpol)
     COB := ZeroMutable(A);
     CopySubMatrix(spun, COB, [1..blockdim],[1..blockdim],[1..n],[1..n]);
     cobrank := blockdim;
-    elDivs := [minpol];  
-    while not cobrank = n do 
+    elDivs := [minpol];
+    while not cobrank = n do
         w := nfmFindVectorNotInSubspaceNC(
             EcheloniseMat(COB{[1..cobrank]}{[1..n]})
         );
@@ -1047,7 +1047,7 @@ InstallGlobalFunction(JordanNormalForm, function(A)
         cy := CyclicDecompositionOfPrimarySubspace(subA, pol, facOcc[i][2]); #decompose primary spaces into cyclic ones
         cyclicdims := cy[2]; #dimensions of cyclic subspaces
         subCOB := cy[1]; #subCOB to be assembled
-        subCOB := Matrix(F,subCOB); 
+        subCOB := Matrix(F,subCOB);
         subA := subCOB*subA*Inverse(subCOB); #subA in cyclic decomposition form
         crcy := 1; #current row (cyclic subspace)
         prepreCOB := ZeroMatrix(F,primarydims[i], primarydims[i]);
