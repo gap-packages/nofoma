@@ -315,6 +315,22 @@ DeclareGlobalFunction("JordanNormalFormIrred");
 #! @EndExampleSession
 DeclareGlobalFunction("JordanNormalForm");
 
+#! @Section Replacement of a library function
+
+#! This package replaces the &GAP; library function
+#! <C>RationalCanonicalFormTransform</C> with its own implementation as soon as
+#! the package is loaded. After <C>LoadPackage("nofoma");</C>, every call to
+#! <C>RationalCanonicalFormTransform</C>, including calls made from the &GAP;
+#! library or from other packages, uses the method provided by
+#! <Package>nofoma</Package>.
+#! <P/>
+#! The replacement accepts the same arguments as the library function and
+#! returns the transformation matrix in the same convention. However, it is significantly
+#! more efficient.
+#! <P/>
+#! The replacement is global and stays in effect for the rest of the &GAP;
+#! session.
+
 #! @Chapter Other functionality
 
 #! @Section Matrix decompositions
